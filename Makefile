@@ -2,7 +2,7 @@ ROOT_PROJECT_NAME := "hcc"
 PROJECT_NAME := "clarinet"
 PKG_LIST := $(shell go list ${ROOT_PROJECT_NAME}/${PROJECT_NAME}/...)
 
-.PHONY: all build docker clean gofmt goreport goreport_deb test coverage coverhtml lint
+.PHONY: all build kill clean gofmt goreport goreport_deb test coverage coverhtml lint
 
 all: build
 
@@ -46,6 +46,9 @@ goreport: goreport_dep ## Make goreport
 	@git --git-dir=$(PWD)/hcloud-badge/.git checkout feature/dev
 	@git --git-dir=$(PWD)/hcloud-badge/.git pull origin feature/dev
 	@./hcloud-badge/hcloud_badge.sh ${PROJECT_NAME}
+
+kill:
+	@./kill_clarinet.sh
 
 build: ## Build the binary file
 	@$(GOROOT)/bin/go build -o ${PROJECT_NAME} main.go

@@ -48,6 +48,7 @@ build:
   stage: build
   script:
     - gmake
+    - gmake kill
     - sudo cp $PWD/clarinet /bin/clarinet
     - sudo chmod 755 /bin/clarinet
     - echo "Finished"
