@@ -21,10 +21,10 @@ var row int
 var page int
 
 var serverList = &cobra.Command{
-	Use:   "list [row and page options]",
+	Use:   "list",
 	Short: "Get list of servers with row and page options.",
 	Long: `Get list of servers with row and page options.`,
-	Args: cobra.MaximumNArgs(2),
+	Args: cobra.MaximumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]interface{})
 		if row != 0 || page != 0 {
