@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/spf13/cobra"
+	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/model"
 	"os"
@@ -65,9 +66,31 @@ var serverList = &cobra.Command{
 	},
 }
 
+var uuid string
+
+var serverDelete = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete one of server by UUID.",
+	Long: `Delete one of server by UUID.`,
+	Args: cobra.MaximumNArgs(0),
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]interface{})
+		queryArgs["uuid"] = uuid
+		_, err := mutationParser.DeleteServer(queryArgs)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		fmt.Println("Delete command ended successfully.")
+	},
+}
+
 func ReadyServerCmd() {
 	serverList.Flags().IntVar(&row, "row", 0, "rows of server list")
 	serverList.Flags().IntVar(&page, "page", 0, "page of server list")
 
-	ServerCmd.AddCommand(serverList)
+	serverDelete.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
+
+	ServerCmd.AddCommand(serverList, serverDelete)
 }
