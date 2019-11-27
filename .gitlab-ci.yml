@@ -48,10 +48,8 @@ build:
   stage: build
   script:
     - gmake
-    - sudo /usr/sbin/service clarinet stop
     - sudo cp $PWD/clarinet /bin/clarinet
     - sudo chmod 755 /bin/clarinet
-    - sudo /usr/sbin/service clarinet start
     - echo "Finished"
 #  only:
 #  - master
