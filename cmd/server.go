@@ -87,6 +87,9 @@ var serverList = &cobra.Command{
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"No", "UUID", "Server Name", "Cores", "Memory", "Disk", "Nodes", "Status"})
 		for i, server := range servers.([]model.Server) {
+			if server.Status == "Deleted" {
+				continue
+			}
 			serverUUIDArg := make(map[string]interface{})
 			serverUUIDArg["server_uuid"] = server.UUID
 			numNodesServer, err := queryParser.NumNodesServer(serverUUIDArg)
@@ -94,7 +97,7 @@ var serverList = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
-			t.AppendRow([]interface{}{i + 1, server.UUID, server.ServerName, server.CPU, server.Memory, server.DiskSize,
+			t.AppendRow([]interface{}{i + 1, server.UUID, server.ServerName, 16, 16/*server.CPU, server.Memory*/, server.DiskSize,
 				numNodesServer.(model.ServerNodeNum).Number, server.Status})
 		}
 		t.AppendFooter(table.Row{"Total Server Num", serverNum.(model.ServerNum).Number, "", "", "", "", "", ""})
