@@ -135,6 +135,31 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 
 					return createNodeDetailData.Data.NodeDetail, nil
 
+				case "DeleteNodeDetailData":
+					deleteNodeDetailData := data.(clarinetData.DeleteNodeDetailData)
+					err = json.Unmarshal([]byte(result), &deleteNodeDetailData)
+					if err != nil {
+						return nil, err
+					}
+
+					return deleteNodeDetailData.Data.NodeDetail, nil
+				case "ServerData":
+					serverData := data.(clarinetData.ServerData)
+					err = json.Unmarshal([]byte(result), &serverData)
+					if err != nil {
+						return nil, err
+					}
+
+					return serverData.Data.Server, nil
+				case "ListServerData":
+					listServerData := data.(clarinetData.ListServerData)
+					err = json.Unmarshal([]byte(result), &listServerData)
+					if err != nil {
+						return nil, err
+					}
+
+					return listServerData.Data.ListServer, nil
+
 				default:
 					return nil, errors.New("unknown data type")
 				}
