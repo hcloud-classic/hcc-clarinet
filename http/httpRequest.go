@@ -110,6 +110,31 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 					}
 					return numNodeData.Data.NumNode, nil
 
+				case "UpdateNodeData":
+					updateNodeData := data.(clarinetData.UpdateNodeData)
+					err = json.Unmarshal([]byte(result), &updateNodeData)
+					if err != nil {
+						return nil, err
+					}
+
+					return updateNodeData.Data.Node, nil
+				case "DeleteNodeData":
+					deleteNodeData := data.(clarinetData.DeleteNodeData)
+					err = json.Unmarshal([]byte(result), &deleteNodeData)
+					if err != nil {
+						return nil, err
+					}
+
+					return deleteNodeData.Data.Node, nil
+				case "CreateNodeDetailData":
+					createNodeDetailData := data.(clarinetData.CreateNodeDetailData)
+					err = json.Unmarshal([]byte(result), &createNodeDetailData)
+					if err != nil {
+						return nil, err
+					}
+
+					return createNodeDetailData.Data.NodeDetail, nil
+
 				default:
 					return nil, errors.New("unknown data type")
 				}
