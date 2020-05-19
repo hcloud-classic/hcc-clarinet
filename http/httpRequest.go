@@ -160,6 +160,29 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 
 					return listServerData.Data.ListServer, nil
 
+				case "AllServerData":
+					allServerData := data.(clarinetData.AllServerData)
+					err = json.Unmarshal([]byte(result), &allServerData)
+					if err != nil {
+						return nil, err
+					}
+
+					return allServerData.Data.AllServer, nil
+				case "NumServerData":
+					numServerData := data.(clarinetData.NumServerData)
+					err = json.Unmarshal([]byte(result), &numServerData)
+					if err != nil {
+						return nil, err
+					}
+
+					return numServerData.Data.NumServer, nil
+				case "CreateServerData":
+					createServerData := data.(clarinetData.CreateServerData)
+					err = json.Unmarshal([]byte(result), &createServerData)
+					if err != nil {
+						return nil, err
+					}
+
 				default:
 					return nil, errors.New("unknown data type")
 				}
