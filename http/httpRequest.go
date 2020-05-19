@@ -86,7 +86,28 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 					if err != nil {
 						return nil, err
 					}
+				case "NodeDetailData":
+					nodeDetailData := data.(clarinetData.NodeDetailData)
+					err = json.Unmarshal([]byte(result), &nodeDetailData)
+					if err != nil {
+						return nil, err
+					}
 
+					return nodeDetailData.Data.NodeDetail, nil
+				case "OnNodeData":
+					onNodeData := data.(clarinetData.OnNodeData)
+					err = json.Unmarshal([]byte(result), &onNodeData)
+					if err != nil {
+						return nil, err
+					}
+
+					return onNodeData.Data.Result, nil
+				case "CreateNodeData":
+					createNodeData := data.(clarinetData.CreateNodeData)
+					err = json.Unmarshal([]byte(result), &createNodeData)
+					if err != nil {
+						return nil, err
+					}
 					return numNodeData.Data.NumNode, nil
 
 				default:
