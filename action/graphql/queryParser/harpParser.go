@@ -76,3 +76,29 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 
 	return http.DoHTTPRequest("harp", true, "ListServerData", listServerData, query)
 }
+
+func AllSubnet(args map[string]interface{}) (interface{}, error) {
+	row, rowOk := args["row"].(int)
+	page, pageOk := args["page"].(int)
+	var query string
+
+	if !rowOk && !pageOk {
+		query = "query { all_subnet { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
+	} else if rowOk && pageOk {
+		query = "query { all_subnet(row:" + strconv.Itoa(row) + ", page:" + strconv.Itoa(page) +
+			") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
+	} else {
+		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
+	}
+
+	var allServerData data.AllServerData
+
+	return http.DoHTTPRequest("harp", true, "AllServerData", allServerData, query)
+}
+
+func NumSubnet() (interface{}, error) {
+	var numSubnetData data.NumSubnetData
+	query := "query { num_subnet { number } }"
+
+	return http.DoHTTPRequest("harp", true, "NumSubnetData", numSubnetData, query)
+}
