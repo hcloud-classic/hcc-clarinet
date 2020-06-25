@@ -122,7 +122,7 @@ func DeleteServer(args map[string]interface{}) (interface{}, error) {
 	}
 
 	var deleteServerData data.DeleteServerData
-	query := "mutation _ { delete_server(uuid:\"" + requestedUUID + "\") { uuid } }"
+	query := "mutation _ { delete_server(uuid:\"" + requestedUUID + "\", status:\"Deleted\") { uuid } }"
 
 	return http.DoHTTPRequest("violin", true, "DeleteServerData", deleteServerData, query)
 }
