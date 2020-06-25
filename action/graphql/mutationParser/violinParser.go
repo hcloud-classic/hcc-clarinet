@@ -8,29 +8,29 @@ import (
 )
 
 func checkServerArgsEach(args map[string]interface{}) bool {
-	_, subnetUUIDOk := args["subnet_uuid"].(string)
-	_, osOk := args["os"].(string)
-	_, serverNameOk := args["server_name"].(string)
-	_, serverDescOk := args["server_desc"].(string)
-	_, cpuOk := args["cpu"].(int)
-	_, memoryOk := args["memory"].(int)
-	_, diskSizeOk := args["disk_size"].(int)
-	_, statusOk := args["status"].(string)
-	_, userUUIDOk := args["user_uuid"].(string)
+	subnetUUIDOk := args["subnet_uuid"].(string) != ""
+	osOk := args["os"].(string) != ""
+	serverNameOk := args["server_name"].(string) != ""
+	serverDescOk := args["server_desc"].(string) != ""
+	cpuOk := args["cpu"].(int) != 0
+	memoryOk := args["memory"].(int) != 0
+	diskSizeOk := args["disk_size"].(int) != 0
+	statusOk := args["status"].(string) != ""
+	userUUIDOk := args["user_uuid"].(string) != ""
 
 	return subnetUUIDOk || osOk || serverNameOk || serverDescOk || cpuOk || memoryOk || diskSizeOk || statusOk || userUUIDOk
 }
 
 func checkServerArgsAll(args map[string]interface{}) bool {
-	_, subnetUUIDOk := args["subnet_uuid"].(string)
-	_, osOk := args["os"].(string)
-	_, serverNameOk := args["server_name"].(string)
-	_, serverDescOk := args["server_desc"].(string)
-	_, cpuOk := args["cpu"].(int)
-	_, memoryOk := args["memory"].(int)
-	_, diskSizeOk := args["disk_size"].(int)
-	_, userUUIDOk := args["user_uuid"].(string)
-	_, nrNodeOk := args["nr_node"].(int)
+	subnetUUIDOk := args["subnet_uuid"].(string) != ""
+	osOk := args["os"].(string) != ""
+	serverNameOk := args["server_name"].(string) != ""
+	serverDescOk := args["server_desc"].(string) != ""
+	cpuOk := args["cpu"].(int) != 0
+	memoryOk := args["memory"].(int) != 0
+	diskSizeOk := args["disk_size"].(int) != 0
+	userUUIDOk := args["user_uuid"].(string) != ""
+	nrNodeOk := args["nr_node"].(int) != 0
 
 	return subnetUUIDOk && osOk && serverNameOk && serverDescOk && cpuOk && memoryOk && diskSizeOk && userUUIDOk && nrNodeOk
 }

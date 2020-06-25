@@ -7,31 +7,31 @@ import (
 )
 
 func checkSubnetArgsEach(args map[string]interface{}) bool {
-	_, networkIPOk := args["network_ip"].(string)
-	_, netmaskOk := args["netmask"].(string)
-	_, gatewayOk := args["gateway"].(string)
-	_, nextServerOk := args["next_server"].(string)
-	_, nameServerOk := args["name_server"].(string)
-	_, domainNameOk := args["domain_name"].(string)
-	_, serverUUIDOk := args["server_uuid"].(string)
-	_, leaderNodeUUIDOk := args["leader_node_uuid"].(string)
-	_, osOk := args["os"].(string)
-	_, subnetNameOk := args["subnet_name"].(string)
+	networkIPOk := args["network_ip"].(string) != ""
+	netmaskOk := args["netmask"].(string) != ""
+	gatewayOk := args["gateway"].(string) != ""
+	nextServerOk := args["next_server"].(string) != ""
+	nameServerOk := args["name_server"].(string) != ""
+	domainNameOk := args["domain_name"].(string) != ""
+	serverUUIDOk := args["server_uuid"].(string) != ""
+	leaderNodeUUIDOk := args["leader_node_uuid"].(string) != ""
+	osOk := args["os"].(string) != ""
+	subnetNameOk := args["subnet_name"].(string) != ""
 
 	return networkIPOk || netmaskOk || gatewayOk || nextServerOk || nameServerOk || domainNameOk || serverUUIDOk || leaderNodeUUIDOk || osOk || subnetNameOk
 }
 
 func checkSubnetArgsAll(args map[string]interface{}) bool {
-	_, networkIPOk := args["network_ip"].(string)
-	_, netmaskOk := args["netmask"].(string)
-	_, gatewayOk := args["gateway"].(string)
-	_, nextServerOk := args["next_server"].(string)
-	_, nameServerOk := args["name_server"].(string)
-	_, domainNameOk := args["domain_name"].(string)
-	_, serverUUIDOk := args["server_uuid"].(string)
-	_, leaderNodeUUIDOk := args["leader_node_uuid"].(string)
-	_, osOk := args["os"].(string)
-	_, subnetNameOk := args["subnet_name"].(string)
+	networkIPOk := args["network_ip"].(string) != ""
+	netmaskOk := args["netmask"].(string) != ""
+	gatewayOk := args["gateway"].(string) != ""
+	nextServerOk := args["next_server"].(string) != ""
+	nameServerOk := args["name_server"].(string) != ""
+	domainNameOk := args["domain_name"].(string) != ""
+	serverUUIDOk := args["server_uuid"].(string) != ""
+	leaderNodeUUIDOk := args["leader_node_uuid"].(string) != ""
+	osOk := args["os"].(string) != ""
+	subnetNameOk := args["subnet_name"].(string) != ""
 
 	return networkIPOk && netmaskOk && gatewayOk && nextServerOk && nameServerOk && domainNameOk && serverUUIDOk && leaderNodeUUIDOk && osOk && subnetNameOk
 }
