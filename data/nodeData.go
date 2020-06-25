@@ -41,10 +41,32 @@ type NodeDetailData struct {
 
 // Mutation
 
+type PowerState int
+
+const (
+	On PowerState = 1 + iota
+	Off
+	Restart
+)
+
 // OnNodeData : Data structure of on_node
 type OnNodeData struct {
 	Data struct {
 		Result string `json:"on_node"`
+	} `json:"data"`
+}
+
+// OffNodeData : Data structure of off_node
+type OffNodeData struct {
+	Data struct {
+		Result string `json:"off_node"`
+	} `json:"data"`
+}
+
+// RestartNodeData : Data structure of restart_node
+type RestartNodeData struct {
+	Data struct {
+		Result string `json:"force_restart_node"`
 	} `json:"data"`
 }
 

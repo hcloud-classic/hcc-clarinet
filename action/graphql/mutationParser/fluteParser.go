@@ -43,16 +43,32 @@ func checkNodeDetailArgsAll(args map[string]interface{}) bool {
 	return nodeUUIDOk && cpuModelOk && cpuProcessorsOk && cpuThreadsOk
 }
 
-func OnNode(args map[string]interface{}) (interface{}, error) {
-	mac, macOk := args["mac"].(string)
-	if !macOk {
-		return nil, errors.New("need a mac argument")
+// Power on Node
+func OnOffNode(args map[string]interface{}, state data.PowerState) (interface{}, error) {
+	UUID, _ := args["uuid"].(string)
+	if UUID == "" {
+		return nil, errors.New("need UUID of node")
 	}
 
-	var onNodeData data.OnNodeData
-	query := "mutation _ { on_node(mac:\"" + mac + "\") }"
+	query := "mutation _ { "
 
-	return http.DoHTTPRequest("flute", true, "OnNodeData", onNodeData, query)
+	switch state {
+	case data.On:
+		nodeData := data.OnNodeData{}
+		query += "on_node(uuid:\"" + UUID + "\") }"
+		return http.DoHTTPRequest("flute", true, "OnNodeData", nodeData, query)
+	case data.Off:
+		nodeData := data.OffNodeData{}
+		query += "off_node(uuid:\"" + UUID + "\", force_off: false ) }"
+		return http.DoHTTPRequest("flute", true, "OffNodeData", nodeData, query)
+	case data.Restart:
+		nodeData := data.RestartNodeData{}
+		query += "force_restart_node(uuid:\"" + UUID + "\") }"
+		return http.DoHTTPRequest("flute", true, "RestartNodeData", nodeData, query)
+
+	}
+
+	return nil, errors.New("Undefined state")
 }
 
 func CreateNode(args map[string]interface{}) (interface{}, error) {
