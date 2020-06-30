@@ -111,3 +111,34 @@ func ServerNode(args map[string]interface{}) (interface{}, error) {
 
 	return http.DoHTTPRequest("violin", true, "ServerNodeData", serverNodeData, query)
 }
+
+func ListServerNode(args map[string]interface{}) (interface{}, error) {
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	if !serverUUIDOk {
+		return nil, errors.New("need a server_uuid argument")
+	}
+
+	var listServerNodeData data.ListServerNodeData
+	query := "query { list_server_node(server_uuid: \"" + serverUUID + "\") { uuid server_uuid node_uuid created_at } }"
+
+	return http.DoHTTPRequest("violin", true, "ListServerNodeData", listServerNodeData, query)
+}
+
+func AllServerNode() (interface{}, error) {
+	var allServerNodeData data.AllServerNodeData
+	query := "query { all_server_node { uuid server_uuid node_uuid created_at } }"
+
+	return http.DoHTTPRequest("violin", true, "AllServerNodeData", allServerNodeData, query)
+}
+
+func NumNodesServer(args map[string]interface{}) (interface{}, error) {
+	serverUUID, serverUUIDOk := args["server_uuid"].(string)
+	if !serverUUIDOk {
+		return nil, errors.New("need a server_uuid argument")
+	}
+
+	var numNodesServer data.NumNodesServerData
+	query := "query { num_nodes_server(server_uuid: \"" + serverUUID + "\") { number } }"
+
+	return http.DoHTTPRequest("violin", true, "NumNodesServerData", numNodesServer, query)
+}
