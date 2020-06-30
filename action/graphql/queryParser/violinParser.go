@@ -72,3 +72,42 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 
 	return http.DoHTTPRequest("violin", true, "ListServerData", listServerData, query)
 }
+
+func AllServer(args map[string]interface{}) (interface{}, error) {
+	row, rowOk := args["row"].(int)
+	page, pageOk := args["page"].(int)
+	var query string
+
+	if !rowOk && !pageOk {
+		query = "query { all_server { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
+	} else if rowOk && pageOk {
+		query = "query { all_server(row:" + strconv.Itoa(row) + ", page:" + strconv.Itoa(page) +
+			") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
+	} else {
+		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
+	}
+
+	var allServerData data.AllServerData
+
+	return http.DoHTTPRequest("violin", true, "AllServerData", allServerData, query)
+}
+
+func NumServer() (interface{}, error) {
+	var numServerData data.NumServerData
+	query := "query { num_server { number } }"
+
+	return http.DoHTTPRequest("violin", true, "NumServerData", numServerData, query)
+}
+
+func ServerNode(args map[string]interface{}) (interface{}, error) {
+	uuid, uuidOk := args["uuid"].(string)
+
+	if !uuidOk {
+		return nil, errors.New("need a uuid argument")
+	}
+
+	var serverNodeData data.ServerNodeData
+	query := "query { server_node(uuid: \"" + uuid + "\") { uuid server_uuid node_uuid created_at } }"
+
+	return http.DoHTTPRequest("violin", true, "ServerNodeData", serverNodeData, query)
+}
