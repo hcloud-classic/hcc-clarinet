@@ -13,8 +13,8 @@ import (
 var ServerCmd = &cobra.Command{
 	Use:   "server [server options...]",
 	Short: "Running server commands",
-	Long: `server: Running server related commands.`,
-	Args: cobra.MinimumNArgs(1),
+	Long:  `server: Running server related commands.`,
+	Args:  cobra.MinimumNArgs(1),
 }
 
 var subnetUUID string
@@ -30,8 +30,8 @@ var nrNode int
 var serverCreate = &cobra.Command{
 	Use:   "create",
 	Short: "Create server.",
-	Long: `Create server.`,
-	Args: cobra.MinimumNArgs(0),
+	Long:  `Create server.`,
+	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]interface{})
 		queryArgs["subnet_uuid"] = subnetUUID
@@ -59,34 +59,43 @@ var page int
 var serverList = &cobra.Command{
 	Use:   "list",
 	Short: "Get list of servers with row and page options.",
-	Long: `Get list of servers with row and page options.`,
-	Args: cobra.MinimumNArgs(0),
+	Long:  `Get list of servers with row and page options.`,
+	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]interface{})
-		if row != 0 || page != 0 {
-			if row <= 0 || page <= 0 {
-				fmt.Println("Please provide row and page options correctly.")
-				return
-			}
+		var servers interface{}
+		var err error
+
+		if row != 0 && page != 0 {
 			queryArgs["row"] = row
 			queryArgs["page"] = page
-		}
-		servers, err := queryParser.AllServer(queryArgs)
-		if err != nil {
-			fmt.Println(err)
-			return
+			servers, err = queryParser.ListServer(queryArgs)
+		} else {
+			servers, err = queryParser.AllServer(queryArgs)
 		}
 
-		serverNum, err := queryParser.NumServer()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
 		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"No", "UUID", "Server Name", "Cores", "Memory", "Disk", "Nodes", "Status"})
-		for i, server := range servers.([]model.Server) {
+
+		var index int
+		for index, server := range servers.([]model.Server) {
 			serverUUIDArg := make(map[string]interface{})
 			serverUUIDArg["server_uuid"] = server.UUID
 			numNodesServer, err := queryParser.NumNodesServer(serverUUIDArg)
@@ -94,10 +103,11 @@ var serverList = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
-			t.AppendRow([]interface{}{i + 1, server.UUID, server.ServerName, server.CPU, server.Memory, server.DiskSize,
+			t.AppendRow([]interface{}{index + 1, server.UUID, server.ServerName, server.CPU, server.Memory, server.DiskSize,
 				numNodesServer.(model.ServerNodeNum).Number, server.Status})
 		}
-		t.AppendFooter(table.Row{"Total Server Num", serverNum.(model.ServerNum).Number, "", "", "", "", "", ""})
+
+		t.AppendFooter(table.Row{"Total", index})
 		t.Render()
 	},
 }
@@ -107,8 +117,8 @@ var uuid string
 var serverDelete = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete one of server by UUID.",
-	Long: `Delete one of server by UUID.`,
-	Args: cobra.MinimumNArgs(0),
+	Long:  `Delete one of server by UUID.`,
+	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]interface{})
 		queryArgs["uuid"] = uuid

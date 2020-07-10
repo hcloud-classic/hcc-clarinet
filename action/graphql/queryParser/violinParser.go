@@ -74,19 +74,7 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 }
 
 func AllServer(args map[string]interface{}) (interface{}, error) {
-	row, rowOk := args["row"].(int)
-	page, pageOk := args["page"].(int)
-	var query string
-
-	if !rowOk && !pageOk {
-		query = "query { all_server { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
-	} else if rowOk && pageOk {
-		query = "query { all_server(row:" + strconv.Itoa(row) + ", page:" + strconv.Itoa(page) +
-			") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
-	} else {
-		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
-	}
-
+	var query = "query { all_server { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
 	var allServerData data.AllServerData
 
 	return http.DoHTTPRequest("violin", true, "AllServerData", allServerData, query)
