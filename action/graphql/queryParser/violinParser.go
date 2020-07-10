@@ -21,15 +21,15 @@ func Server(args map[string]interface{}) (interface{}, error) {
 }
 
 func ListServer(args map[string]interface{}) (interface{}, error) {
-	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
-	os, osOk := args["os"].(string)
-	serverName, serverNameOk := args["server_name"].(string)
-	serverDesc, serverDescOk := args["server_desc"].(string)
-	cpu, cpuOk := args["cpu"].(int)
-	memory, memoryOk := args["memory"].(int)
-	diskSize, diskSizeOk := args["disk_size"].(int)
-	status, statusOk := args["status"].(string)
-	userUUID, userUUIDOk := args["user_uuid"].(string)
+	subnetUUID, _ := args["subnet_uuid"].(string)
+	os, _ := args["os"].(string)
+	serverName, _ := args["server_name"].(string)
+	serverDesc, _ := args["server_desc"].(string)
+	cpu, _ := args["cpu"].(int)
+	memory, _ := args["memory"].(int)
+	diskSize, _ := args["disk_size"].(int)
+	status, _ := args["status"].(string)
+	userUUID, _ := args["user_uuid"].(string)
 
 	row, rowOk := args["row"].(int)
 	page, pageOk := args["page"].(int)
@@ -38,31 +38,31 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 	}
 
 	arguments := "row:" + strconv.Itoa(row) + ",page:" + strconv.Itoa(page) + ","
-	if subnetUUIDOk {
+	if subnetUUID != "" {
 		arguments += "subnet_uuid:\"" + subnetUUID + "\","
 	}
-	if osOk {
+	if os != "" {
 		arguments += "os:\"" + os + "\","
 	}
-	if serverNameOk {
+	if serverName != "" {
 		arguments += "server_name:\"" + serverName + "\","
 	}
-	if serverDescOk {
+	if serverDesc != "" {
 		arguments += "server_desc:\"" + serverDesc + "\","
 	}
-	if cpuOk {
+	if cpu != 0 {
 		arguments += "cpu:" + strconv.Itoa(cpu) + ","
 	}
-	if memoryOk {
+	if memory != 0 {
 		arguments += "memory:" + strconv.Itoa(memory) + "\","
 	}
-	if diskSizeOk {
+	if diskSize != 0 {
 		arguments += "disk_size:" + strconv.Itoa(diskSize) + "\","
 	}
-	if statusOk {
+	if status != "" {
 		arguments += "status:\"" + status + "\","
 	}
-	if userUUIDOk {
+	if userUUID != "" {
 		arguments += "user_uuid:\"" + userUUID + "\","
 	}
 	arguments = arguments[0 : len(arguments)-1]
