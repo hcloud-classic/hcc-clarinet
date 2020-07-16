@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/table"
+	"github.com/jedib0t/go-pretty/text"
 	"github.com/spf13/cobra"
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
@@ -24,14 +25,19 @@ var serverDesc string
 var cpu int
 var memory int
 var diskSize int
+var status string
 var userUUID string
 var nrNode int
+var row int
+var page int
+var uuid string
 
 var serverCreate = &cobra.Command{
 	Use:   "create",
 	Short: "Create server.",
-	Long:  `Create server.`,
-	Args:  cobra.MinimumNArgs(0),
+	Long:  `Create server with given information. memroy & disk size assign to GB.`,
+	Example: `	clarinet server create --subnet_uuid "string" --os "string" --server_name "string" -- server_desc "description string" --cpu 4 --memory 2 --disk_size 10 --user_uuid "string" --nr_node 3`,
+	Args: cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]interface{})
 		queryArgs["subnet_uuid"] = subnetUUID
@@ -49,30 +55,46 @@ var serverCreate = &cobra.Command{
 			return
 		}
 
-		fmt.Println("Creating server for UUID: " + server.(model.Server).UUID)
+		fmt.Println("Create server SUCCESS\nUUID\t" + server.(model.Server).UUID)
 	},
 }
 
-var row int
-var page int
-
 var serverList = &cobra.Command{
 	Use:   "list",
-	Short: "Get list of servers with row and page options.",
-	Long:  `Get list of servers with row and page options.`,
-	Args:  cobra.MinimumNArgs(0),
+	Short: "Get list of servers.",
+	Long:  `Get list of servers with filters.`,
+	Example: `	clarinet server list				get all server list.
+	clarinet server list --row 1 --page 5		get paged all server list
+							row & page cannot use alone.
+	clarinet server list [--filter] [--row & --page]
+							get filtered server list.
+`,
+	Args: cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]interface{})
 		var servers interface{}
 		var err error
 
+		if (row != 0 && page == 0) || (row == 0 && page != 0) {
+			fmt.Println("List Server need [BOTH | NEITHER] of page and row.")
+			return
+		}
 		if row != 0 && page != 0 {
 			queryArgs["row"] = row
 			queryArgs["page"] = page
-			servers, err = queryParser.ListServer(queryArgs)
-		} else {
-			servers, err = queryParser.AllServer(queryArgs)
 		}
+
+		queryArgs["subnet_uuid"] = subnetUUID
+		queryArgs["os"] = _os
+		queryArgs["server_name"] = serverName
+		queryArgs["server_desc"] = serverDesc
+		queryArgs["cpu"] = cpu
+		queryArgs["memory"] = memory
+		queryArgs["disk_size"] = diskSize
+		queryArgs["status"] = status
+		queryArgs["user_uuid"] = userUUID
+
+		servers, err = queryParser.ListServer(queryArgs)
 
 		if err != nil {
 			fmt.Println(err)
@@ -83,6 +105,9 @@ var serverList = &cobra.Command{
 		t.SetStyle(table.Style{
 			Name: "clarinetTableStyle",
 			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
 			Options: table.Options{
 				DrawBorder:      true,
 				SeparateColumns: true,
@@ -94,7 +119,6 @@ var serverList = &cobra.Command{
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"No", "UUID", "Server Name", "Cores", "Memory", "Disk", "Nodes", "Status"})
 
-		var index int
 		for index, server := range servers.([]model.Server) {
 			serverUUIDArg := make(map[string]interface{})
 			serverUUIDArg["server_uuid"] = server.UUID
@@ -103,16 +127,15 @@ var serverList = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
-			t.AppendRow([]interface{}{index + 1, server.UUID, server.ServerName, server.CPU, server.Memory, server.DiskSize,
+			t.AppendRow([]interface{}{
+				index + 1, server.UUID, server.ServerName, server.CPU, server.Memory, server.DiskSize,
 				numNodesServer.(model.ServerNodeNum).Number, server.Status})
 		}
 
-		t.AppendFooter(table.Row{"Total", index})
+		t.AppendFooter(table.Row{"Total", len(servers.([]model.Server))})
 		t.Render()
 	},
 }
-
-var uuid string
 
 var serverDelete = &cobra.Command{
 	Use:   "delete",
@@ -145,6 +168,16 @@ func ReadyServerCmd() {
 
 	serverList.Flags().IntVar(&row, "row", 0, "rows of server list")
 	serverList.Flags().IntVar(&page, "page", 0, "page of server list")
+	serverList.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
+	serverList.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "UUID of subnet")
+	serverList.Flags().StringVar(&_os, "os", "", "Type of OS")
+	serverList.Flags().StringVar(&serverName, "server_name", "", "Name of server")
+	serverList.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
+	serverList.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")
+	serverList.Flags().IntVar(&memory, "memory", 0, "Size of memory")
+	serverList.Flags().IntVar(&diskSize, "disk_size", 0, "Size of disk")
+	serverList.Flags().StringVar(&status, "status", "", "Server Status [Running | Stop]")
+	serverList.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
 
 	serverDelete.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
 

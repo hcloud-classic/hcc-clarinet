@@ -21,6 +21,9 @@ func Server(args map[string]interface{}) (interface{}, error) {
 }
 
 func ListServer(args map[string]interface{}) (interface{}, error) {
+
+	var arguments = ""
+
 	subnetUUID, _ := args["subnet_uuid"].(string)
 	os, _ := args["os"].(string)
 	serverName, _ := args["server_name"].(string)
@@ -31,13 +34,12 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 	status, _ := args["status"].(string)
 	userUUID, _ := args["user_uuid"].(string)
 
-	row, rowOk := args["row"].(int)
-	page, pageOk := args["page"].(int)
-	if !rowOk || !pageOk {
-		return nil, errors.New("need row and page arguments")
-	}
+	row, _ := args["row"].(int)
+	page, _ := args["page"].(int)
 
-	arguments := "row:" + strconv.Itoa(row) + ",page:" + strconv.Itoa(page) + ","
+	if row != 0 && page != 0 {
+		arguments += "row:" + strconv.Itoa(row) + ",page:" + strconv.Itoa(page) + ","
+	}
 	if subnetUUID != "" {
 		arguments += "subnet_uuid:\"" + subnetUUID + "\","
 	}
@@ -65,26 +67,13 @@ func ListServer(args map[string]interface{}) (interface{}, error) {
 	if userUUID != "" {
 		arguments += "user_uuid:\"" + userUUID + "\","
 	}
-	arguments = arguments[0 : len(arguments)-1]
+	if len(arguments) > 0 {
+		arguments = arguments[0 : len(arguments)-1]
+	}
 
 	var listServerData data.ListServerData
 	query := "query { list_server(" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
-
 	return http.DoHTTPRequest("violin", true, "ListServerData", listServerData, query)
-}
-
-func AllServer(args map[string]interface{}) (interface{}, error) {
-	var query = "query { all_server { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
-	var allServerData data.AllServerData
-
-	return http.DoHTTPRequest("violin", true, "AllServerData", allServerData, query)
-}
-
-func NumServer() (interface{}, error) {
-	var numServerData data.NumServerData
-	query := "query { num_server { number } }"
-
-	return http.DoHTTPRequest("violin", true, "NumServerData", numServerData, query)
 }
 
 func ServerNode(args map[string]interface{}) (interface{}, error) {
