@@ -137,6 +137,42 @@ var serverList = &cobra.Command{
 	},
 }
 
+var serverUpdate = &cobra.Command{
+	Use:   "update",
+	Short: "Update server information.",
+	Long:  `Update server info by given information.`,
+	Example: `	clarinet server update --uuid "uuidstring" [flags]`,
+
+	Args: cobra.MinimumNArgs(0),
+	Run: func(cmd *cobra.Command, args []string) {
+
+		if uuid == "" {
+			fmt.Println("Empty server uuid")
+			return
+		}
+
+		queryArgs := make(map[string]interface{})
+		queryArgs["uuid"] = uuid
+		queryArgs["subnet_uuid"] = subnetUUID
+		queryArgs["os"] = _os
+		queryArgs["server_name"] = serverName
+		queryArgs["server_desc"] = serverDesc
+		queryArgs["cpu"] = cpu
+		queryArgs["memory"] = memory
+		queryArgs["status"] = status
+		queryArgs["disk_size"] = diskSize
+		queryArgs["user_uuid"] = userUUID
+
+		_, err := mutationParser.UpdateServer(queryArgs)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		fmt.Println("Successfully update server (" + uuid + ") information.")
+	},
+}
+
 var serverDelete = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete one of server by UUID.",
@@ -151,7 +187,7 @@ var serverDelete = &cobra.Command{
 			return
 		}
 
-		fmt.Println("Delete command ended successfully.")
+		fmt.Println("Successfully delete server (" + uuid + ").")
 	},
 }
 
@@ -179,7 +215,18 @@ func ReadyServerCmd() {
 	serverList.Flags().StringVar(&status, "status", "", "Server Status [Running | Stop]")
 	serverList.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
 
+	serverUpdate.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
+	serverUpdate.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "UUID of subnet")
+	serverUpdate.Flags().StringVar(&_os, "os", "", "Type of OS")
+	serverUpdate.Flags().StringVar(&serverName, "server_name", "", "Name of server")
+	serverUpdate.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
+	serverUpdate.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")
+	serverUpdate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
+	serverUpdate.Flags().IntVar(&diskSize, "disk_size", 0, "Size of disk")
+	serverUpdate.Flags().StringVar(&status, "status", "", "Server Status [Running | Stop]")
+	serverUpdate.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
+
 	serverDelete.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
 
-	ServerCmd.AddCommand(serverCreate, serverList, serverDelete)
+	ServerCmd.AddCommand(serverCreate, serverList, serverUpdate, serverDelete)
 }

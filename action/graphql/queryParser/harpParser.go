@@ -91,9 +91,9 @@ func AllSubnet(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
 	}
 
-	var allServerData data.AllServerData
+	var listServerData data.ListServerData
 
-	return http.DoHTTPRequest("harp", true, "AllServerData", allServerData, query)
+	return http.DoHTTPRequest("harp", true, "ListServerData", listServerData, query)
 }
 
 func NumSubnet() (interface{}, error) {

@@ -18,20 +18,6 @@ type ListServerData struct {
 	} `json:"data"`
 }
 
-// AllServerData : Data structure of all_server
-type AllServerData struct {
-	Data struct {
-		AllServer []model.Server `json:"all_server"`
-	} `json:"data"`
-}
-
-// NumServerData : Data structure of num_server
-type NumServerData struct {
-	Data struct {
-		NumServer model.ServerNum `json:"num_server"`
-	} `json:"data"`
-}
-
 // CreateServerData : Data structure of create_server
 type CreateServerData struct {
 	Data struct {
