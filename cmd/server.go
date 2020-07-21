@@ -9,6 +9,7 @@ import (
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/model"
 	"os"
+	"strconv"
 )
 
 var ServerCmd = &cobra.Command{
@@ -22,14 +23,14 @@ var subnetUUID string
 var _os string
 var serverName string
 var serverDesc string
-var cpu string
-var memory string
-var diskSize string
+var cpu int
+var memory int
+var diskSize int
 var status string
 var userUUID string
-var nrNode string
-var row string
-var page string
+var nrNode int
+var row int
+var page int
 var uuid string
 
 var serverCreate = &cobra.Command{
@@ -44,11 +45,11 @@ var serverCreate = &cobra.Command{
 		queryArgs["os"] = _os
 		queryArgs["server_name"] = serverName
 		queryArgs["server_desc"] = serverDesc
-		queryArgs["cpu"] = cpu
-		queryArgs["memory"] = memory
-		queryArgs["disk_size"] = diskSize
+		queryArgs["cpu"] = strconv.Itoa(cpu)
+		queryArgs["memory"] = strconv.Itoa(memory)
+		queryArgs["disk_size"] = strconv.Itoa(diskSize)
 		queryArgs["user_uuid"] = userUUID
-		queryArgs["nr_node"] = nrNode
+		queryArgs["nr_node"] = strconv.Itoa(nrNode)
 
 		server, err := mutationParser.CreateServer(queryArgs)
 		if err != nil {
@@ -76,16 +77,16 @@ var serverList = &cobra.Command{
 		var servers interface{}
 		var err error
 
-		queryArgs["row"] = row
-		queryArgs["page"] = page
+		queryArgs["row"] = strconv.Itoa(row)
+		queryArgs["page"] = strconv.Itoa(page)
 		queryArgs["uuid"] = uuid
 		queryArgs["subnet_uuid"] = subnetUUID
 		queryArgs["os"] = _os
 		queryArgs["server_name"] = serverName
 		queryArgs["server_desc"] = serverDesc
-		queryArgs["cpu"] = cpu
-		queryArgs["memory"] = memory
-		queryArgs["disk_size"] = diskSize
+		queryArgs["cpu"] = strconv.Itoa(cpu)
+		queryArgs["memory"] = strconv.Itoa(memory)
+		queryArgs["disk_size"] = strconv.Itoa(diskSize)
 		queryArgs["status"] = status
 		queryArgs["user_uuid"] = userUUID
 
@@ -143,10 +144,10 @@ var serverUpdate = &cobra.Command{
 		queryArgs["os"] = _os
 		queryArgs["server_name"] = serverName
 		queryArgs["server_desc"] = serverDesc
-		queryArgs["cpu"] = cpu
-		queryArgs["memory"] = memory
+		queryArgs["cpu"] = strconv.Itoa(cpu)
+		queryArgs["memory"] = strconv.Itoa(memory)
 		queryArgs["status"] = status
-		queryArgs["disk_size"] = diskSize
+		queryArgs["disk_size"] = strconv.Itoa(diskSize)
 		queryArgs["user_uuid"] = userUUID
 
 		server, err := mutationParser.UpdateServer(queryArgs)
@@ -182,12 +183,11 @@ func ReadyServerCmd() {
 	serverCreate.Flags().StringVar(&_os, "os", "", "Type of OS")
 	serverCreate.Flags().StringVar(&serverName, "server_name", "", "Name of server")
 	serverCreate.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
-	serverCreate.Flags().StringVar(&cpu, "cpu", "0", "Number of CPU cores")
-	serverCreate.Flags().StringVar(&memory, "memory", "0", "Size of memory")
-	serverCreate.Flags().StringVar(&diskSize, "disk_size", "0", "Size of disk")
+	serverCreate.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")
+	serverCreate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
+	serverCreate.Flags().IntVar(&diskSize, "disk_size", 0, "Size of disk")
 	serverCreate.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
-	serverCreate.Flags().StringVar(&nrNode, "nr_node", "0", "Number of nodes")
-
+	serverCreate.Flags().IntVar(&nrNode, "nr_node", 0, "Number of nodes")
 	serverCreate.MarkFlagRequired("subnet_uuid")
 	serverCreate.MarkFlagRequired("os")
 	serverCreate.MarkFlagRequired("server_name")
@@ -198,16 +198,16 @@ func ReadyServerCmd() {
 	serverCreate.MarkFlagRequired("user_uuid")
 	serverCreate.MarkFlagRequired("nr_node")
 
-	serverList.Flags().StringVar(&row, "row", "0", "rows of server list")
-	serverList.Flags().StringVar(&page, "page", "0", "page of server list")
+	serverList.Flags().IntVar(&row, "row", 0, "rows of server list")
+	serverList.Flags().IntVar(&page, "page", 0, "page of server list")
 	serverList.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
 	serverList.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "UUID of subnet")
 	serverList.Flags().StringVar(&_os, "os", "", "Type of OS")
 	serverList.Flags().StringVar(&serverName, "server_name", "", "Name of server")
 	serverList.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
-	serverList.Flags().StringVar(&cpu, "cpu", "0", "Number of CPU cores")
-	serverList.Flags().StringVar(&memory, "memory", "0", "Size of memory")
-	serverList.Flags().StringVar(&diskSize, "disk_size", "0", "Size of disk")
+	serverList.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")
+	serverList.Flags().IntVar(&memory, "memory", 0, "Size of memory")
+	serverList.Flags().IntVar(&diskSize, "disk_size", 0, "Size of disk")
 	serverList.Flags().StringVar(&status, "status", "", "Server Status [Running | Stop]")
 	serverList.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
 
@@ -216,16 +216,14 @@ func ReadyServerCmd() {
 	serverUpdate.Flags().StringVar(&_os, "os", "", "Type of OS")
 	serverUpdate.Flags().StringVar(&serverName, "server_name", "", "Name of server")
 	serverUpdate.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
-	serverUpdate.Flags().StringVar(&cpu, "cpu", "0", "Number of CPU cores")
-	serverUpdate.Flags().StringVar(&memory, "memory", "0", "Size of memory")
-	serverUpdate.Flags().StringVar(&diskSize, "disk_size", "0", "Size of disk")
+	serverUpdate.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")
+	serverUpdate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
+	serverUpdate.Flags().IntVar(&diskSize, "disk_size", 0, "Size of disk")
 	serverUpdate.Flags().StringVar(&status, "status", "", "Server Status [Running | Stop]")
 	serverUpdate.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
-
 	serverUpdate.MarkFlagRequired("uuid")
 
 	serverDelete.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
-
 	serverDelete.MarkFlagRequired("uuid")
 
 	ServerCmd.AddCommand(serverCreate, serverList, serverUpdate, serverDelete)

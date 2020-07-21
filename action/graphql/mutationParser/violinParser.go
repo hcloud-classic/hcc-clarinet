@@ -10,7 +10,7 @@ import (
 
 func CreateServer(args map[string]string) (interface{}, error) {
 	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
-		return nil, errors.New("check needed arguments at " + ef)
+		return nil, errors.New("Check flag value of " + ef)
 	}
 
 	arguments, err := argumentParser.GetArgumentStr(args)

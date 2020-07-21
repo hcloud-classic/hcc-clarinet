@@ -16,7 +16,7 @@ func CheckArgsMin(args map[string]string, min int) bool {
 }
 
 func CheckArgsAll(args map[string]string, max int) (bool, string) {
-	var emptyField string = "["
+	var emptyField string = ""
 
 	for key, value := range args {
 		if value == "" || value == "0" {
@@ -24,7 +24,6 @@ func CheckArgsAll(args map[string]string, max int) (bool, string) {
 			delete(args, key)
 		}
 	}
-	emptyField += "]"
 
 	return len(args) < max, emptyField
 }
@@ -61,7 +60,7 @@ func GenIntArg(arguments *string, args map[string]int, fn func(int) (bool, error
 		if b, e := checkF(arg); b && e == nil {
 			*arguments += key + ": " + strconv.Itoa(arg) + ", "
 		} else if e != nil {
-			err = errors.New("Wrong flag value at " + key)
+			err = errors.New("Check flag value of " + key)
 			break
 		}
 	}
