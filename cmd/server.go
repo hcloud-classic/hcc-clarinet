@@ -49,6 +49,7 @@ var serverCreate = &cobra.Command{
 		queryArgs["disk_size"] = diskSize
 		queryArgs["user_uuid"] = userUUID
 		queryArgs["nr_node"] = nrNode
+
 		server, err := mutationParser.CreateServer(queryArgs)
 		if err != nil {
 			fmt.Println(err)
@@ -90,6 +91,7 @@ var serverList = &cobra.Command{
 
 		servers, err = queryParser.ListServer(queryArgs)
 
+		fmt.Println(servers)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -116,14 +118,9 @@ var serverList = &cobra.Command{
 		for index, server := range servers.([]model.Server) {
 			serverUUIDArg := make(map[string]string)
 			serverUUIDArg["server_uuid"] = server.UUID
-			numNodesServer, err := queryParser.NumNodesServer(serverUUIDArg)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
 			t.AppendRow([]interface{}{
 				index + 1, server.UUID, server.ServerName, server.CPU, server.Memory, server.DiskSize,
-				numNodesServer.(model.ServerNodeNum).Number, server.Status})
+				server.Status})
 		}
 
 		t.AppendFooter(table.Row{"Total", len(servers.([]model.Server))})
@@ -139,11 +136,6 @@ var serverUpdate = &cobra.Command{
 
 	Args: cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-
-		if uuid == "" {
-			fmt.Println("Empty server uuid")
-			return
-		}
 
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
@@ -175,13 +167,13 @@ var serverDelete = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
-		_, err := mutationParser.DeleteServer(queryArgs)
+		server, err := mutationParser.DeleteServer(queryArgs)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		fmt.Println("Successfully delete server (" + uuid + ").")
+		fmt.Println("Successfully delete server (" + server.(model.Server).UUID + ").")
 	},
 }
 
@@ -195,6 +187,16 @@ func ReadyServerCmd() {
 	serverCreate.Flags().StringVar(&diskSize, "disk_size", "0", "Size of disk")
 	serverCreate.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
 	serverCreate.Flags().StringVar(&nrNode, "nr_node", "0", "Number of nodes")
+
+	serverCreate.MarkFlagRequired("subnet_uuid")
+	serverCreate.MarkFlagRequired("os")
+	serverCreate.MarkFlagRequired("server_name")
+	serverCreate.MarkFlagRequired("server_desc")
+	serverCreate.MarkFlagRequired("cpu")
+	serverCreate.MarkFlagRequired("memory")
+	serverCreate.MarkFlagRequired("disk_size")
+	serverCreate.MarkFlagRequired("user_uuid")
+	serverCreate.MarkFlagRequired("nr_node")
 
 	serverList.Flags().StringVar(&row, "row", "0", "rows of server list")
 	serverList.Flags().StringVar(&page, "page", "0", "page of server list")
@@ -220,7 +222,11 @@ func ReadyServerCmd() {
 	serverUpdate.Flags().StringVar(&status, "status", "", "Server Status [Running | Stop]")
 	serverUpdate.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
 
+	serverUpdate.MarkFlagRequired("uuid")
+
 	serverDelete.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
+
+	serverDelete.MarkFlagRequired("uuid")
 
 	ServerCmd.AddCommand(serverCreate, serverList, serverUpdate, serverDelete)
 }
