@@ -22,14 +22,14 @@ var subnetUUID string
 var _os string
 var serverName string
 var serverDesc string
-var cpu int
-var memory int
-var diskSize int
+var cpu string
+var memory string
+var diskSize string
 var status string
 var userUUID string
-var nrNode int
-var row int
-var page int
+var nrNode string
+var row string
+var page string
 var uuid string
 
 var serverCreate = &cobra.Command{
@@ -39,7 +39,7 @@ var serverCreate = &cobra.Command{
 	Example: `	clarinet server create --subnet_uuid "string" --os "string" --server_name "string" -- server_desc "description string" --cpu 4 --memory 2 --disk_size 10 --user_uuid "string" --nr_node 3`,
 	Args: cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		queryArgs := make(map[string]interface{})
+		queryArgs := make(map[string]string)
 		queryArgs["subnet_uuid"] = subnetUUID
 		queryArgs["os"] = _os
 		queryArgs["server_name"] = serverName
@@ -71,19 +71,13 @@ var serverList = &cobra.Command{
 `,
 	Args: cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		queryArgs := make(map[string]interface{})
+		queryArgs := make(map[string]string)
 		var servers interface{}
 		var err error
 
-		if (row != 0 && page == 0) || (row == 0 && page != 0) {
-			fmt.Println("List Server need [BOTH | NEITHER] of page and row.")
-			return
-		}
-		if row != 0 && page != 0 {
-			queryArgs["row"] = row
-			queryArgs["page"] = page
-		}
-
+		queryArgs["row"] = row
+		queryArgs["page"] = page
+		queryArgs["uuid"] = uuid
 		queryArgs["subnet_uuid"] = subnetUUID
 		queryArgs["os"] = _os
 		queryArgs["server_name"] = serverName
@@ -120,7 +114,7 @@ var serverList = &cobra.Command{
 		t.AppendHeader(table.Row{"No", "UUID", "Server Name", "Cores", "Memory", "Disk", "Nodes", "Status"})
 
 		for index, server := range servers.([]model.Server) {
-			serverUUIDArg := make(map[string]interface{})
+			serverUUIDArg := make(map[string]string)
 			serverUUIDArg["server_uuid"] = server.UUID
 			numNodesServer, err := queryParser.NumNodesServer(serverUUIDArg)
 			if err != nil {
@@ -151,7 +145,7 @@ var serverUpdate = &cobra.Command{
 			return
 		}
 
-		queryArgs := make(map[string]interface{})
+		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
 		queryArgs["subnet_uuid"] = subnetUUID
 		queryArgs["os"] = _os
@@ -163,13 +157,13 @@ var serverUpdate = &cobra.Command{
 		queryArgs["disk_size"] = diskSize
 		queryArgs["user_uuid"] = userUUID
 
-		_, err := mutationParser.UpdateServer(queryArgs)
+		server, err := mutationParser.UpdateServer(queryArgs)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		fmt.Println("Successfully update server (" + uuid + ") information.")
+		fmt.Println("Successfully update server (" + server.(model.Server).UUID + ") information.")
 	},
 }
 
@@ -179,7 +173,7 @@ var serverDelete = &cobra.Command{
 	Long:  `Delete one of server by UUID.`,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		queryArgs := make(map[string]interface{})
+		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
 		_, err := mutationParser.DeleteServer(queryArgs)
 		if err != nil {
@@ -196,22 +190,22 @@ func ReadyServerCmd() {
 	serverCreate.Flags().StringVar(&_os, "os", "", "Type of OS")
 	serverCreate.Flags().StringVar(&serverName, "server_name", "", "Name of server")
 	serverCreate.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
-	serverCreate.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")
-	serverCreate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
-	serverCreate.Flags().IntVar(&diskSize, "disk_size", 0, "Size of disk")
+	serverCreate.Flags().StringVar(&cpu, "cpu", "0", "Number of CPU cores")
+	serverCreate.Flags().StringVar(&memory, "memory", "0", "Size of memory")
+	serverCreate.Flags().StringVar(&diskSize, "disk_size", "0", "Size of disk")
 	serverCreate.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
-	serverCreate.Flags().IntVar(&nrNode, "nr_node", 0, "Number of nodes")
+	serverCreate.Flags().StringVar(&nrNode, "nr_node", "0", "Number of nodes")
 
-	serverList.Flags().IntVar(&row, "row", 0, "rows of server list")
-	serverList.Flags().IntVar(&page, "page", 0, "page of server list")
+	serverList.Flags().StringVar(&row, "row", "0", "rows of server list")
+	serverList.Flags().StringVar(&page, "page", "0", "page of server list")
 	serverList.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
 	serverList.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "UUID of subnet")
 	serverList.Flags().StringVar(&_os, "os", "", "Type of OS")
 	serverList.Flags().StringVar(&serverName, "server_name", "", "Name of server")
 	serverList.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
-	serverList.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")
-	serverList.Flags().IntVar(&memory, "memory", 0, "Size of memory")
-	serverList.Flags().IntVar(&diskSize, "disk_size", 0, "Size of disk")
+	serverList.Flags().StringVar(&cpu, "cpu", "0", "Number of CPU cores")
+	serverList.Flags().StringVar(&memory, "memory", "0", "Size of memory")
+	serverList.Flags().StringVar(&diskSize, "disk_size", "0", "Size of disk")
 	serverList.Flags().StringVar(&status, "status", "", "Server Status [Running | Stop]")
 	serverList.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
 
@@ -220,9 +214,9 @@ func ReadyServerCmd() {
 	serverUpdate.Flags().StringVar(&_os, "os", "", "Type of OS")
 	serverUpdate.Flags().StringVar(&serverName, "server_name", "", "Name of server")
 	serverUpdate.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
-	serverUpdate.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")
-	serverUpdate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
-	serverUpdate.Flags().IntVar(&diskSize, "disk_size", 0, "Size of disk")
+	serverUpdate.Flags().StringVar(&cpu, "cpu", "0", "Number of CPU cores")
+	serverUpdate.Flags().StringVar(&memory, "memory", "0", "Size of memory")
+	serverUpdate.Flags().StringVar(&diskSize, "disk_size", "0", "Size of disk")
 	serverUpdate.Flags().StringVar(&status, "status", "", "Server Status [Running | Stop]")
 	serverUpdate.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
 
