@@ -25,7 +25,7 @@ func CreateServer(args map[string]string) (interface{}, error) {
 			Server model.Server `json:"create_server"`
 		} `json:"data"`
 	}
-	result, err := http.DoHTTPRequest("violin", true, "CreateServerData", createServerData, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func UpdateServer(args map[string]string) (interface{}, error) {
 			Server model.Server `json:"update_server"`
 		} `json:"data"`
 	}
-	result, err := http.DoHTTPRequest("violin", true, "UpdateServerData", updateServerData, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func DeleteServer(args map[string]string) (interface{}, error) {
 			Server model.Server `json:"delete_server"`
 		} `json:"data"`
 	}
-	result, err := http.DoHTTPRequest("violin", true, "DeleteServerData", deleteServerData, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func CreateServerNode(args map[string]string) (interface{}, error) {
 			Server model.ServerNode `json:"create_server_node"`
 		} `json:"data"`
 	}
-	result, err := http.DoHTTPRequest("violin", true, "CreateServerNodeData", createServerNodeData, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func DeleteServerNode(args map[string]string) (interface{}, error) {
 		} `json:"data"`
 	}
 
-	result, err := http.DoHTTPRequest("violin", true, "DeleteServerNodeData", deleteServerNodeData, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}

@@ -2,7 +2,6 @@ package queryParser
 
 import (
 	"errors"
-	"hcc/clarinet/data"
 	"hcc/clarinet/http"
 	"strconv"
 )
@@ -14,10 +13,9 @@ func Node(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	var nodeData data.NodeData
 	query := "query { node(uuid: \"" + uuid + "\") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
 
-	return http.DoHTTPRequest("flute", true, "NodeData", nodeData, query)
+	return http.DoHTTPRequest("flute", query)
 }
 
 func ListNode(args map[string]interface{}) (interface{}, error) {
@@ -69,10 +67,9 @@ func ListNode(args map[string]interface{}) (interface{}, error) {
 	}
 	arguments = arguments[0 : len(arguments)-1]
 
-	var listNodeData data.ListNodeData
 	query := "query { list_node(" + arguments + ") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
 
-	return http.DoHTTPRequest("flute", true, "ListNodeData", listNodeData, query)
+	return http.DoHTTPRequest("flute", query)
 }
 
 func AllNode(args map[string]interface{}) (interface{}, error) {
@@ -97,16 +94,13 @@ func AllNode(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
 	}
 
-	var allNodeData data.AllNodeData
-
-	return http.DoHTTPRequest("flute", true, "AllNodeData", allNodeData, query)
+	return http.DoHTTPRequest("flute", query)
 }
 
 func NumNode() (interface{}, error) {
-	var numNodeData data.NumNodeData
 	query := "query { num_node { number } }"
 
-	return http.DoHTTPRequest("flute", true, "NumNodeData", numNodeData, query)
+	return http.DoHTTPRequest("flute", query)
 }
 
 func NodeDetail(args map[string]interface{}) (interface{}, error) {
@@ -116,8 +110,7 @@ func NodeDetail(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a node_uuid argument")
 	}
 
-	var nodeDetailData data.NodeDetailData
 	query := "query { detail_node(node_uuid: \"" + nodeUUID + "\") { node_uuid cpu_model cpu_processors cpu_threads } }"
 
-	return http.DoHTTPRequest("flute", true, "NodeDetailData", nodeDetailData, query)
+	return http.DoHTTPRequest("flute", query)
 }

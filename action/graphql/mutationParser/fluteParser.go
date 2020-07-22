@@ -1,189 +1,180 @@
 package mutationParser
 
 import (
+	"encoding/json"
 	"errors"
-	"hcc/clarinet/data"
+	"hcc/clarinet/action/graphql"
 	"hcc/clarinet/http"
+	"hcc/clarinet/model"
 	"strconv"
 )
 
-func checkNodeArgsEach(args map[string]interface{}) bool {
-	_, subnetUUIDOk := args["subnet_uuid"].(string)
-	_, osOk := args["os"].(string)
-	_, serverNameOk := args["server_name"].(string)
-	_, serverDescOk := args["server_desc"].(string)
-	_, cpuOk := args["cpu"].(int)
-	_, memoryOk := args["memory"].(int)
-	_, diskSizeOk := args["disk_size"].(int)
-	_, statusOk := args["status"].(string)
-	_, userUUIDOk := args["user_uuid"].(string)
-
-	return subnetUUIDOk || osOk || serverNameOk || serverDescOk || cpuOk || memoryOk || diskSizeOk || statusOk || userUUIDOk
-}
-
-func checkNodeArgsAll(args map[string]interface{}) bool {
-	_, bmcMacAddrOk := args["bmc_mac_addr"].(string)
-	_, bmcIPOk := args["bmc_ip"].(string)
-	_, pxeMacAddrOk := args["pxe_mac_addr"].(string)
-	_, statusOk := args["status"].(string)
-	_, cpuCoresOk := args["cpu_cores"].(int)
-	_, memoryOk := args["memory"].(int)
-	_, descriptionOk := args["description"].(string)
-	_, activeOk := args["active"].(string)
-
-	return bmcMacAddrOk && bmcIPOk && pxeMacAddrOk && statusOk && cpuCoresOk && memoryOk && descriptionOk && activeOk
-}
-
-func checkNodeDetailArgsAll(args map[string]interface{}) bool {
-	_, nodeUUIDOk := args["node_uuid"].(string)
-	_, cpuModelOk := args["cpu_model"].(string)
-	_, cpuProcessorsOk := args["cpu_processors"].(int)
-	_, cpuThreadsOk := args["cpu_threads"].(int)
-
-	return nodeUUIDOk && cpuModelOk && cpuProcessorsOk && cpuThreadsOk
-}
-
 // Power on Node
-func OnOffNode(args map[string]interface{}, state data.PowerState) (interface{}, error) {
-	UUID, _ := args["uuid"].(string)
-	if UUID == "" {
-		return nil, errors.New("need UUID of node")
+func OnOffNode(args map[string]string, state model.PowerState) (interface{}, error) {
+	// UUID flag must checked by cobra
+	var cmd string
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"uuid": args["uuid"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	query := "mutation _ { "
 
 	switch state {
-	case data.On:
-		nodeData := data.OnNodeData{}
-		query += "on_node(uuid:\"" + UUID + "\") }"
-		return http.DoHTTPRequest("flute", true, "OnNodeData", nodeData, query)
-	case data.Off:
-		nodeData := data.OffNodeData{}
-		query += "off_node(uuid:\"" + UUID + "\", force_off: false ) }"
-		return http.DoHTTPRequest("flute", true, "OffNodeData", nodeData, query)
-	case data.Restart:
-		nodeData := data.RestartNodeData{}
-		query += "force_restart_node(uuid:\"" + UUID + "\") }"
-		return http.DoHTTPRequest("flute", true, "RestartNodeData", nodeData, query)
-
+	case model.On:
+		cmd = "on_node"
+		query += cmd + "(" + arguments + ") }"
+	case model.Off:
+		cmd = "off_node"
+		query += cmd + "(" + arguments + ", force_off: true ) }"
+	case model.Restart:
+		cmd = "force_restart_node"
+		query += cmd + "(" + arguments + ") }"
+	default:
+		return nil, errors.New("Undefined Power state")
 	}
 
-	return nil, errors.New("Undefined state")
+	result, err := http.DoHTTPRequest("flute", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var nodeData map[string]map[string]string
+	err = json.Unmarshal(result, &nodeData)
+	if err != nil {
+		return nil, err
+	}
+	return nodeData["data"][cmd], nil
 }
 
-func CreateNode(args map[string]interface{}) (interface{}, error) {
-	if !checkNodeArgsAll(args) {
-		return nil, errors.New("check needed arguments (bmc_mac_addr, bmc_ip, pxe_mac_addr, status, cpu_cores, memory, description, active)")
+func CreateNode(args map[string]string) (interface{}, error) {
+	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
+		return nil, errors.New("Check flag value of " + ef)
 	}
 
-	bmcMacAddr, _ := args["bmc_mac_addr"].(string)
-	bmcIP, _ := args["bmc_ip"].(string)
-	pxeMacAddr, _ := args["pxe_mac_addr"].(string)
-	status, _ := args["status"].(string)
-	cpuCores, _ := args["cpu_cores"].(int)
-	memory, _ := args["memory"].(int)
-	description, _ := args["description"].(string)
-	active, _ := args["active"].(string)
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
 
-	var createNodeData data.CreateNodeData
-	query := "mutation _ { create_node(bmc_mac_addr: \"" + bmcMacAddr + "\", bmc_ip: \"" + bmcIP + "\", pxe_mac_addr: \"" +
-		pxeMacAddr + "\", status: \"" + status + "\", cpu_cores: " + strconv.Itoa(cpuCores) + ", memory: " +
-		strconv.Itoa(memory) + ", description: \"" + description + "\", active: \"" +
-		active + "\") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
+	cmd := "create_node"
+	query := "mutation _ { " + cmd + "(" + arguments + ") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
 
-	return http.DoHTTPRequest("flute", true, "CreateNodeData", createNodeData, query)
+	result, err := http.DoHTTPRequest("flute", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var node map[string]map[string]model.Node
+	err = json.Unmarshal(result, &node)
+	if err != nil {
+		return nil, err
+	}
+	return node["data"][cmd], nil
 }
 
-func UpdateNode(args map[string]interface{}) (interface{}, error) {
-	requestedUUID, requestedUUIDOk := args["uuid"].(string)
-	if !requestedUUIDOk {
-		return nil, errors.New("need a uuid argument")
+func UpdateNode(args map[string]string) (interface{}, error) {
+	// uuid must checked by cobra
+
+	if argumentParser.CheckArgsMin(args, 2) {
+		return nil, errors.New("Need at least 1 more flag except uuid")
 	}
 
-	if checkNodeArgsEach(args) {
-		return nil, errors.New("need some arguments")
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
 	}
 
-	bmcMacAddr, bmcMacAddrOk := args["bmc_mac_addr"].(string)
-	bmcIP, bmcIPOk := args["bmc_ip"].(string)
-	pxeMacAddr, pxeMacAddrOk := args["pxe_mac_addr"].(string)
-	status, statusOk := args["status"].(string)
-	cpuCores, cpuCoresOk := args["cpu_cores"].(int)
-	memory, memoryOk := args["memory"].(int)
-	description, descriptionOk := args["description"].(string)
-	active, activeOk := args["active"].(string)
+	cmd := "update_node"
+	query := "mutation _ { " + cmd + "(" + arguments + ") { uuid bmc_mac_addr } }"
 
-	arguments := "uuid:\"" + requestedUUID + "\""
-	if bmcMacAddrOk {
-		arguments += "bmc_mac_addr:\"" + bmcMacAddr + "\","
+	result, err := http.DoHTTPRequest("flute", query)
+	if err != nil {
+		return nil, err
 	}
-	if bmcIPOk {
-		arguments += "bmc_ip:\"" + bmcIP + "\","
-	}
-	if pxeMacAddrOk {
-		arguments += "pxe_mac_addr:\"" + pxeMacAddr + "\","
-	}
-	if statusOk {
-		arguments += "args:\"" + status + "\","
-	}
-	if cpuCoresOk {
-		arguments += "cpu_cores:" + strconv.Itoa(cpuCores) + ","
-	}
-	if memoryOk {
-		arguments += "memory:" + strconv.Itoa(memory) + "\","
-	}
-	if descriptionOk {
-		arguments += "description:\"" + description + "\","
-	}
-	if activeOk {
-		arguments += "active:\"" + active + "\","
-	}
-	arguments = arguments[0 : len(arguments)-1]
 
-	var updateNodeData data.UpdateNodeData
-	query := "mutation _ { update_server(" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
-
-	return http.DoHTTPRequest("violin", true, "UpdateNodeData", updateNodeData, query)
+	var node map[string]map[string]model.Node
+	err = json.Unmarshal(result, &node)
+	if err != nil {
+		return nil, err
+	}
+	return node["data"][cmd], nil
 }
 
-func DeleteNode(args map[string]interface{}) (interface{}, error) {
-	requestedUUID, requestedUUIDOk := args["uuid"].(string)
-	if !requestedUUIDOk {
-		return nil, errors.New("need a uuid argument")
+func DeleteNode(args map[string]string) (interface{}, error) {
+	// uuid must checked by cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"uuid": args["uuid"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	var deleteNodeData data.DeleteNodeData
-	query := "mutation _ { delete_node(uuid:\"" + requestedUUID + "\") { uuid } }"
+	cmd := "delete_node"
+	query := "mutation _ { " + cmd + "(" + arguments + ") { uuid } }"
 
-	return http.DoHTTPRequest("flute", true, "DeleteNodeData", deleteNodeData, query)
+	result, err := http.DoHTTPRequest("flute", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var node map[string]map[string]model.Node
+	err = json.Unmarshal(result, &node)
+	if err != nil {
+		return nil, err
+	}
+	return node["data"][cmd], nil
 }
 
-func CreateNodeDetail(args map[string]interface{}) (interface{}, error) {
-	if !checkNodeDetailArgsAll(args) {
-		return nil, errors.New("check needed arguments (node_uuid, cpu_model, cpu_processors, cpu_threads)")
+func CreateNodeDetail(args map[string]string) (interface{}, error) {
+	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
+		return nil, errors.New("Check flag value of " + ef)
 	}
 
-	nodeUUID, _ := args["node_uuid"].(string)
-	cpuModel, _ := args["cpu_model"].(string)
-	cpuProcessors, _ := args["cpu_processors"].(int)
-	cpuThreads, _ := args["cpu_threads"].(int)
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
 
-	var createNodeDetailData data.CreateNodeDetailData
-	query := "mutation _ { create_node_detail(node_uuid: \"" + nodeUUID + "\", cpu_model: \"" + cpuModel +
-		"\", cpu_processors: " + strconv.Itoa(cpuProcessors) + ", cpu_threads: " + strconv.Itoa(cpuThreads) +
-		") { node_uuid cpu_model cpu_processors cpu_threads } }"
+	cmd := "create_node_detail"
+	query := "mutation _ { " + cmd + "(" + arguments + ") { node_uuid cpu_model cpu_processors cpu_threads } }"
 
-	return http.DoHTTPRequest("flute", true, "CreateNodeDetailData", createNodeDetailData, query)
+	result, err := http.DoHTTPRequest("flute", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var nodeDetail map[string]map[string]model.NodeDetail
+	err = json.Unmarshal(result, &nodeDetail)
+	if err != nil {
+		return nil, err
+	}
+	return nodeDetail["data"][cmd], nil
 }
 
-func DeleteNodeDetail(args map[string]interface{}) (interface{}, error) {
-	requestedUUID, requestedUUIDOk := args["node_uuid"].(string)
-	if !requestedUUIDOk {
-		return nil, errors.New("need a node_uuid argument")
+func DeleteNodeDetail(args map[string]string) (interface{}, error) {
+	// node_uuid must checked by cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"node_uuid": args["node_uuid"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	var deleteNodeDetailData data.DeleteNodeDetailData
-	query := "mutation _ { delete_node_detail(node_uuid:\"" + requestedUUID + "\") { node_uuid } }"
+	cmd := "delete_node_detail"
+	query := "mutation _ { " + cmd + "(" + arguments + ") { node_uuid } }"
 
-	return http.DoHTTPRequest("flute", true, "DeleteNodeDetailData", deleteNodeDetailData, query)
+	result, err := http.DoHTTPRequest("flute", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var nodeDetail map[string]map[string]model.NodeDetail
+	err = json.Unmarshal(result, &nodeDetail)
+	if err != nil {
+		return nil, err
+	}
+	return nodeDetail["data"][cmd], nil
 }

@@ -23,7 +23,7 @@ func Server(args map[string]string) (interface{}, error) {
 			Server model.Server `json:"server"`
 		} `json:"data"`
 	}
-	result, err := http.DoHTTPRequest("violin", true, "ServerData", serverData, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
@@ -52,14 +52,16 @@ func ListServer(args map[string]string) (interface{}, error) {
 			ListServer []model.Server `json:"list_server"`
 		} `json:"data"`
 	}
-	result, err := http.DoHTTPRequest("violin", true, "ListServerData", listServerData, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
+
 	err = json.Unmarshal(result, &listServerData)
 	if err != nil {
 		return nil, err
 	}
+
 	return listServerData.Data.ListServer, nil
 }
 
@@ -78,7 +80,7 @@ func ServerNode(args map[string]string) (interface{}, error) {
 			ServerNode model.ServerNode `json:"server_node"`
 		} `json:"data"`
 	}
-	result, err := http.DoHTTPRequest("violin", true, "ServerNodeData", serverNodeData, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +106,7 @@ func ListServerNode(args map[string]string) (interface{}, error) {
 			ListServerNode []model.ServerNode `json:"list_server_node"`
 		} `json:"data"`
 	}
-	result, err := http.DoHTTPRequest("violin", true, "ListServerNodeData", listServerNodeData, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +125,7 @@ func AllServerNode() (interface{}, error) {
 			AllServerNode []model.ServerNode `json:"all_server_node"`
 		} `json:"data"`
 	}
-	result, err := http.DoHTTPRequest("violin", true, "AllServerNodeData", allServerNodeData, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +152,7 @@ func NumNodesServer(args map[string]string) (interface{}, error) {
 			NumNodesServer model.ServerNodeNum `json:"num_nodes_server"`
 		} `json:"data"`
 	}
-	result, err := http.DoHTTPRequest("violin", true, "NumNodesServerData", numNodesServer, query)
+	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}

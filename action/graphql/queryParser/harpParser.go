@@ -2,7 +2,6 @@ package queryParser
 
 import (
 	"errors"
-	"hcc/clarinet/data"
 	"hcc/clarinet/http"
 	"strconv"
 )
@@ -14,10 +13,9 @@ func Subnet(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	var subnetData data.SubnetData
 	query := "query { subnet(uuid: \"" + uuid + "\") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
 
-	return http.DoHTTPRequest("harp", true, "SubnetData", subnetData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func ListSubnet(args map[string]interface{}) (interface{}, error) {
@@ -71,10 +69,9 @@ func ListSubnet(args map[string]interface{}) (interface{}, error) {
 	}
 	arguments = arguments[0 : len(arguments)-1]
 
-	var listServerData data.ListServerData
 	query := "query { list_subnet(" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
 
-	return http.DoHTTPRequest("harp", true, "ListServerData", listServerData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func AllSubnet(args map[string]interface{}) (interface{}, error) {
@@ -91,16 +88,13 @@ func AllSubnet(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
 	}
 
-	var listServerData data.ListServerData
-
-	return http.DoHTTPRequest("harp", true, "ListServerData", listServerData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func NumSubnet() (interface{}, error) {
-	var numSubnetData data.NumSubnetData
 	query := "query { num_subnet { number } }"
 
-	return http.DoHTTPRequest("harp", true, "NumSubnetData", numSubnetData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func AdaptiveIP(args map[string]interface{}) (interface{}, error) {
@@ -110,10 +104,9 @@ func AdaptiveIP(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	var adaptiveIPData data.AdaptiveIPData
 	query := "query { adaptiveip(uuid: \"" + uuid + "\") { uuid network_addres netmask gateway start_ip_address end_ip_address created_at} }"
 
-	return http.DoHTTPRequest("harp", true, "AdaptiveIPData", adaptiveIPData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func ListAdaptiveIP(args map[string]interface{}) (interface{}, error) {
@@ -147,10 +140,9 @@ func ListAdaptiveIP(args map[string]interface{}) (interface{}, error) {
 	}
 	arguments = arguments[0 : len(arguments)-1]
 
-	var listAdaptiveIPData data.ListAdaptiveIPData
 	query := "query { list_adaptiveip(" + arguments + ") { uuid network_addres netmask gateway start_ip_address end_ip_address created_at} }"
 
-	return http.DoHTTPRequest("harp", true, "ListAdaptiveIPData", listAdaptiveIPData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func AllAdaptiveIP(args map[string]interface{}) (interface{}, error) {
@@ -167,16 +159,13 @@ func AllAdaptiveIP(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
 	}
 
-	var allAdaptiveIPData data.AllAdaptiveIPData
-
-	return http.DoHTTPRequest("harp", true, "AllAdaptiveIPData", allAdaptiveIPData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func NumAdaptiveIP() (interface{}, error) {
-	var numAdaptiveIPData data.NumAdaptiveIPData
 	query := "query { num_adaptiveip { number } }"
 
-	return http.DoHTTPRequest("harp", true, "NumAdaptiveIPData", numAdaptiveIPData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
@@ -187,10 +176,9 @@ func AdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need adaptiveip_uuid and server_uuid arguments")
 	}
 
-	var adaptiveIPServerData data.AdaptiveIPServerData
 	query := "query { adaptiveip_server(adaptiveip_uuid: \"" + adaptiveIPUUID + "\", server_uuid: \"" + serverUUID + "\") { adaptiveip_uuid server_uuid public_ip private_ip private_gateway} }"
 
-	return http.DoHTTPRequest("harp", true, "AdaptiveIPServerData", adaptiveIPServerData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
@@ -223,10 +211,9 @@ func ListAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	}
 	arguments = arguments[0 : len(arguments)-1]
 
-	var listAdaptiveIPServerData data.ListAdaptiveIPServerData
 	query := "query { list_adaptiveip_server(" + arguments + ") { adaptiveip_uuid server_uuid public_ip private_ip private_gateway} }"
 
-	return http.DoHTTPRequest("harp", true, "ListAdaptiveIPServerData", listAdaptiveIPServerData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func AllAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
@@ -248,14 +235,11 @@ func AllAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
 	}
 
-	var allAdaptiveIPServerData data.AllAdaptiveIPServerData
-
-	return http.DoHTTPRequest("harp", true, "AllAdaptiveIPServerData", allAdaptiveIPServerData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func NumAdaptiveIPServer() (interface{}, error) {
-	var numAdaptiveIPSeverData data.NumAdaptiveIPServerData
 	query := "query { num_adaptiveip_server { number } }"
 
-	return http.DoHTTPRequest("harp", true, "NumAdaptiveIPServerData", numAdaptiveIPSeverData, query)
+	return http.DoHTTPRequest("harp", query)
 }

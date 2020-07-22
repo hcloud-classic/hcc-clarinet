@@ -92,7 +92,6 @@ var serverList = &cobra.Command{
 
 		servers, err = queryParser.ListServer(queryArgs)
 
-		fmt.Println(servers)
 		if err != nil {
 			fmt.Println(err)
 			return

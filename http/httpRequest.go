@@ -11,7 +11,7 @@ import (
 )
 
 // DoHTTPRequest : Send http request to other modules with GraphQL query string.
-func DoHTTPRequest(moduleName string, needData bool, dataType string, data interface{}, query string) ([]byte, error) {
+func DoHTTPRequest(moduleName string, query string) ([]byte, error) {
 	var timeout time.Duration
 	var url = "http://"
 	switch moduleName {
@@ -56,11 +56,6 @@ func DoHTTPRequest(moduleName string, needData bool, dataType string, data inter
 				return nil, errors.New(result)
 			}
 
-			if needData {
-				if data == nil {
-					return nil, errors.New("needData marked as true but data is nil")
-				}
-			}
 			return []byte(result), nil
 		}
 
