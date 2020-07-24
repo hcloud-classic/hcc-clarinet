@@ -16,22 +16,21 @@ func Server(args map[string]string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := "query { server(" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
 
-	var serverData struct {
-		Data struct {
-			Server model.Server `json:"server"`
-		} `json:"data"`
-	}
+	cmd := "server"
+	query := "query { " + cmd + " (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
+
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
+
+	var serverData map[string]map[string]model.Server
 	err = json.Unmarshal(result, &serverData)
 	if err != nil {
 		return nil, err
 	}
-	return serverData.Data.Server, nil
+	return serverData["data"][cmd], nil
 }
 
 func ListServer(args map[string]string) (interface{}, error) {
@@ -45,24 +44,21 @@ func ListServer(args map[string]string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := "query { list_server(" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
 
-	var listServerData struct {
-		Data struct {
-			ListServer []model.Server `json:"list_server"`
-		} `json:"data"`
-	}
+	cmd := "list_server"
+	query := "query { " + cmd + " (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
+
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(result, &listServerData)
+	var serverData map[string]map[string][]model.Server
+	err = json.Unmarshal(result, &serverData)
 	if err != nil {
 		return nil, err
 	}
-
-	return listServerData.Data.ListServer, nil
+	return serverData["data"][cmd], nil
 }
 
 func ServerNode(args map[string]string) (interface{}, error) {
@@ -73,22 +69,21 @@ func ServerNode(args map[string]string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := "query { server_node(" + arguments + ") { uuid server_uuid node_uuid created_at } }"
 
-	var serverNodeData struct {
-		Data struct {
-			ServerNode model.ServerNode `json:"server_node"`
-		} `json:"data"`
-	}
+	cmd := "server_node"
+	query := "query { " + cmd + " (" + arguments + ") { uuid server_uuid node_uuid created_at } }"
+
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
+
+	var serverNodeData map[string]map[string]model.ServerNode
 	err = json.Unmarshal(result, &serverNodeData)
 	if err != nil {
 		return nil, err
 	}
-	return serverNodeData.Data.ServerNode, nil
+	return serverNodeData["data"][cmd], nil
 }
 
 func ListServerNode(args map[string]string) (interface{}, error) {
@@ -99,42 +94,21 @@ func ListServerNode(args map[string]string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := "query { list_server_node(" + arguments + ") { uuid server_uuid node_uuid created_at } }"
 
-	var listServerNodeData struct {
-		Data struct {
-			ListServerNode []model.ServerNode `json:"list_server_node"`
-		} `json:"data"`
-	}
+	cmd := "list_server_node"
+	query := "query { " + cmd + " (" + arguments + ") { uuid server_uuid node_uuid created_at } }"
+
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(result, &listServerNodeData)
+
+	var serverNodeData map[string]map[string]model.ServerNode
+	err = json.Unmarshal(result, &serverNodeData)
 	if err != nil {
 		return nil, err
 	}
-	return listServerNodeData.Data.ListServerNode, nil
-}
-
-func AllServerNode() (interface{}, error) {
-	query := "query { all_server_node { uuid server_uuid node_uuid created_at } }"
-
-	var allServerNodeData struct {
-		Data struct {
-			AllServerNode []model.ServerNode `json:"all_server_node"`
-		} `json:"data"`
-	}
-	result, err := http.DoHTTPRequest("violin", query)
-	if err != nil {
-		return nil, err
-	}
-	err = json.Unmarshal(result, &allServerNodeData)
-	if err != nil {
-		return nil, err
-	}
-	return allServerNodeData.Data.AllServerNode, nil
-
+	return serverNodeData["data"][cmd], nil
 }
 
 func NumNodesServer(args map[string]string) (interface{}, error) {
@@ -145,20 +119,19 @@ func NumNodesServer(args map[string]string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := "query { num_nodes_server(" + arguments + ") { number } }"
 
-	var numNodesServer struct {
-		Data struct {
-			NumNodesServer model.ServerNodeNum `json:"num_nodes_server"`
-		} `json:"data"`
-	}
+	cmd := "num_nodes_server"
+	query := "query { " + cmd + "(" + arguments + ") { number } }"
+
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(result, &numNodesServer)
+
+	var serverNodeNum map[string]map[string]model.ServerNodeNum
+	err = json.Unmarshal(result, &serverNodeNum)
 	if err != nil {
 		return nil, err
 	}
-	return numNodesServer.Data.NumNodesServer, nil
+	return serverNodeNum["data"][cmd], nil
 }

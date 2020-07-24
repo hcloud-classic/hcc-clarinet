@@ -102,8 +102,8 @@ var nodeCreate = &cobra.Command{
 		queryArgs["status"] = status
 		queryArgs["description"] = desc
 		queryArgs["active"] = active
-		queryArgs["cpu_cores"] = cpuCores
-		queryArgs["memory"] = memory
+		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
+		queryArgs["memory"] = strconv.Itoa(memory)
 		node, err := mutationParser.CreateNode(queryArgs)
 		if err != nil {
 			fmt.Println(err)

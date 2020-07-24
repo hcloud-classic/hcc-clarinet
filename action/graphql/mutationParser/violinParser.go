@@ -18,22 +18,20 @@ func CreateServer(args map[string]string) (interface{}, error) {
 		return nil, err
 	}
 
-	query := "mutation _ { create_server (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size user_uuid } }"
+	cmd := "create_server"
+	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size user_uuid } }"
 
-	var createServerData struct {
-		Data struct {
-			Server model.Server `json:"create_server"`
-		} `json:"data"`
-	}
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(result, &createServerData)
+
+	var serverData map[string]map[string]model.Server
+	err = json.Unmarshal(result, &serverData)
 	if err != nil {
 		return nil, err
 	}
-	return createServerData.Data.Server, nil
+	return serverData["data"][cmd], nil
 }
 
 func UpdateServer(args map[string]string) (interface{}, error) {
@@ -46,23 +44,21 @@ func UpdateServer(args map[string]string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := "mutation _ { update_server(" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
 
-	var updateServerData struct {
-		Data struct {
-			Server model.Server `json:"update_server"`
-		} `json:"data"`
-	}
+	cmd := "update_server"
+	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
+
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(result, &updateServerData)
+
+	var serverData map[string]map[string]model.Server
+	err = json.Unmarshal(result, &serverData)
 	if err != nil {
 		return nil, err
 	}
-	return updateServerData.Data.Server, nil
-
+	return serverData["data"][cmd], nil
 }
 
 func DeleteServer(args map[string]string) (interface{}, error) {
@@ -73,22 +69,21 @@ func DeleteServer(args map[string]string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := "mutation _ { delete_server(" + arguments + ", status:\"Deleted\") { uuid } }"
 
-	var deleteServerData struct {
-		Data struct {
-			Server model.Server `json:"delete_server"`
-		} `json:"data"`
-	}
+	cmd := "delete_server"
+	query := "mutation _ { " + cmd + " (" + arguments + ", status:\"Deleted\") { uuid } }"
+
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(result, &deleteServerData)
+
+	var serverData map[string]map[string]model.Server
+	err = json.Unmarshal(result, &serverData)
 	if err != nil {
 		return nil, err
 	}
-	return deleteServerData.Data.Server, nil
+	return serverData["data"][cmd], nil
 }
 
 func CreateServerNode(args map[string]string) (interface{}, error) {
@@ -100,22 +95,21 @@ func CreateServerNode(args map[string]string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := "mutation _ { create_server_node(" + arguments + "\") { uuid server_uuid node_uuid created_at } }"
 
-	var createServerNodeData struct {
-		Data struct {
-			Server model.ServerNode `json:"create_server_node"`
-		} `json:"data"`
-	}
+	cmd := "create_server_node"
+	query := "mutation _ { " + cmd + " (" + arguments + "\") { uuid server_uuid node_uuid created_at } }"
+
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(result, &createServerNodeData)
+
+	var serverNodeData map[string]map[string]model.ServerNode
+	err = json.Unmarshal(result, &serverNodeData)
 	if err != nil {
 		return nil, err
 	}
-	return createServerNodeData.Data.Server, nil
+	return serverNodeData["data"][cmd], nil
 }
 
 func DeleteServerNode(args map[string]string) (interface{}, error) {
@@ -126,21 +120,19 @@ func DeleteServerNode(args map[string]string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	query := "mutation _ { delete_server_node(" + arguments + ") { uuid } }"
 
-	var deleteServerNodeData struct {
-		Data struct {
-			Server model.ServerNode `json:"delete_server_node"`
-		} `json:"data"`
-	}
+	cmd := "delete_server_node"
+	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(result, &deleteServerNodeData)
+
+	var serverNodeData map[string]map[string]model.ServerNode
+	err = json.Unmarshal(result, &serverNodeData)
 	if err != nil {
 		return nil, err
 	}
-	return deleteServerNodeData.Data.Server, nil
+	return serverNodeData["data"][cmd], nil
 }
