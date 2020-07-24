@@ -17,10 +17,13 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/jedib0t/go-pretty/table"
+	"github.com/jedib0t/go-pretty/text"
 	"github.com/spf13/cobra"
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/model"
+	"os"
 	"strconv"
 )
 
@@ -32,7 +35,7 @@ var NodeCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 }
 
-var nodeUUID, bmcMacAddr, bmcIP, pxeMacAddr, desc, active, cpuModel string
+var serverUUID, nodeUUID, bmcMacAddr, bmcIP, pxeMacAddr, desc, active, cpuModel string
 var cpuCores, cpuProcessors, cpuThreads int
 
 var nodeOn = &cobra.Command{
@@ -109,6 +112,8 @@ var nodeCreate = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
+
+		fmt.Println(node)
 	},
 }
 
@@ -133,6 +138,8 @@ var nodeUpdate = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
+
+		fmt.Println(node)
 	},
 }
 
@@ -149,6 +156,8 @@ var nodeDelete = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
+
+		fmt.Println(node)
 	},
 }
 
@@ -168,6 +177,8 @@ var nodeCreateDetail = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
+
+		fmt.Println(node)
 	},
 }
 
@@ -184,6 +195,86 @@ var nodeDeleteDetail = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
+		fmt.Println(node)
+	},
+}
+
+var nodeList = &cobra.Command{
+	Use:   "list",
+	Short: "",
+	Long:  ``,
+	Args:  cobra.MinimumNArgs(0),
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+
+		queryArgs["row"] = strconv.Itoa(row)
+		queryArgs["page"] = strconv.Itoa(page)
+		queryArgs["server_uuid"] = serverUUID
+		queryArgs["bmc_mac_addr"] = bmcMacAddr
+		queryArgs["bmc_ip"] = bmcIP
+		queryArgs["pxe_mac_addr"] = pxeMacAddr
+		queryArgs["status"] = status
+		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
+		queryArgs["memory"] = strconv.Itoa(memory)
+		queryArgs["description"] = desc
+		queryArgs["active"] = active
+
+		nodes, err := queryParser.ListNode(queryArgs)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"No", "UUID", "BMC MAC", "BMC IP", "PXE MAC",
+			"Cores", "Memory", "Description", "Active", "Status"})
+
+		for index, node := range nodes.([]model.Node) {
+			serverUUIDArg := make(map[string]string)
+			serverUUIDArg["node_uuid"] = node.UUID
+			t.AppendRow([]interface{}{
+				index + 1, node.UUID, node.BmcMacAddr, node.BmcIP, node.PXEMacAddr,
+				node.CPUCores, node.Memory, node.Description, node.Active, node.Status})
+		}
+
+		t.AppendFooter(table.Row{"Total", len(nodes.([]model.Node))})
+		t.Render()
+
+	},
+}
+
+var nodeDetail = &cobra.Command{
+	Use:   "detail",
+	Short: "",
+	Long:  ``,
+	Args:  cobra.MinimumNArgs(0),
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+
+		queryArgs["node_uuid"] = nodeUUID
+
+		node, err := queryParser.NodeDetail(queryArgs)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(node)
 	},
 }
 
@@ -240,7 +331,23 @@ func ReadyNodeCmd() {
 	nodeDeleteDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
 	nodeDeleteDetail.MarkFlagRequired("node_uuid")
 
+	nodeList.Flags().IntVar(&row, "row", 0, "rows of node list")
+	nodeList.Flags().IntVar(&page, "page", 0, "page of node list")
+	nodeList.Flags().StringVar(&serverUUID, "server_uuid", "", "server UUID")
+	nodeList.Flags().StringVar(&bmcMacAddr, "bmc_mac_addr", "", "MAC address of BMC")
+	nodeList.Flags().StringVar(&bmcIP, "bmc_ip", "", "IP of BMC")
+	nodeList.Flags().StringVar(&pxeMacAddr, "pxe_mac_addr", "", "MAC address for PXE boot")
+	nodeList.Flags().StringVar(&status, "status", "", "status")
+	nodeList.Flags().IntVar(&cpuCores, "cpu_cores", 0, "Number of CPU cores")
+	nodeList.Flags().IntVar(&memory, "memory", 0, "Size of memory")
+	nodeList.Flags().StringVar(&desc, "description", "", "Descriptions of Node")
+	nodeList.Flags().StringVar(&active, "active", "", "Active status")
+
+	nodeDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
+	nodeDetail.MarkFlagRequired("node_uuid")
+
 	NodeCmd.AddCommand(nodeOn, nodeOff, nodeRestart,
 		nodeCreate, nodeUpdate, nodeDelete,
-		nodeCreateDetail, nodeDeleteDetail)
+		nodeCreateDetail, nodeDeleteDetail,
+		nodeList, nodeDetail)
 }
