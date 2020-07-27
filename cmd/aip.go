@@ -240,16 +240,16 @@ var aipListServer = &cobra.Command{
 }
 
 func ReadyAIPCmd() {
-	aipCreate.Flags().StringVar(&netIP, "network_ip", "", "Network Address")
+	aipCreate.Flags().StringVar(&netIP, "network_address", "", "Network Address")
 	aipCreate.Flags().StringVar(&netMask, "netmask", "", "Netmask")
 	aipCreate.Flags().StringVar(&gateway, "gateway", "", "Gateway")
 	aipCreate.Flags().StringVar(&startIP, "start_ip_address", "", "Start IP Address")
 	aipCreate.Flags().StringVar(&netIP, "end_ip_address", "", "End IP Address")
-	nodeDelete.MarkFlagRequired("network_address")
-	nodeDelete.MarkFlagRequired("netmask")
-	nodeDelete.MarkFlagRequired("gateway")
-	nodeDelete.MarkFlagRequired("start_ip_address")
-	nodeDelete.MarkFlagRequired("end_ip_address")
+	aipCreate.MarkFlagRequired("network_address")
+	aipCreate.MarkFlagRequired("netmask")
+	aipCreate.MarkFlagRequired("gateway")
+	aipCreate.MarkFlagRequired("start_ip_address")
+	aipCreate.MarkFlagRequired("end_ip_address")
 
 	aipUpdate.Flags().StringVar(&uuid, "uuid", "", "UUID")
 	aipUpdate.Flags().StringVar(&netIP, "network_ip", "", "Network Address")
@@ -257,6 +257,7 @@ func ReadyAIPCmd() {
 	aipUpdate.Flags().StringVar(&gateway, "gateway", "", "Gateway")
 	aipUpdate.Flags().StringVar(&startIP, "start_ip_address", "", "Start IP Address")
 	aipUpdate.Flags().StringVar(&netIP, "end_ip_address", "", "End IP Address")
+	aipUpdate.MarkFlagRequired("uuid")
 
 	aipDelete.Flags().StringVar(&uuid, "uuid", "", "UUID")
 	aipDelete.MarkFlagRequired("uuid")
@@ -289,7 +290,7 @@ func ReadyAIPCmd() {
 	aipListServer.Flags().StringVar(&publicIP, "public_ip", "", "Public IP of Server")
 	aipListServer.Flags().StringVar(&privateIP, "private_ip", "", "Private IP of Server")
 	aipListServer.Flags().StringVar(&gateway, "private_gateway", "", "Private Gateway IP")
-	aipListServer.MarkFlagRequired("suber_uuid")
+	aipListServer.MarkFlagRequired("server_uuid")
 
 	aipList.AddCommand(aipListServer)
 

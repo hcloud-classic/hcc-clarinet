@@ -7,6 +7,6 @@ import (
 func main() {
 	err := clarinetInit.MainInit()
 	if err != nil {
-		panic(err)
+		//panic(err)
 	}
 }
