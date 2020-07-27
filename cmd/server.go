@@ -20,7 +20,7 @@ var ServerCmd = &cobra.Command{
 }
 
 var subnetUUID string
-var _os string
+var OS string
 var serverName string
 var serverDesc string
 var cpu int
@@ -42,7 +42,7 @@ var serverCreate = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["subnet_uuid"] = subnetUUID
-		queryArgs["os"] = _os
+		queryArgs["os"] = OS
 		queryArgs["server_name"] = serverName
 		queryArgs["server_desc"] = serverDesc
 		queryArgs["cpu"] = strconv.Itoa(cpu)
@@ -81,7 +81,7 @@ var serverList = &cobra.Command{
 		queryArgs["page"] = strconv.Itoa(page)
 		queryArgs["uuid"] = uuid
 		queryArgs["subnet_uuid"] = subnetUUID
-		queryArgs["os"] = _os
+		queryArgs["os"] = OS
 		queryArgs["server_name"] = serverName
 		queryArgs["server_desc"] = serverDesc
 		queryArgs["cpu"] = strconv.Itoa(cpu)
@@ -140,7 +140,7 @@ var serverUpdate = &cobra.Command{
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
 		queryArgs["subnet_uuid"] = subnetUUID
-		queryArgs["os"] = _os
+		queryArgs["os"] = OS
 		queryArgs["server_name"] = serverName
 		queryArgs["server_desc"] = serverDesc
 		queryArgs["cpu"] = strconv.Itoa(cpu)
@@ -179,7 +179,7 @@ var serverDelete = &cobra.Command{
 
 func ReadyServerCmd() {
 	serverCreate.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "UUID of subnet")
-	serverCreate.Flags().StringVar(&_os, "os", "", "Type of OS")
+	serverCreate.Flags().StringVar(&OS, "os", "", "Type of OS")
 	serverCreate.Flags().StringVar(&serverName, "server_name", "", "Name of server")
 	serverCreate.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
 	serverCreate.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")
@@ -201,7 +201,7 @@ func ReadyServerCmd() {
 	serverList.Flags().IntVar(&page, "page", 0, "page of server list")
 	serverList.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
 	serverList.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "UUID of subnet")
-	serverList.Flags().StringVar(&_os, "os", "", "Type of OS")
+	serverList.Flags().StringVar(&OS, "os", "", "Type of OS")
 	serverList.Flags().StringVar(&serverName, "server_name", "", "Name of server")
 	serverList.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
 	serverList.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")
@@ -212,7 +212,7 @@ func ReadyServerCmd() {
 
 	serverUpdate.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
 	serverUpdate.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "UUID of subnet")
-	serverUpdate.Flags().StringVar(&_os, "os", "", "Type of OS")
+	serverUpdate.Flags().StringVar(&OS, "os", "", "Type of OS")
 	serverUpdate.Flags().StringVar(&serverName, "server_name", "", "Name of server")
 	serverUpdate.Flags().StringVar(&serverDesc, "server_desc", "", "Description of server")
 	serverUpdate.Flags().IntVar(&cpu, "cpu", 0, "Number of CPU cores")

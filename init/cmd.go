@@ -8,11 +8,11 @@ import (
 func cmdInit() error {
 	cmd.ReadyServerCmd()
 	cmd.ReadyNodeCmd()
-	cmd.ReadyAIPCmd()
+	cmd.ReadySubnetCmd()
 
 	var rootCmd = &cobra.Command{Use: "clarinet"}
 	rootCmd.AddCommand(cmd.ServerCmd)
 	rootCmd.AddCommand(cmd.NodeCmd)
-	rootCmd.AddCommand(cmd.AIPCmd)
+	rootCmd.AddCommand(cmd.SubnetCmd)
 	return rootCmd.Execute()
 }

@@ -17,14 +17,14 @@ package cmd
 
 import (
 	"fmt"
-	//"github.com/jedib0t/go-pretty/table"
-	//"github.com/jedib0t/go-pretty/text"
+	"github.com/jedib0t/go-pretty/table"
+	"github.com/jedib0t/go-pretty/text"
 	"github.com/spf13/cobra"
 	"hcc/clarinet/action/graphql/mutationParser"
-	//"hcc/clarinet/action/graphql/queryParser"
-	//"hcc/clarinet/model"
-	//"os"
-	//"strconv"
+	"hcc/clarinet/action/graphql/queryParser"
+	"hcc/clarinet/model"
+	"os"
+	"strconv"
 )
 
 // aipCmd represents the aip command
@@ -44,7 +44,7 @@ var netIP, netMask, gateway, nextServer, nameServer, domainName, leaderUUID, sub
 
 var subnetCreate = &cobra.Command{
 	Use:   "create",
-	Short: "",
+	Short: "Creat Subnet",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -69,34 +69,9 @@ var subnetCreate = &cobra.Command{
 	},
 }
 
-var aipCreateDHCPDconf = &cobra.Command{
-	Use:   "dhcpconf",
-	Short: "",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		queryArgs := make(map[string]string)
-		queryArgs["subnet_uuid"] = subnetUUID
-		queryArgs["node_uuids"] = nodeUUID
-		node, err := mutationParser.CreateDHCPDConf(queryArgs)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		fmt.Println(node)
-	},
-}
-var aipUpdate = &cobra.Command{
+var subnetUpdate = &cobra.Command{
 	Use:   "update",
-	Short: "",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(1),
-}
-
-var aipUpdateSubnet = &cobra.Command{
-	Use:   "subnet",
-	Short: "",
+	Short: "Update Subnet",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -122,16 +97,9 @@ var aipUpdateSubnet = &cobra.Command{
 	},
 }
 
-var aipDelete = &cobra.Command{
+var subnetDelete = &cobra.Command{
 	Use:   "delete",
-	Short: "",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(1),
-}
-
-var aipDeleteSubnet = &cobra.Command{
-	Use:   "delete",
-	Short: "",
+	Short: "Delete Subnet",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -147,49 +115,136 @@ var aipDeleteSubnet = &cobra.Command{
 	},
 }
 
-func ReadyAIPCmd() {
-	aipCreateSubnet.Flags().StringVar(&netIP, "network_ip", "", "Network IP")
-	aipCreateSubnet.Flags().StringVar(&netMask, "netmask", "", "Network Mask")
-	aipCreateSubnet.Flags().StringVar(&gateway, "gateway", "", "Gateway")
-	aipCreateSubnet.Flags().StringVar(&nextServer, "next_server", "", "Next Server")
-	aipCreateSubnet.Flags().StringVar(&nameServer, "name_server", "", "Name Server")
-	aipCreateSubnet.Flags().StringVar(&domainName, "domain_name", "", "Domain Name")
-	aipCreateSubnet.Flags().StringVar(&serverUUID, "server_uuid", "", "Server UUID")
-	aipCreateSubnet.Flags().StringVar(&leaderUUID, "leader_node_uuid", "", "Leader Node UUID")
-	aipCreateSubnet.Flags().StringVar(&OS, "os", "", "OS type")
-	aipCreateSubnet.Flags().StringVar(&subnetName, "subnet_name", "", "Subnet Name")
-	aipCreateSubnet.MarkFlagRequired("network_ip")
-	aipCreateSubnet.MarkFlagRequired("netmask")
-	aipCreateSubnet.MarkFlagRequired("gateway")
-	aipCreateSubnet.MarkFlagRequired("next_server")
-	aipCreateSubnet.MarkFlagRequired("name_server")
-	aipCreateSubnet.MarkFlagRequired("domain_name")
-	aipCreateSubnet.MarkFlagRequired("server_uuid")
-	aipCreateSubnet.MarkFlagRequired("leader_node_uuid")
-	aipCreateSubnet.MarkFlagRequired("os")
-	aipCreateSubnet.MarkFlagRequired("subnet_name")
+var subnetCreateDHCPDConf = &cobra.Command{
+	Use:   "dhcpconf",
+	Short: "Create DHCPD Configuration file",
+	Long:  ``,
+	Args:  cobra.MinimumNArgs(0),
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+		queryArgs["subnet_uuid"] = subnetUUID
+		queryArgs["node_uuids"] = nodeUUID
+		node, err := mutationParser.CreateDHCPDConf(queryArgs)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-	aipCreate.AddCommand(aipCreateSubnet)
+		fmt.Println(node)
+	},
+}
 
-	aipUpdateSubnet.Flags().StringVar(&uuid, "uuid", "", "UUID")
-	aipUpdateSubnet.Flags().StringVar(&netIP, "network_ip", "", "Network IP")
-	aipUpdateSubnet.Flags().StringVar(&netMask, "netmask", "", "Network Mask")
-	aipUpdateSubnet.Flags().StringVar(&gateway, "gateway", "", "Gateway")
-	aipUpdateSubnet.Flags().StringVar(&nextServer, "next_server", "", "Next Server")
-	aipUpdateSubnet.Flags().StringVar(&nameServer, "name_server", "", "Name Server")
-	aipUpdateSubnet.Flags().StringVar(&domainName, "domain_name", "", "Domain Name")
-	aipUpdateSubnet.Flags().StringVar(&serverUUID, "server_uuid", "", "Server UUID")
-	aipUpdateSubnet.Flags().StringVar(&leaderUUID, "leader_node_uuid", "", "Leader Node UUID")
-	aipUpdateSubnet.Flags().StringVar(&OS, "os", "", "OS type")
-	aipUpdateSubnet.Flags().StringVar(&subnetName, "subnet_name", "", "Subnet Name")
-	aipUpdateSubnet.MarkFlagRequired("uuid")
+var subnetList = &cobra.Command{
+	Use:   "list",
+	Short: "Show subnet list",
+	Long:  ``,
+	Args:  cobra.MinimumNArgs(0),
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+		queryArgs["row"] = strconv.Itoa(row)
+		queryArgs["page"] = strconv.Itoa(page)
+		queryArgs["network_ip"] = netIP
+		queryArgs["netmask"] = netMask
+		queryArgs["gateway"] = gateway
+		queryArgs["next_server"] = nextServer
+		queryArgs["name_server"] = nameServer
+		queryArgs["domain_name"] = domainName
+		queryArgs["server_uuid"] = serverUUID
+		queryArgs["leader_node_uid"] = leaderUUID
+		queryArgs["os"] = OS
+		queryArgs["subnet_name"] = subnetName
 
-	aipUpdate.AddCommand(aipUpdateSubnet)
+		subnetList, err := queryParser.ListSubnet(queryArgs)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-	aipDeleteSubnet.Flags().StringVar(&uuid, "uuid", "", "UUID")
-	aipDeleteSubnet.MarkFlagRequired("uuid")
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"No", "UUID", "IP", "Netmask", "Gateway", "Next Server", "Name Server",
+			"Domain Name", "Server UUID", "Leader UUID", "OS", "Subnet Name", "Create At"})
 
-	aipDelete.AddCommand(aipDeleteSubnet)
+		for index, subnet := range subnetList.([]model.Subnet) {
+			t.AppendRow([]interface{}{index + 1, subnet.UUID, subnet.NetworkIP, subnet.Netmask, subnet.Gateway,
+				subnet.NextServer, subnet.NameServer, subnet.DomainName, subnet.ServerUUID,
+				subnet.LeaderNodeUUID, subnet.OS, subnet.SubnetName, subnet.CreatedAt})
+		}
 
-	AIPCmd.AddCommand(aipCreate, aipUpdate, aipDelete)
+		t.AppendFooter(table.Row{"Total", len(subnetList.([]model.Subnet))})
+		t.Render()
+	},
+}
+
+func ReadySubnetCmd() {
+	subnetCreate.Flags().StringVar(&netIP, "network_ip", "", "Network IP")
+	subnetCreate.Flags().StringVar(&netMask, "netmask", "", "Network Mask")
+	subnetCreate.Flags().StringVar(&gateway, "gateway", "", "Gateway")
+	subnetCreate.Flags().StringVar(&nextServer, "next_server", "", "Next Server")
+	subnetCreate.Flags().StringVar(&nameServer, "name_server", "", "Name Server")
+	subnetCreate.Flags().StringVar(&domainName, "domain_name", "", "Domain Name")
+	subnetCreate.Flags().StringVar(&serverUUID, "server_uuid", "", "Server UUID")
+	subnetCreate.Flags().StringVar(&leaderUUID, "leader_node_uuid", "", "Leader Node UUID")
+	subnetCreate.Flags().StringVar(&OS, "os", "", "OS type")
+	subnetCreate.Flags().StringVar(&subnetName, "subnet_name", "", "Subnet Name")
+	subnetCreate.MarkFlagRequired("network_ip")
+	subnetCreate.MarkFlagRequired("netmask")
+	subnetCreate.MarkFlagRequired("gateway")
+	subnetCreate.MarkFlagRequired("next_server")
+	subnetCreate.MarkFlagRequired("name_server")
+	subnetCreate.MarkFlagRequired("domain_name")
+	subnetCreate.MarkFlagRequired("server_uuid")
+	subnetCreate.MarkFlagRequired("leader_node_uuid")
+	subnetCreate.MarkFlagRequired("os")
+	subnetCreate.MarkFlagRequired("subnet_name")
+
+	subnetUpdate.Flags().StringVar(&uuid, "uuid", "", "UUID")
+	subnetUpdate.Flags().StringVar(&netIP, "network_ip", "", "Network IP")
+	subnetUpdate.Flags().StringVar(&netMask, "netmask", "", "Network Mask")
+	subnetUpdate.Flags().StringVar(&gateway, "gateway", "", "Gateway")
+	subnetUpdate.Flags().StringVar(&nextServer, "next_server", "", "Next Server")
+	subnetUpdate.Flags().StringVar(&nameServer, "name_server", "", "Name Server")
+	subnetUpdate.Flags().StringVar(&domainName, "domain_name", "", "Domain Name")
+	subnetUpdate.Flags().StringVar(&serverUUID, "server_uuid", "", "Server UUID")
+	subnetUpdate.Flags().StringVar(&leaderUUID, "leader_node_uuid", "", "Leader Node UUID")
+	subnetUpdate.Flags().StringVar(&OS, "os", "", "OS type")
+	subnetUpdate.Flags().StringVar(&subnetName, "subnet_name", "", "Subnet Name")
+	subnetUpdate.MarkFlagRequired("uuid")
+
+	subnetDelete.Flags().StringVar(&uuid, "uuid", "", "UUID")
+	subnetDelete.MarkFlagRequired("uuid")
+
+	subnetCreateDHCPDConf.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "Subnet UUID")
+	subnetCreateDHCPDConf.Flags().StringVar(&nodeUUID, "node_uuids", "", "Node UUIDs")
+	subnetCreateDHCPDConf.MarkFlagRequired("subnet_uuid")
+	subnetCreateDHCPDConf.MarkFlagRequired("node_uuids")
+
+	subnetList.Flags().IntVar(&row, "row", 0, "")
+	subnetList.Flags().IntVar(&page, "page", 0, "")
+	subnetList.Flags().StringVar(&netIP, "network_ip", "", "Network IP")
+	subnetList.Flags().StringVar(&netMask, "netmask", "", "Network Mask")
+	subnetList.Flags().StringVar(&gateway, "gateway", "", "Gateway")
+	subnetList.Flags().StringVar(&nextServer, "next_server", "", "Next Server")
+	subnetList.Flags().StringVar(&nameServer, "name_server", "", "Name Server")
+	subnetList.Flags().StringVar(&domainName, "domain_name", "", "Domain Name")
+	subnetList.Flags().StringVar(&serverUUID, "server_uuid", "", "Server UUID")
+	subnetList.Flags().StringVar(&leaderUUID, "leader_node_uuid", "", "Leader Node UUID")
+	subnetList.Flags().StringVar(&OS, "os", "", "OS type")
+	subnetList.Flags().StringVar(&subnetName, "subnet_name", "", "Subnet Name")
+
+	SubnetCmd.AddCommand(subnetCreate, subnetUpdate, subnetDelete, subnetCreateDHCPDConf, subnetList)
 }

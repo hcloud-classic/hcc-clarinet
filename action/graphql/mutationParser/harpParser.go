@@ -1,145 +1,114 @@
 package mutationParser
 
 import (
+	"encoding/json"
 	"errors"
+	"hcc/clarinet/action/graphql"
 	"hcc/clarinet/http"
+	"hcc/clarinet/model"
 )
 
-func checkSubnetArgsEach(args map[string]interface{}) bool {
-	networkIPOk := args["network_ip"].(string) != ""
-	netmaskOk := args["netmask"].(string) != ""
-	gatewayOk := args["gateway"].(string) != ""
-	nextServerOk := args["next_server"].(string) != ""
-	nameServerOk := args["name_server"].(string) != ""
-	domainNameOk := args["domain_name"].(string) != ""
-	serverUUIDOk := args["server_uuid"].(string) != ""
-	leaderNodeUUIDOk := args["leader_node_uuid"].(string) != ""
-	osOk := args["os"].(string) != ""
-	subnetNameOk := args["subnet_name"].(string) != ""
+func CreateSubnet(args map[string]string) (interface{}, error) {
+	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
+		return nil, errors.New("Check flag value of " + ef)
+	}
 
-	return networkIPOk || netmaskOk || gatewayOk || nextServerOk || nameServerOk || domainNameOk || serverUUIDOk || leaderNodeUUIDOk || osOk || subnetNameOk
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "create_subnet"
+	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
+
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var subnetData map[string]map[string]model.Subnet
+	err = json.Unmarshal(result, &subnetData)
+	if err != nil {
+		return nil, err
+	}
+	return subnetData["data"][cmd], nil
 }
 
-func checkSubnetArgsAll(args map[string]interface{}) bool {
-	networkIPOk := args["network_ip"].(string) != ""
-	netmaskOk := args["netmask"].(string) != ""
-	gatewayOk := args["gateway"].(string) != ""
-	nextServerOk := args["next_server"].(string) != ""
-	nameServerOk := args["name_server"].(string) != ""
-	domainNameOk := args["domain_name"].(string) != ""
-	serverUUIDOk := args["server_uuid"].(string) != ""
-	leaderNodeUUIDOk := args["leader_node_uuid"].(string) != ""
-	osOk := args["os"].(string) != ""
-	subnetNameOk := args["subnet_name"].(string) != ""
+func UpdateSubnet(args map[string]string) (interface{}, error) {
+	// UUID flag must checked by cobra
+	if argumentParser.CheckArgsMin(args, 2) {
+		return nil, errors.New("Need at least 1 more flag except uuid")
+	}
 
-	return networkIPOk && netmaskOk && gatewayOk && nextServerOk && nameServerOk && domainNameOk && serverUUIDOk && leaderNodeUUIDOk && osOk && subnetNameOk
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "update_subnet"
+	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
+
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var subnetData map[string]map[string]model.Subnet
+	err = json.Unmarshal(result, &subnetData)
+	if err != nil {
+		return nil, err
+	}
+	return subnetData["data"][cmd], nil
 }
 
-func CreateSubnet(args map[string]interface{}) (interface{}, error) {
-	if !checkSubnetArgsAll(args) {
-		return nil, errors.New("check needed arguments (network_ip, netmask, gateway, next_server, name_server, domain_name, server_uuid, leader_node_uuid, os, subnet_name)")
+func DeleteSubnet(args map[string]string) (interface{}, error) {
+	// UUID flag must checked by cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"uuid": args["uuid"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	networkIP, _ := args["network_ip"].(string)
-	netmask, _ := args["netmask"].(string)
-	gateway, _ := args["gateway"].(string)
-	nextServer, _ := args["next_server"].(string)
-	nameServer, _ := args["name_server"].(string)
-	domainName, _ := args["domain_name"].(string)
-	serverUUID, _ := args["server_uuid"].(string)
-	leaderNodeUUID, _ := args["leader_node_uuid"].(string)
-	os, _ := args["os"].(string)
-	subnetName, _ := args["subnet_name"].(string)
+	cmd := "delete_subnet"
+	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid } }"
 
-	query := "mutation _ { create_subnet(network_ip: \"" + networkIP + "\", netmask: \"" + netmask + "\", gateway: \"" +
-		gateway + "\", next_server: \"" + nextServer + "\", name_server: \"" + nameServer + "\", domain_name: \"" +
-		domainName + "\", server_uuid: \"" + serverUUID + "\", leader_node_uuid: \"" + leaderNodeUUID + "\", os: \"" +
-		os + "\", subnet_name: \"" + subnetName + "\") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
-
-	return http.DoHTTPRequest("harp", query)
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
+	}
+	var subnetData map[string]map[string]model.Subnet
+	err = json.Unmarshal(result, &subnetData)
+	if err != nil {
+		return nil, err
+	}
+	return subnetData["data"][cmd], nil
 }
 
-func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
-	requestedUUID, requestedUUIDOk := args["uuid"].(string)
-	if !requestedUUIDOk {
-		return nil, errors.New("need a uuid argument")
+func CreateDHCPDConf(args map[string]string) (interface{}, error) {
+	// nodeUUID & subnetUUID flag must checked by cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"subnet_uuid": args["subnet_uuid"],
+		"node_uuids":  args["node_uuids"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	if !checkSubnetArgsEach(args) {
-		return nil, errors.New("need some arguments")
+	cmd := "create_dhcpd_conf"
+	query := "mutation _ { " + cmd + " (" + arguments + ") }"
+
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
 	}
 
-	networkIP, _ := args["network_ip"].(string)
-	netmask, _ := args["netmask"].(string)
-	gateway, _ := args["gateway"].(string)
-	nextServer, _ := args["next_server"].(string)
-	nameServer, _ := args["name_server"].(string)
-	domainName, _ := args["domain_name"].(string)
-	serverUUID, _ := args["server_uuid"].(string)
-	leaderNodeUUID, _ := args["leader_node_uuid"].(string)
-	os, _ := args["os"].(string)
-	subnetName, _ := args["subnet_name"].(string)
-
-	arguments := "uuid:\"" + requestedUUID + "\""
-	if networkIP != "" {
-		arguments += "network_ip:\"" + networkIP + "\","
+	var subnetData map[string]map[string]string
+	err = json.Unmarshal(result, &subnetData)
+	if err != nil {
+		return nil, err
 	}
-	if netmask != "" {
-		arguments += "netmask:\"" + netmask + "\","
-	}
-	if gateway != "" {
-		arguments += "gateway:\"" + gateway + "\","
-	}
-	if nextServer != "" {
-		arguments += "next_server:\"" + nextServer + "\","
-	}
-	if nameServer != "" {
-		arguments += "next_server:\"" + nameServer + "\","
-	}
-	if domainName != "" {
-		arguments += "domain_name:\"" + domainName + "\","
-	}
-	if serverUUID != "" {
-		arguments += "server_uuid:\"" + serverUUID + "\","
-	}
-	if leaderNodeUUID != "" {
-		arguments += "leader_node_uuid:\"" + leaderNodeUUID + "\","
-	}
-	if os != "" {
-		arguments += "os:\"" + os + "\","
-	}
-	if subnetName != "" {
-		arguments += "subnet_name:\"" + subnetName + "\","
-	}
-	arguments = arguments[0 : len(arguments)-1]
-
-	query := "mutation _ { update_subnet(" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
-
-	return http.DoHTTPRequest("harp", query)
-}
-
-func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
-	requestedUUID, _ := args["uuid"].(string)
-	if requestedUUID == "" {
-		return nil, errors.New("need a uuid argument")
-	}
-
-	query := "mutation _ { delete_subnet(uuid:\"" + requestedUUID + "\") { uuid } }"
-
-	return http.DoHTTPRequest("harp", query)
-}
-
-func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
-	subnetUUID, _ := args["subnet_uuid"].(string)
-	node_uuids, _ := args["node_uuids"].(string)
-
-	if subnetUUID == "" || node_uuids == "" {
-		return nil, errors.New("need subnet_uuid and node_uuids arguments")
-	}
-
-	query := "mutation _ { create_dhcpd_conf(subnet_uuid: \"" + subnetUUID + "\", node_uuids: \"" + node_uuids + "\") }"
-
-	return http.DoHTTPRequest("harp", query)
+	return subnetData["data"][cmd], nil
 }
 
 func checkAdaptiveIPArgsEach(args map[string]interface{}) bool {
