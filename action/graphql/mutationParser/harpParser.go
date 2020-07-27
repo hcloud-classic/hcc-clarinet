@@ -111,123 +111,132 @@ func CreateDHCPDConf(args map[string]string) (interface{}, error) {
 	return subnetData["data"][cmd], nil
 }
 
-func checkAdaptiveIPArgsEach(args map[string]interface{}) bool {
-	networkAddressOk := args["network_address"].(string) != ""
-	netmaskOk := args["netmask"].(string) != ""
-	gatewayOk := args["gateway"].(string) != ""
-	startIPaddressOk := args["start_ip_address"].(string) != ""
-	endIPaddressOk := args["end_ip_address"].(string) != ""
+func CreateAdaptiveIP(args map[string]string) (interface{}, error) {
+	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
+		return nil, errors.New("Check flag value of " + ef)
+	}
 
-	return networkAddressOk || netmaskOk || gatewayOk || startIPaddressOk || endIPaddressOk
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "create_adaptiveip"
+	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid network_address netmask gateway start_ip_address end_ip_address } }"
+
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var aipData map[string]map[string]model.AdaptiveIP
+	err = json.Unmarshal(result, &aipData)
+	if err != nil {
+		return nil, err
+	}
+	return aipData["data"][cmd], nil
+
 }
 
-func checkAdaptiveIPArgsAll(args map[string]interface{}) bool {
-	networkAddressOk := args["network_address"].(string) != ""
-	netmaskOk := args["netmask"].(string) != ""
-	gatewayOk := args["gateway"].(string) != ""
-	startIPaddressOk := args["start_ip_address"].(string) != ""
-	endIPaddressOk := args["end_ip_address"].(string) != ""
+func UpdateAdaptiveIP(args map[string]string) (interface{}, error) {
+	// UUID flag must checked by cobra
+	if argumentParser.CheckArgsMin(args, 2) {
+		return nil, errors.New("Need at least 1 more flag except uuid")
+	}
 
-	return networkAddressOk && netmaskOk && gatewayOk && startIPaddressOk && endIPaddressOk
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "update_adaptiveip"
+	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid network_address netmask gateway start_ip_address end_ip_address } }"
+
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var aipListData map[string]map[string][]model.AdaptiveIP
+	err = json.Unmarshal(result, &aipListData)
+	if err != nil {
+		return nil, err
+	}
+	return aipListData["data"][cmd], nil
 }
 
-func CreateAdaptiveIP(args map[string]interface{}) (interface{}, error) {
-	if !checkAdaptiveIPArgsAll(args) {
-		return nil, errors.New("check needed arguments (network_ip, netmask, gateway, next_server, name_server, domain_name, server_uuid, leader_node_uuid, os, adaptiveip_name)")
+func DeleteAdaptiveIP(args map[string]string) (interface{}, error) {
+	// UUID flag must checked by cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"uuid": args["uuid"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	networkAddress, _ := args["network_address"].(string)
-	netmask, _ := args["netmask"].(string)
-	gateway, _ := args["gateway"].(string)
-	startIPaddress, _ := args["start_ip_address"].(string)
-	endIPaddress, _ := args["end_ip_address"].(string)
+	cmd := "delete_adaptiveip"
+	query := "mutation _ { " + cmd + "(" + arguments + ") { uuid } }"
 
-	query := "mutation _ { create_adaptiveip(network_address: \"" + networkAddress + "\", netmask: \"" + netmask + "\", gateway: \"" +
-		gateway + "\", start_ip_address: \"" + startIPaddress + "\", end_ip_address: \"" + endIPaddress + "\") { uuid network_address netmask gateway start_ip_address end_ip_address } }"
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
+	}
 
-	return http.DoHTTPRequest("harp", query)
+	var aipData map[string]map[string]model.AdaptiveIP
+	err = json.Unmarshal(result, &aipData)
+	if err != nil {
+		return nil, err
+	}
+	return aipData["data"][cmd], nil
 }
 
-func UpdateAdaptiveIP(args map[string]interface{}) (interface{}, error) {
-	requestedUUID, requestedUUIDOk := args["uuid"].(string)
-	if !requestedUUIDOk {
-		return nil, errors.New("need a uuid argument")
+func CreateAdaptiveIPServer(args map[string]string) (interface{}, error) {
+	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
+		return nil, errors.New("Check flag value of " + ef)
 	}
 
-	if !checkAdaptiveIPArgsEach(args) {
-		return nil, errors.New("need some arguments")
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
 	}
 
-	networkIP, _ := args["network_ip"].(string)
-	netmask, _ := args["netmask"].(string)
-	gateway, _ := args["gateway"].(string)
-	startIPaddress, _ := args["start_ip_address"].(string)
-	endIPaddress, _ := args["end_ip_address"].(string)
+	cmd := "create_adaptiveip_server"
+	query := "mutation _ { " + cmd + "(" + arguments + " ) { adaptiveip_uuid server_uuid public_ip private_ip private_gateway } }"
 
-	arguments := "uuid:\"" + requestedUUID + "\""
-	if networkIP != "" {
-		arguments += "network_ip:\"" + networkIP + "\","
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
 	}
-	if netmask != "" {
-		arguments += "netmask:\"" + netmask + "\","
-	}
-	if gateway != "" {
-		arguments += "gateway:\"" + gateway + "\","
-	}
-	if startIPaddress != "" {
-		arguments += "start_ip_address:\"" + startIPaddress + "\","
-	}
-	if endIPaddress != "" {
-		arguments += "end_ip_address:\"" + endIPaddress + "\","
-	}
-	arguments = arguments[0 : len(arguments)-1]
 
-	query := "mutation _ { update_adaptiveip(" + arguments + ") { uuid network_address netmask gateway start_ip_address end_ip_address } }"
-
-	return http.DoHTTPRequest("harp", query)
+	var aipServerData map[string]map[string]model.AdaptiveIPServer
+	err = json.Unmarshal(result, &aipServerData)
+	if err != nil {
+		return nil, err
+	}
+	return aipServerData["data"][cmd], nil
 }
 
-func DeleteAdaptiveIP(args map[string]interface{}) (interface{}, error) {
-	requestedUUID, _ := args["uuid"].(string)
-	if requestedUUID == "" {
-		return nil, errors.New("need a uuid argument")
+func DeleteAdaptiveIPServer(args map[string]string) (interface{}, error) {
+	// UUID flag must checked by cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"server_uuid": args["server_uuid"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	query := "mutation _ { delete_adaptiveip(uuid:\"" + requestedUUID + "\") { uuid } }"
+	cmd := "delete_adaptiveip_server"
+	query := "mutation _ { " + cmd + " (" + arguments + ") { server_uuid } }"
 
-	return http.DoHTTPRequest("harp", query)
-}
-
-func checkAdaptiveIPServerArgsAll(args map[string]interface{}) bool {
-	adaptiveIPUUIDOk := args["adaptiveip_uuid"].(string) != ""
-	serverUUIDOk := args["server_uuid"].(string) != ""
-	publicIPOk := args["public_ip"].(string) != ""
-
-	return adaptiveIPUUIDOk && serverUUIDOk && publicIPOk
-}
-
-func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
-	if !checkAdaptiveIPServerArgsAll(args) {
-		return nil, errors.New("check needed arguments (adaptiveip_uuid, server_uuid, public_ip)")
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
 	}
 
-	adaptiveIPUUID, _ := args["adaptiveip_uuid"].(string)
-	serverUUID, _ := args["server_uuid"].(string)
-	publicIP, _ := args["public_ip"].(string)
-
-	query := "mutation _ { create_adaptiveip_server(adaptiveip_uuid: \"" + adaptiveIPUUID + "\", server_uuid: \"" + serverUUID + "\", public_ip: \"" +
-		publicIP + "\") { adaptiveip_uuid server_uuid public_ip private_ip private_gateway } }"
-
-	return http.DoHTTPRequest("harp", query)
-}
-
-func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
-	requestedUUID, requestedUUIDOk := args["server_uuid"].(string)
-	if !requestedUUIDOk {
-		return nil, errors.New("need a server_uuid argument")
+	var aipServerData map[string]map[string]model.AdaptiveIPServer
+	err = json.Unmarshal(result, &aipServerData)
+	if err != nil {
+		return nil, err
 	}
-
-	query := "mutation _ { delete_adaptiveip_server(server_uuid:\"" + requestedUUID + "\") { server_uuid } }"
-
-	return http.DoHTTPRequest("harp", query)
+	return aipServerData["data"][cmd], nil
 }
