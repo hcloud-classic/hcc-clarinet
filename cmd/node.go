@@ -162,7 +162,7 @@ var nodeDelete = &cobra.Command{
 }
 
 var nodeCreateDetail = &cobra.Command{
-	Use:   "create_detail",
+	Use:   "detail",
 	Short: "",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
@@ -183,7 +183,7 @@ var nodeCreateDetail = &cobra.Command{
 }
 
 var nodeDeleteDetail = &cobra.Command{
-	Use:   "delete_detail",
+	Use:   "detail",
 	Short: "",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
@@ -328,8 +328,12 @@ func ReadyNodeCmd() {
 	nodeCreateDetail.MarkFlagRequired("cpu_processors")
 	nodeCreateDetail.MarkFlagRequired("cpu_threads")
 
+	nodeCreate.AddCommand(nodeCreateDetail)
+
 	nodeDeleteDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
 	nodeDeleteDetail.MarkFlagRequired("node_uuid")
+
+	nodeDelete.AddCommand(nodeDeleteDetail)
 
 	nodeList.Flags().IntVar(&row, "row", 0, "rows of node list")
 	nodeList.Flags().IntVar(&page, "page", 0, "page of node list")
@@ -348,6 +352,5 @@ func ReadyNodeCmd() {
 
 	NodeCmd.AddCommand(nodeOn, nodeOff, nodeRestart,
 		nodeCreate, nodeUpdate, nodeDelete,
-		nodeCreateDetail, nodeDeleteDetail,
 		nodeList, nodeDetail)
 }
