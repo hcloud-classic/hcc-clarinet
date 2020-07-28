@@ -94,7 +94,7 @@ var nodeRestart = &cobra.Command{
 
 var nodeCreate = &cobra.Command{
 	Use:   "create",
-	Short: "",
+	Short: "Create node or Add detail information of node",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -119,7 +119,7 @@ var nodeCreate = &cobra.Command{
 
 var nodeUpdate = &cobra.Command{
 	Use:   "update",
-	Short: "",
+	Short: "Update node information",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -145,7 +145,7 @@ var nodeUpdate = &cobra.Command{
 
 var nodeDelete = &cobra.Command{
 	Use:   "delete",
-	Short: "",
+	Short: "Delete node",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -163,7 +163,7 @@ var nodeDelete = &cobra.Command{
 
 var nodeCreateDetail = &cobra.Command{
 	Use:   "detail",
-	Short: "",
+	Short: "Create detail information of node",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -184,7 +184,7 @@ var nodeCreateDetail = &cobra.Command{
 
 var nodeDeleteDetail = &cobra.Command{
 	Use:   "detail",
-	Short: "",
+	Short: "Delte detail information of node",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -201,7 +201,7 @@ var nodeDeleteDetail = &cobra.Command{
 
 var nodeList = &cobra.Command{
 	Use:   "list",
-	Short: "",
+	Short: "Show node list",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -260,7 +260,7 @@ var nodeList = &cobra.Command{
 
 var nodeDetail = &cobra.Command{
 	Use:   "detail",
-	Short: "",
+	Short: "Show detail information of node",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -268,13 +268,36 @@ var nodeDetail = &cobra.Command{
 
 		queryArgs["node_uuid"] = nodeUUID
 
-		node, err := queryParser.NodeDetail(queryArgs)
+		nodeDetail, err := queryParser.NodeDetail(queryArgs)
 
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(node)
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		nd := nodeDetail.(model.NodeDetail)
+		t.AppendHeader(table.Row{"Node UUID", nd.NodeUUID})
+
+		t.AppendRow([]interface{}{"CPU Model", nd.CPUModel})
+		t.AppendRow([]interface{}{"CPU Processors", nd.CPUProcessors})
+		t.AppendRow([]interface{}{"CPU Threads", nd.CPUThreads})
+		t.Render()
+
 	},
 }
 
