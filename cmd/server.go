@@ -118,9 +118,10 @@ var serverList = &cobra.Command{
 		for index, server := range servers.([]model.Server) {
 			serverUUIDArg := make(map[string]string)
 			serverUUIDArg["server_uuid"] = server.UUID
+			num, _ := queryParser.NumNodesServer(serverUUIDArg)
 			t.AppendRow([]interface{}{
 				index + 1, server.UUID, server.ServerName, server.CPU, server.Memory, server.DiskSize,
-				server.Status})
+				num.(model.ServerNodeNum).Number, server.Status})
 		}
 
 		t.AppendFooter(table.Row{"Total", len(servers.([]model.Server))})
