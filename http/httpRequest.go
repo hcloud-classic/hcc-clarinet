@@ -57,8 +57,12 @@ func DoHTTPRequest(moduleName string, query string) ([]byte, error) {
 			if !errChk {
 				return respBody, nil
 			}
+			errMsg := ""
 
-			return nil, errors.New(errBody.([]interface{})[0].(map[string]interface{})["message"].(string))
+			for index, msg := range errBody.([]interface{}) {
+				errMsg += strconv.Itoa(index+1) + ":" + msg.(map[string]interface{})["message"].(string) + "\n"
+			}
+			return nil, errors.New(errMsg)
 		}
 
 		return nil, err
