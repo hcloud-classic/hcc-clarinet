@@ -74,9 +74,6 @@ var serverList = &cobra.Command{
 	Args: cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		var servers interface{}
-		var err error
-
 		queryArgs["row"] = strconv.Itoa(row)
 		queryArgs["page"] = strconv.Itoa(page)
 		queryArgs["uuid"] = uuid
@@ -90,7 +87,7 @@ var serverList = &cobra.Command{
 		queryArgs["status"] = status
 		queryArgs["user_uuid"] = userUUID
 
-		servers, err = queryParser.ListServer(queryArgs)
+		servers, err := queryParser.ListServer(queryArgs)
 
 		if err != nil {
 			fmt.Println(err)
@@ -190,14 +187,6 @@ func ReadyServerCmd() {
 	serverCreate.Flags().StringVar(&userUUID, "user_uuid", "", "UUID of user")
 	serverCreate.Flags().IntVar(&nrNode, "nr_node", 0, "Number of nodes")
 	serverCreate.MarkFlagRequired("subnet_uuid")
-	serverCreate.MarkFlagRequired("os")
-	serverCreate.MarkFlagRequired("server_name")
-	serverCreate.MarkFlagRequired("server_desc")
-	serverCreate.MarkFlagRequired("cpu")
-	serverCreate.MarkFlagRequired("memory")
-	serverCreate.MarkFlagRequired("disk_size")
-	serverCreate.MarkFlagRequired("user_uuid")
-	serverCreate.MarkFlagRequired("nr_node")
 
 	serverList.Flags().IntVar(&row, "row", 0, "rows of server list")
 	serverList.Flags().IntVar(&page, "page", 0, "page of server list")
