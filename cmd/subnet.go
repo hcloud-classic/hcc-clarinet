@@ -207,8 +207,6 @@ func ReadySubnetCmd() {
 	subnetCreate.MarkFlagRequired("next_server")
 	subnetCreate.MarkFlagRequired("name_server")
 	subnetCreate.MarkFlagRequired("domain_name")
-	subnetCreate.MarkFlagRequired("server_uuid")
-	subnetCreate.MarkFlagRequired("leader_node_uuid")
 	subnetCreate.MarkFlagRequired("os")
 	subnetCreate.MarkFlagRequired("subnet_name")
 

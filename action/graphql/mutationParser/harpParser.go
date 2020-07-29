@@ -9,7 +9,7 @@ import (
 )
 
 func CreateSubnet(args map[string]string) (interface{}, error) {
-	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
+	if b, ef := argumentParser.CheckArgsAll(args, len(args), "server_uuid", "leader_node_uuid"); b {
 		return nil, errors.New("Check flag value of " + ef)
 	}
 
@@ -20,7 +20,7 @@ func CreateSubnet(args map[string]string) (interface{}, error) {
 
 	cmd := "create_subnet"
 	query := "mutation _ { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
-
+	print(query)
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
 		return nil, err
