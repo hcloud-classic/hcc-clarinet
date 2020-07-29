@@ -126,6 +126,7 @@ var nodeUpdate = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
+		queryArgs["server_uuid"] = serverUUID
 		queryArgs["bmc_mac_addr"] = bmcMacAddr
 		queryArgs["bmc_ip"] = bmcIP
 		queryArgs["pxe_mac_addr"] = pxeMacAddr
@@ -169,7 +170,8 @@ var nodeCreateDetail = &cobra.Command{
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		queryArgs["node_uuid"] = nodeUUID
+		//queryArgs["node_uuid"] = nodeUUID
+		queryArgs["bmc_ip"] = bmcIP
 		queryArgs["cpu_model"] = cpuModel
 		queryArgs["cpu_processors"] = strconv.Itoa(cpuProcessors)
 		queryArgs["cpu_threads"] = strconv.Itoa(cpuThreads)
@@ -190,7 +192,8 @@ var nodeDeleteDetail = &cobra.Command{
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		queryArgs["node_uuid"] = nodeUUID
+		//queryArgs["node_uuid"] = nodeUUID
+		queryArgs["bmc_ip"] = bmcIP
 		node, err := mutationParser.DeleteNodeDetail(queryArgs)
 		if err != nil {
 			fmt.Println(err)
@@ -320,16 +323,11 @@ func ReadyNodeCmd() {
 	nodeCreate.Flags().IntVar(&active, "active", 0, "Active state")
 	nodeCreate.Flags().IntVar(&cpuCores, "cpu_cores", 0, "Number of CPU cores")
 	nodeCreate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
-	nodeCreate.MarkFlagRequired("bmc_mac_addr")
 	nodeCreate.MarkFlagRequired("bmc_ip")
-	nodeCreate.MarkFlagRequired("pxe_mac_addr")
-	nodeCreate.MarkFlagRequired("status")
 	nodeCreate.MarkFlagRequired("description")
-	nodeCreate.MarkFlagRequired("active")
-	nodeCreate.MarkFlagRequired("cpu")
-	nodeCreate.MarkFlagRequired("memory")
 
-	nodeUpdate.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
+	nodeUpdate.Flags().StringVar(&nodeUUID, "uuid", "", "Node UUID")
+	nodeUpdate.Flags().StringVar(&serverUUID, "server_uuid", "", "Server UUID")
 	nodeUpdate.Flags().StringVar(&bmcMacAddr, "bmc_mac_addr", "", "MAC address of BMC")
 	nodeUpdate.Flags().StringVar(&bmcIP, "bmc_ip", "", "IP address of BMC")
 	nodeUpdate.Flags().StringVar(&pxeMacAddr, "pxe_mac_addr", "", "PXE MAC address")
@@ -338,26 +336,10 @@ func ReadyNodeCmd() {
 	nodeUpdate.Flags().IntVar(&active, "active", 0, "Active state")
 	nodeUpdate.Flags().IntVar(&cpuCores, "cpu", 0, "Number of CPU cores")
 	nodeUpdate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
-	nodeUpdate.MarkFlagRequired("uuid")
+	nodeUpdate.MarkFlagRequired("bmc_ip")
 
 	nodeDelete.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
 	nodeDelete.MarkFlagRequired("uuid")
-
-	nodeCreateDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
-	nodeCreateDetail.Flags().StringVar(&cpuModel, "cpu_model", "", "CPU model")
-	nodeCreateDetail.Flags().IntVar(&cpuProcessors, "cpu_processors", 0, "Number of processor")
-	nodeCreateDetail.Flags().IntVar(&cpuThreads, "cpu_threads", 0, "Number of logical core")
-	nodeCreateDetail.MarkFlagRequired("node_uuid")
-	nodeCreateDetail.MarkFlagRequired("cpu_model")
-	nodeCreateDetail.MarkFlagRequired("cpu_processors")
-	nodeCreateDetail.MarkFlagRequired("cpu_threads")
-
-	nodeCreate.AddCommand(nodeCreateDetail)
-
-	nodeDeleteDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
-	nodeDeleteDetail.MarkFlagRequired("node_uuid")
-
-	nodeDelete.AddCommand(nodeDeleteDetail)
 
 	nodeList.Flags().IntVar(&row, "row", 0, "rows of node list")
 	nodeList.Flags().IntVar(&page, "page", 0, "page of node list")
@@ -371,9 +353,23 @@ func ReadyNodeCmd() {
 	nodeList.Flags().StringVar(&desc, "description", "", "Descriptions of Node")
 	nodeList.Flags().IntVar(&active, "active", 0, "Active status")
 
+	nodeCreateDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
+	nodeCreateDetail.Flags().StringVar(&cpuModel, "cpu_model", "", "CPU model")
+	nodeCreateDetail.Flags().IntVar(&cpuProcessors, "cpu_processors", 0, "Number of processor")
+	nodeCreateDetail.Flags().IntVar(&cpuThreads, "cpu_threads", 0, "Number of logical core")
+	nodeCreateDetail.MarkFlagRequired("node_uuid")
+	nodeCreateDetail.MarkFlagRequired("cpu_model")
+	nodeCreateDetail.MarkFlagRequired("cpu_processors")
+	nodeCreateDetail.MarkFlagRequired("cpu_threads")
+
+	nodeDeleteDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
+	nodeDeleteDetail.MarkFlagRequired("node_uuid")
+
 	nodeDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
 	nodeDetail.MarkFlagRequired("node_uuid")
 
+	nodeCreate.AddCommand(nodeCreateDetail)
+	nodeDelete.AddCommand(nodeDeleteDetail)
 	NodeCmd.AddCommand(nodeOn, nodeOff, nodeRestart,
 		nodeCreate, nodeUpdate, nodeDelete,
 		nodeList, nodeDetail)

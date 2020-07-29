@@ -5,10 +5,16 @@ import (
 	"strconv"
 )
 
-func CheckArgsMin(args map[string]string, min int) bool {
+func CheckArgsMin(args map[string]string, min int, mustchk ...string) bool {
 	for key, value := range args {
 		if value == "" || value == "0" {
 			delete(args, key)
+		}
+	}
+
+	for _, key := range mustchk {
+		if _, exist := args[key]; !exist {
+			return false
 		}
 	}
 

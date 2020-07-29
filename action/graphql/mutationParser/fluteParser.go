@@ -47,10 +47,7 @@ func OnOffNode(args map[string]string, state model.PowerState) (interface{}, err
 }
 
 func CreateNode(args map[string]string) (interface{}, error) {
-	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
-		return nil, errors.New("Check flag value of " + ef)
-	}
-
+	// bmc_ip & description must checked by cobra
 	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
 		return nil, err
@@ -73,10 +70,9 @@ func CreateNode(args map[string]string) (interface{}, error) {
 }
 
 func UpdateNode(args map[string]string) (interface{}, error) {
-	// uuid must checked by cobra
-
-	if argumentParser.CheckArgsMin(args, 2) {
-		return nil, errors.New("Need at least 1 more flag except uuid")
+	// bmc_ip must checked by cobra
+	if argumentParser.CheckArgsMin(args, 2, "bmc_ip") {
+		return nil, errors.New("Need at least 1 more flag except bmc_ip")
 	}
 
 	arguments, err := argumentParser.GetArgumentStr(args)
@@ -102,9 +98,7 @@ func UpdateNode(args map[string]string) (interface{}, error) {
 
 func DeleteNode(args map[string]string) (interface{}, error) {
 	// uuid must checked by cobra
-	arguments, err := argumentParser.GetArgumentStr(map[string]string{
-		"uuid": args["uuid"],
-	})
+	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
 		return nil, err
 	}
@@ -153,9 +147,7 @@ func CreateNodeDetail(args map[string]string) (interface{}, error) {
 
 func DeleteNodeDetail(args map[string]string) (interface{}, error) {
 	// node_uuid must checked by cobra
-	arguments, err := argumentParser.GetArgumentStr(map[string]string{
-		"node_uuid": args["node_uuid"],
-	})
+	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
 		return nil, err
 	}
