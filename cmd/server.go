@@ -168,6 +168,7 @@ var serverDelete = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
+		queryArgs["status"] = "Deleted"
 		server, err := mutationParser.DeleteServer(queryArgs)
 		if err != nil {
 			fmt.Println(err)

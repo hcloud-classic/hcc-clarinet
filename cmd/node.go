@@ -64,6 +64,7 @@ var nodeOff = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
+		queryArgs["force_off"] = "true"
 		node, err := mutationParser.OnOffNode(queryArgs, model.Off)
 		if err != nil {
 			fmt.Println(err)

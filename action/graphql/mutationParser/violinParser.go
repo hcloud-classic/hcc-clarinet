@@ -19,7 +19,7 @@ func CreateServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "create_server"
-	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size user_uuid } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid subnet_uuid os server_name server_desc cpu memory disk_size user_uuid } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
@@ -46,7 +46,7 @@ func UpdateServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "update_server"
-	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
@@ -71,7 +71,7 @@ func DeleteServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "delete_server"
-	query := "mutation _ { " + cmd + " (" + arguments + ", status:\"Deleted\") { uuid } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
@@ -97,7 +97,7 @@ func CreateServerNode(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "create_server_node"
-	query := "mutation _ { " + cmd + " (" + arguments + "\") { uuid server_uuid node_uuid created_at } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid server_uuid node_uuid created_at } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
@@ -122,7 +122,7 @@ func DeleteServerNode(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "delete_server_node"
-	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {

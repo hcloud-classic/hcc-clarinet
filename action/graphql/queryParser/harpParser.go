@@ -20,7 +20,7 @@ func ListSubnet(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "list_subnet"
-	query := "query { " + cmd + " (" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
+	query := "query { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
@@ -65,7 +65,7 @@ func ListAdaptiveIPServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "list_adaptiveip_server"
-	query := "query { " + cmd + " (" + arguments + ") { server_uuid public_ip private_ip private_gateway} }"
+	query := "query { " + cmd + arguments + "{ server_uuid public_ip private_ip private_gateway } }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {

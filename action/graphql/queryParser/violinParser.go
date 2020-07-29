@@ -18,7 +18,7 @@ func Server(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "server"
-	query := "query { " + cmd + " (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
+	query := "query { " + cmd + arguments + "{ uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
@@ -46,7 +46,7 @@ func ListServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "list_server"
-	query := "query { " + cmd + " (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
+	query := "query { " + cmd + arguments + "{ uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
@@ -71,7 +71,7 @@ func ServerNode(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "server_node"
-	query := "query { " + cmd + " (" + arguments + ") { uuid server_uuid node_uuid created_at } }"
+	query := "query { " + cmd + arguments + "{ uuid server_uuid node_uuid created_at } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
@@ -96,7 +96,7 @@ func ListServerNode(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "list_server_node"
-	query := "query { " + cmd + " (" + arguments + ") { uuid server_uuid node_uuid created_at } }"
+	query := "query { " + cmd + arguments + "{ uuid server_uuid node_uuid created_at } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {
@@ -121,7 +121,7 @@ func NumNodesServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "num_nodes_server"
-	query := "query { " + cmd + "(" + arguments + ") { number } }"
+	query := "query { " + cmd + arguments + "{ number } }"
 
 	result, err := http.DoHTTPRequest("violin", query)
 	if err != nil {

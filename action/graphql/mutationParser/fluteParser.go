@@ -12,9 +12,7 @@ import (
 func OnOffNode(args map[string]string, state model.PowerState) (interface{}, error) {
 	// UUID flag must checked by cobra
 	var cmd string
-	arguments, err := argumentParser.GetArgumentStr(map[string]string{
-		"uuid": args["uuid"],
-	})
+	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
 		return nil, err
 	}
@@ -24,13 +22,13 @@ func OnOffNode(args map[string]string, state model.PowerState) (interface{}, err
 	switch state {
 	case model.On:
 		cmd = "on_node"
-		query += cmd + "(" + arguments + ") }"
+		query += cmd + arguments + "}"
 	case model.Off:
 		cmd = "off_node"
-		query += cmd + "(" + arguments + ", force_off: true ) }"
+		query += cmd + arguments + "}"
 	case model.Restart:
 		cmd = "force_restart_node"
-		query += cmd + "(" + arguments + ") }"
+		query += cmd + arguments + "}"
 	default:
 		return nil, errors.New("Undefined Power state")
 	}
@@ -59,7 +57,7 @@ func CreateNode(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "create_node"
-	query := "mutation _ { " + cmd + "(" + arguments + ") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
 
 	result, err := http.DoHTTPRequest("flute", query)
 	if err != nil {
@@ -87,7 +85,7 @@ func UpdateNode(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "update_node"
-	query := "mutation _ { " + cmd + "(" + arguments + ") { uuid bmc_mac_addr } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid bmc_mac_addr } }"
 
 	result, err := http.DoHTTPRequest("flute", query)
 	if err != nil {
@@ -112,7 +110,7 @@ func DeleteNode(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "delete_node"
-	query := "mutation _ { " + cmd + "(" + arguments + ") { uuid } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid } }"
 
 	result, err := http.DoHTTPRequest("flute", query)
 	if err != nil {
@@ -138,7 +136,7 @@ func CreateNodeDetail(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "create_node_detail"
-	query := "mutation _ { " + cmd + "(" + arguments + ") { node_uuid cpu_model cpu_processors cpu_threads } }"
+	query := "mutation _ { " + cmd + arguments + "{ node_uuid cpu_model cpu_processors cpu_threads } }"
 
 	result, err := http.DoHTTPRequest("flute", query)
 	if err != nil {
@@ -163,7 +161,7 @@ func DeleteNodeDetail(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "delete_node_detail"
-	query := "mutation _ { " + cmd + "(" + arguments + ") { node_uuid } }"
+	query := "mutation _ { " + cmd + arguments + "{ node_uuid } }"
 
 	result, err := http.DoHTTPRequest("flute", query)
 	if err != nil {

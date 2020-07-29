@@ -105,5 +105,9 @@ func GetArgumentStr(strArgs map[string]string) (string, error) {
 	if err != nil {
 		return arguments, err
 	}
+
+	if arguments != "" {
+		arguments = "(" + arguments + ")"
+	}
 	return arguments, nil
 }
