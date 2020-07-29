@@ -201,7 +201,7 @@ func CreateAdaptiveIPServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "create_adaptiveip_server"
-	query := "mutation _ { " + cmd + "(" + arguments + " ) { adaptiveip_uuid server_uuid public_ip private_ip private_gateway } }"
+	query := "mutation _ { " + cmd + "(" + arguments + " ) { server_uuid public_ip private_ip private_gateway status created_at} }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
@@ -226,7 +226,7 @@ func DeleteAdaptiveIPServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "delete_adaptiveip_server"
-	query := "mutation _ { " + cmd + " (" + arguments + ") { server_uuid } }"
+	query := "mutation _ { " + cmd + " (" + arguments + ") }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {

@@ -36,29 +36,21 @@ func ListSubnet(args map[string]string) (interface{}, error) {
 }
 
 func ListAdaptiveIP(args map[string]string) (interface{}, error) {
-	if (args["row"] != "0") != (args["page"] != "0") {
-		return nil, errors.New("Need [BOTH | NEITHER] row & page")
-	}
 
-	arguments, err := argumentParser.GetArgumentStr(args)
-	if err != nil {
-		return nil, err
-	}
-
-	cmd := "list_adaptiveip"
-	query := "query { " + cmd + " (" + arguments + ") { uuid network_address netmask gateway start_ip_address end_ip_address created_at} }"
+	cmd := "adaptiveip_available_ip_list"
+	query := "query { " + cmd + " { available_ip_list } }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
 		return nil, err
 	}
 
-	var aipListData map[string]map[string][]model.AdaptiveIP
+	var aipListData map[string]map[string]map[string][]string
 	err = json.Unmarshal(result, &aipListData)
 	if err != nil {
 		return nil, err
 	}
-	return aipListData["data"][cmd], nil
+	return aipListData["data"][cmd]["available_ip_list"], nil
 }
 
 func ListAdaptiveIPServer(args map[string]string) (interface{}, error) {
@@ -73,7 +65,7 @@ func ListAdaptiveIPServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "list_adaptiveip_server"
-	query := "query { " + cmd + " (" + arguments + ") { adaptiveip_uuid server_uuid public_ip private_ip private_gateway} }"
+	query := "query { " + cmd + " (" + arguments + ") { server_uuid public_ip private_ip private_gateway} }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
