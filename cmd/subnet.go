@@ -123,7 +123,7 @@ var subnetCreateDHCPDConf = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["subnet_uuid"] = subnetUUID
-		queryArgs["node_uuids"] = nodeUUID
+		queryArgs["node_uuids"] = "[" + nodeUUID + "]"
 		node, err := mutationParser.CreateDHCPDConf(queryArgs)
 		if err != nil {
 			fmt.Println(err)
