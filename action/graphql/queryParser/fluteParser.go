@@ -46,7 +46,7 @@ func ListNode(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "list_node"
-	query := "query { " + cmd + arguments + "{ uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
+	query := "query { " + cmd + arguments + "{ uuid server_uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
 
 	result, err := http.DoHTTPRequest("flute", query)
 	if err != nil {
