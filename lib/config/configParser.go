@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/Terry-Mao/goconf"
 
 	"log"
@@ -120,7 +119,6 @@ func Parser() {
 	}
 
 	setUserConfFilePath()
-	fmt.Println(userConfLocation)
 	if err = usrConf.Parse(userConfLocation); err != nil {
 		GetUserInfo()
 	}
