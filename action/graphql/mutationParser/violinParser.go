@@ -36,7 +36,7 @@ func CreateServer(args map[string]string) (interface{}, error) {
 
 func UpdateServer(args map[string]string) (interface{}, error) {
 
-	if argumentParser.CheckArgsMin(args, 2) {
+	if argumentParser.CheckArgsMin(args, 2, "uuid") {
 		return nil, errors.New("Need at least 1 more flag except uuid")
 	}
 

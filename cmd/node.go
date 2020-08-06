@@ -28,7 +28,7 @@ import (
 )
 
 // nodeCmd represents the node command
-var NodeCmd = &cobra.Command{
+var nodeCmd = &cobra.Command{
 	Use:   "node",
 	Short: "Running node related commands",
 	Long:  `Running node related commands`,
@@ -370,7 +370,7 @@ func ReadyNodeCmd() {
 
 	nodeCreate.AddCommand(nodeCreateDetail)
 	nodeDelete.AddCommand(nodeDeleteDetail)
-	NodeCmd.AddCommand(nodeOn, nodeOff, nodeRestart,
+	nodeCmd.AddCommand(nodeOn, nodeOff, nodeRestart,
 		nodeCreate, nodeUpdate, nodeDelete,
 		nodeList, nodeDetail)
 }

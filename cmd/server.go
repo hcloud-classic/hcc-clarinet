@@ -12,7 +12,7 @@ import (
 	"strconv"
 )
 
-var ServerCmd = &cobra.Command{
+var serverCmd = &cobra.Command{
 	Use:   "server [server options...]",
 	Short: "Running server commands",
 	Long:  `server: Running server related commands.`,
@@ -216,5 +216,5 @@ func ReadyServerCmd() {
 	serverDelete.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
 	serverDelete.MarkFlagRequired("uuid")
 
-	ServerCmd.AddCommand(serverCreate, serverList, serverUpdate, serverDelete)
+	serverCmd.AddCommand(serverCreate, serverList, serverUpdate, serverDelete)
 }

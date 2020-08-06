@@ -27,8 +27,7 @@ import (
 	"strconv"
 )
 
-// aipCmd represents the aip command
-var SubnetCmd = &cobra.Command{
+var subnetCmd = &cobra.Command{
 	Use:   "subnet",
 	Short: "Commands for Subnet",
 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -244,5 +243,5 @@ func ReadySubnetCmd() {
 	subnetList.Flags().StringVar(&OS, "os", "", "OS type")
 	subnetList.Flags().StringVar(&subnetName, "subnet_name", "", "Subnet Name")
 
-	SubnetCmd.AddCommand(subnetCreate, subnetUpdate, subnetDelete, subnetCreateDHCPDConf, subnetList)
+	subnetCmd.AddCommand(subnetCreate, subnetUpdate, subnetDelete, subnetCreateDHCPDConf, subnetList)
 }

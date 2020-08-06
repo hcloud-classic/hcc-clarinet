@@ -28,7 +28,7 @@ import (
 )
 
 // aipCmd represents the aip command
-var AIPCmd = &cobra.Command{
+var aipCmd = &cobra.Command{
 	Use:   "aip",
 	Short: "Commands for Adaptive IP",
 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -274,5 +274,5 @@ func ReadyAIPCmd() {
 
 	aipList.AddCommand(aipListServer)
 
-	AIPCmd.AddCommand(aipCreate, aipUpdate, aipDelete, aipList)
+	aipCmd.AddCommand(aipCreate, aipUpdate, aipDelete, aipList)
 }

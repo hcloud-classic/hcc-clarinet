@@ -1,13 +1,48 @@
 package config
 
 import (
+	"fmt"
 	"github.com/Terry-Mao/goconf"
+
 	"log"
 )
 
 var conf = goconf.New()
-var config = piccoloConfig{}
+var usrConf = goconf.New()
+var config = ClarinetConfig{}
 var err error
+
+func parseUser() {
+	cnt := 0
+RETRY:
+	if cnt > 3 {
+		log.Panic("Cannot Create User configure file (~/.hcc/clarinet/user.conf)")
+	}
+	config.UserConfig = usrConf.Get("user")
+	if config.UserConfig == nil {
+		cnt++
+		GetUserInfo()
+		goto RETRY
+	}
+
+	User = user{}
+	User.UserId, err = config.UserConfig.String("user_id")
+	if err != nil {
+		cnt++
+		GetUserInfo()
+		goto RETRY
+
+	}
+	User.UserPasswd, err = config.UserConfig.String("user_passwd")
+	if err != nil {
+		cnt++
+		GetUserInfo()
+		goto RETRY
+	}
+
+	return
+
+}
 
 func parseFlute() {
 	config.FluteConfig = conf.Get("flute")
@@ -84,6 +119,12 @@ func Parser() {
 		log.Panic(err)
 	}
 
+	setUserConfFilePath()
+	fmt.Println(userConfLocation)
+	if err = usrConf.Parse(userConfLocation); err != nil {
+		GetUserInfo()
+	}
+	parseUser()
 	parseFlute()
 	parseHarp()
 	parseViolin()
