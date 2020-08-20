@@ -1,7 +1,7 @@
 package main
 
 import (
-	Clarinet "hcc/clarinet/cmd"
+	Clarinet "hcc/clarinet/driver/cmd"
 	"hcc/clarinet/lib/config"
 )
 

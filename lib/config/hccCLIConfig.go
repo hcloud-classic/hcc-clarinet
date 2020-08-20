@@ -2,6 +2,8 @@ package config
 
 import (
 	"bufio"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"github.com/Terry-Mao/goconf"
 	"golang.org/x/crypto/ssh/terminal"
@@ -13,56 +15,31 @@ import (
 	"syscall"
 )
 
+type ClarinetConfig struct {
+	PiccoloConfig *goconf.Section
+	UserConfig    *goconf.Section
+}
+
 var configLocation = "/etc/hcc/clarinet/clarinet.conf"
 var userConfLocation string
-
-type ClarinetConfig struct {
-	FluteConfig  *goconf.Section
-	HarpConfig   *goconf.Section
-	ViolinConfig *goconf.Section
-	UserConfig   *goconf.Section
-}
 
 func setUserConfFilePath() {
 	curUser, _ := goUser.Current()
 	userConfLocation = curUser.HomeDir + "/.hcc/clarinet/user.conf"
-
 }
 
-/*TODO: Check alphanumeric user id*/
-
-func GetUserInfo() error {
-
+func createConfFile() error {
 	if err := os.MkdirAll(filepath.Dir(userConfLocation), 0770); err != nil {
 		return err
 	}
 	if _, err = os.Create(userConfLocation); err != nil {
 		return err
 	}
-
-	c := usrConf.Add("user")
-	c.Remove("user_id")
-	c.Remove("user_passwd")
-
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Set user information.")
-
-	fmt.Print("User ID : ")
-	userID, _ := reader.ReadString('\n')
-
-	fmt.Print("User PW : ")
-	userPasswd := getPassword()
-
-	fmt.Println(userPasswd)
-
-	c.Add("user_id", userID)
-	c.Add("user_passwd", userPasswd)
-
+	conf := usrConf.Add("user")
+	conf.Add("token", "")
 	if err = usrConf.Save(userConfLocation); err != nil {
 		return err
 	}
-
-	usrConf.Parse(userConfLocation)
 
 	return nil
 }
@@ -96,4 +73,29 @@ func getPassword() string {
 
 	// Return the password as a string.
 	return string(p)
+}
+
+func GetUserInfo() {
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("Set user information.")
+
+	fmt.Print("User ID : ")
+	scanner.Scan()
+	User.UserId = scanner.Text()
+	/*TODO: Check alphanumeric user id*/
+
+	fmt.Print("User PW : ")
+	User.UserPasswd = getPassword()
+	hashPW := sha256.New()
+	hashPW.Write([]byte(User.UserPasswd))
+	User.UserPasswd = hex.EncodeToString(hashPW.Sum(nil))
+}
+
+func SaveTokenString(tokenString string) {
+	User.Token = tokenString
+	conf := usrConf.Get("user")
+	conf.Add("token", tokenString)
+	if err := usrConf.Save(userConfLocation); err != nil {
+		fmt.Println("Token save failed")
+	}
 }

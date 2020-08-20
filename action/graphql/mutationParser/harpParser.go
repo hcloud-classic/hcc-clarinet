@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"hcc/clarinet/action/graphql"
-	"hcc/clarinet/http"
+	"hcc/clarinet/driver/http"
 	"hcc/clarinet/model"
 )
 
@@ -20,7 +20,6 @@ func CreateSubnet(args map[string]string) (interface{}, error) {
 
 	cmd := "create_subnet"
 	query := "mutation _ { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
-	print(query)
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
 		return nil, err

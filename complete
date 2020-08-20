@@ -2,12 +2,11 @@
 
 _clarinet_completions()
 {
-	opts_command="node server aip subnet config help"
+	opts_command="node server aip subnet help"
 	opts_server="create delete list update"
 	opts_node="create delete list update detail off on restart"
 	opts_subnet="create delete dhcpconf list update"
 	opts_aip="create delete list update"
-	opts_config="user"
 
 	if [[ "${COMP_CWORD}" == "1" ]];then
 		COMPREPLY=($(compgen -W "${opts_command}" "${COMP_WORDS[1]}"))
@@ -20,8 +19,6 @@ _clarinet_completions()
 			COMPREPLY=($(compgen -W "${opts_subnet}" "${COMP_WORDS[2]}"))
 		elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "aip" ]];then
 			COMPREPLY=($(compgen -W "${opts_aip}" "${COMP_WORDS[2]}"))
-		elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "config" ]];then
-			COMPREPLY=($(compgen -W "${opts_config}" "${COMP_WORDS[2]}"))
 		fi
 	fi
 }

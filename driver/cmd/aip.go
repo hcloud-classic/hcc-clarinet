@@ -22,6 +22,7 @@ import (
 	"github.com/spf13/cobra"
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
+	"hcc/clarinet/lib/config"
 	"hcc/clarinet/model"
 	"os"
 	"strconv"
@@ -43,10 +44,11 @@ to quickly create a Cobra application.`,
 var startIP, endIP, aipUUID, publicIP, privateIP string
 
 var aipCreate = &cobra.Command{
-	Use:   "create",
-	Short: "Creat Adaptive IP",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "create",
+	Short:   "Creat Adaptive IP",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["network_ip"] = netIP
@@ -54,9 +56,10 @@ var aipCreate = &cobra.Command{
 		queryArgs["gateway"] = gateway
 		queryArgs["start_ip_address"] = startIP
 		queryArgs["end_ip_address"] = endIP
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.CreateAdaptiveIP(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -65,10 +68,11 @@ var aipCreate = &cobra.Command{
 }
 
 var aipUpdate = &cobra.Command{
-	Use:   "update",
-	Short: "Update Adaptive IP",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "update",
+	Short:   "Update Adaptive IP",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
@@ -77,9 +81,10 @@ var aipUpdate = &cobra.Command{
 		queryArgs["gateway"] = gateway
 		queryArgs["start_ip_address"] = startIP
 		queryArgs["end_ip_address"] = endIP
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.UpdateAdaptiveIP(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -88,16 +93,18 @@ var aipUpdate = &cobra.Command{
 }
 
 var aipDelete = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete Adaptive IP",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "delete",
+	Short:   "Delete Adaptive IP",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.DeleteAdaptiveIP(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -106,17 +113,19 @@ var aipDelete = &cobra.Command{
 }
 
 var aipCreateServer = &cobra.Command{
-	Use:   "server",
-	Short: "Create Adaptive IP Server",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "server",
+	Short:   "Create Adaptive IP Server",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["server_uuid"] = serverUUID
 		queryArgs["public_ip"] = publicIP
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.CreateAdaptiveIPServer(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -125,16 +134,18 @@ var aipCreateServer = &cobra.Command{
 }
 
 var aipDeleteServer = &cobra.Command{
-	Use:   "server",
-	Short: "Delete Adaptive IP Server",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "server",
+	Short:   "Delete Adaptive IP Server",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["server_uuid"] = serverUUID
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.DeleteAdaptiveIPServer(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -143,15 +154,17 @@ var aipDeleteServer = &cobra.Command{
 }
 
 var aipList = &cobra.Command{
-	Use:   "list",
-	Short: "Show available Adaptive IP List",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "list",
+	Short:   "Show available Adaptive IP List",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
+		queryArgs["token"] = config.User.Token
 		aipList, err := queryParser.ListAdaptiveIP(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -183,10 +196,11 @@ var aipList = &cobra.Command{
 }
 
 var aipListServer = &cobra.Command{
-	Use:   "server",
-	Short: "Show Adaptive IP Server List",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "server",
+	Short:   "Show Adaptive IP Server List",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["row"] = strconv.Itoa(row)
@@ -195,9 +209,10 @@ var aipListServer = &cobra.Command{
 		queryArgs["public_ip"] = publicIP
 		queryArgs["private_ip"] = privateIP
 		queryArgs["private_gateway"] = gateway
+		queryArgs["token"] = config.User.Token
 		aipServerList, err := queryParser.ListAdaptiveIPServer(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 

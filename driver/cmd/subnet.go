@@ -22,6 +22,7 @@ import (
 	"github.com/spf13/cobra"
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
+	"hcc/clarinet/lib/config"
 	"hcc/clarinet/model"
 	"os"
 	"strconv"
@@ -42,10 +43,11 @@ to quickly create a Cobra application.`,
 var netIP, netMask, gateway, nextServer, nameServer, domainName, leaderUUID, subnetName string
 
 var subnetCreate = &cobra.Command{
-	Use:   "create",
-	Short: "Creat Subnet",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "create",
+	Short:   "Creat Subnet",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["network_ip"] = netIP
@@ -58,9 +60,10 @@ var subnetCreate = &cobra.Command{
 		queryArgs["leader_node_uuid"] = leaderUUID
 		queryArgs["os"] = OS
 		queryArgs["subnet_name"] = subnetName
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.CreateSubnet(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -69,10 +72,11 @@ var subnetCreate = &cobra.Command{
 }
 
 var subnetUpdate = &cobra.Command{
-	Use:   "update",
-	Short: "Update Subnet",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "update",
+	Short:   "Update Subnet",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
@@ -86,9 +90,10 @@ var subnetUpdate = &cobra.Command{
 		queryArgs["leader_node_uuid"] = leaderUUID
 		queryArgs["os"] = OS
 		queryArgs["subnet_name"] = subnetName
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.UpdateSubnet(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -97,16 +102,18 @@ var subnetUpdate = &cobra.Command{
 }
 
 var subnetDelete = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete Subnet",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "delete",
+	Short:   "Delete Subnet",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.DeleteSubnet(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -115,17 +122,19 @@ var subnetDelete = &cobra.Command{
 }
 
 var subnetCreateDHCPDConf = &cobra.Command{
-	Use:   "dhcpconf",
-	Short: "Create DHCPD Configuration file",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "dhcpconf",
+	Short:   "Create DHCPD Configuration file",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["subnet_uuid"] = subnetUUID
 		queryArgs["node_uuids"] = "[" + nodeUUID + "]"
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.CreateDHCPDConf(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -134,10 +143,11 @@ var subnetCreateDHCPDConf = &cobra.Command{
 }
 
 var subnetList = &cobra.Command{
-	Use:   "list",
-	Short: "Show subnet list",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "list",
+	Short:   "Show subnet list",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["row"] = strconv.Itoa(row)
@@ -152,10 +162,11 @@ var subnetList = &cobra.Command{
 		queryArgs["leader_node_uuid"] = leaderUUID
 		queryArgs["os"] = OS
 		queryArgs["subnet_name"] = subnetName
+		queryArgs["token"] = config.User.Token
 
 		subnetList, err := queryParser.ListSubnet(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 

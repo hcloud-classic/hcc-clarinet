@@ -22,6 +22,7 @@ import (
 	"github.com/spf13/cobra"
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
+	"hcc/clarinet/lib/config"
 	"hcc/clarinet/model"
 	"os"
 	"strconv"
@@ -39,16 +40,18 @@ var serverUUID, nodeUUID, bmcMacAddr, bmcIP, pxeMacAddr, desc, cpuModel string
 var active, cpuCores, cpuProcessors, cpuThreads int
 
 var nodeOn = &cobra.Command{
-	Use:   "on",
-	Short: "Power on specified node",
-	Long:  `Power on specified node`,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "on",
+	Short:   "Power on specified node",
+	Long:    `Power on specified node`,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.OnOffNode(queryArgs, model.On)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -57,17 +60,19 @@ var nodeOn = &cobra.Command{
 }
 
 var nodeOff = &cobra.Command{
-	Use:   "off",
-	Short: "Power off specified node",
-	Long:  `Power off specified node`,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "off",
+	Short:   "Power off specified node",
+	Long:    `Power off specified node`,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
 		queryArgs["force_off"] = "true"
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.OnOffNode(queryArgs, model.Off)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -76,16 +81,18 @@ var nodeOff = &cobra.Command{
 }
 
 var nodeRestart = &cobra.Command{
-	Use:   "restart",
-	Short: "Restart specified node",
-	Long:  `Restart specified node`,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "restart",
+	Short:   "Restart specified node",
+	Long:    `Restart specified node`,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.OnOffNode(queryArgs, model.Restart)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -94,10 +101,11 @@ var nodeRestart = &cobra.Command{
 }
 
 var nodeCreate = &cobra.Command{
-	Use:   "create",
-	Short: "Create node or Add detail information of node",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "create",
+	Short:   "Create node or Add detail information of node",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["bmc_mac_addr"] = bmcMacAddr
@@ -108,9 +116,10 @@ var nodeCreate = &cobra.Command{
 		queryArgs["active"] = strconv.Itoa(active)
 		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
 		queryArgs["memory"] = strconv.Itoa(memory)
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.CreateNode(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -119,10 +128,11 @@ var nodeCreate = &cobra.Command{
 }
 
 var nodeUpdate = &cobra.Command{
-	Use:   "update",
-	Short: "Update node information",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "update",
+	Short:   "Update node information",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
@@ -135,9 +145,10 @@ var nodeUpdate = &cobra.Command{
 		queryArgs["active"] = strconv.Itoa(active)
 		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
 		queryArgs["memory"] = strconv.Itoa(memory)
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.UpdateNode(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -146,16 +157,18 @@ var nodeUpdate = &cobra.Command{
 }
 
 var nodeDelete = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete node",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "delete",
+	Short:   "Delete node",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.DeleteNode(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -164,10 +177,11 @@ var nodeDelete = &cobra.Command{
 }
 
 var nodeCreateDetail = &cobra.Command{
-	Use:   "detail",
-	Short: "Create detail information of node",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "detail",
+	Short:   "Create detail information of node",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		//queryArgs["node_uuid"] = nodeUUID
@@ -175,9 +189,10 @@ var nodeCreateDetail = &cobra.Command{
 		queryArgs["cpu_model"] = cpuModel
 		queryArgs["cpu_processors"] = strconv.Itoa(cpuProcessors)
 		queryArgs["cpu_threads"] = strconv.Itoa(cpuThreads)
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.CreateNodeDetail(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -186,17 +201,19 @@ var nodeCreateDetail = &cobra.Command{
 }
 
 var nodeDeleteDetail = &cobra.Command{
-	Use:   "detail",
-	Short: "Delte detail information of node",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "detail",
+	Short:   "Delte detail information of node",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		//queryArgs["node_uuid"] = nodeUUID
 		queryArgs["bmc_ip"] = bmcIP
+		queryArgs["token"] = config.User.Token
 		node, err := mutationParser.DeleteNodeDetail(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 		fmt.Println(node)
@@ -204,10 +221,11 @@ var nodeDeleteDetail = &cobra.Command{
 }
 
 var nodeList = &cobra.Command{
-	Use:   "list",
-	Short: "Show node list",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "list",
+	Short:   "Show node list",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 
@@ -222,11 +240,12 @@ var nodeList = &cobra.Command{
 		queryArgs["memory"] = strconv.Itoa(memory)
 		queryArgs["description"] = desc
 		queryArgs["active"] = strconv.Itoa(active)
+		queryArgs["token"] = config.User.Token
 
 		nodes, err := queryParser.ListNode(queryArgs)
 
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 		t := table.NewWriter()
@@ -263,19 +282,20 @@ var nodeList = &cobra.Command{
 }
 
 var nodeDetail = &cobra.Command{
-	Use:   "detail",
-	Short: "Show detail information of node",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "detail",
+	Short:   "Show detail information of node",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 
 		queryArgs["node_uuid"] = nodeUUID
+		queryArgs["token"] = config.User.Token
 
 		nodeDetail, err := queryParser.NodeDetail(queryArgs)
-
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 		t := table.NewWriter()

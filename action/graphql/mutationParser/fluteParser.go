@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"hcc/clarinet/action/graphql"
-	"hcc/clarinet/http"
+	"hcc/clarinet/driver/http"
 	"hcc/clarinet/model"
 )
 

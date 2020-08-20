@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
+	"hcc/clarinet/lib/config"
 	"hcc/clarinet/model"
 	"os"
 	"strconv"
@@ -38,7 +39,8 @@ var serverCreate = &cobra.Command{
 	Short: "Create server.",
 	Long:  `Create server with given information. memroy & disk size assign to GB.`,
 	Example: `	clarinet server create --subnet_uuid "string" --os "string" --server_name "string" -- server_desc "description string" --cpu 4 --memory 2 --disk_size 10 --user_uuid "string" --nr_node 3`,
-	Args: cobra.MinimumNArgs(0),
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["subnet_uuid"] = subnetUUID
@@ -50,10 +52,11 @@ var serverCreate = &cobra.Command{
 		queryArgs["disk_size"] = strconv.Itoa(diskSize)
 		queryArgs["user_uuid"] = userUUID
 		queryArgs["nr_node"] = strconv.Itoa(nrNode)
+		queryArgs["token"] = config.User.Token
 
 		server, err := mutationParser.CreateServer(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -71,7 +74,8 @@ var serverList = &cobra.Command{
 	clarinet server list [--filter] [--row & --page]
 							get filtered server list.
 `,
-	Args: cobra.MinimumNArgs(0),
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["row"] = strconv.Itoa(row)
@@ -86,11 +90,12 @@ var serverList = &cobra.Command{
 		queryArgs["disk_size"] = strconv.Itoa(diskSize)
 		queryArgs["status"] = status
 		queryArgs["user_uuid"] = userUUID
+		queryArgs["token"] = config.User.Token
 
 		servers, err := queryParser.ListServer(queryArgs)
 
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -131,8 +136,8 @@ var serverUpdate = &cobra.Command{
 	Short: "Update server information.",
 	Long:  `Update server info by given information.`,
 	Example: `	clarinet server update --uuid "uuidstring" [flags]`,
-
-	Args: cobra.MinimumNArgs(0),
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		queryArgs := make(map[string]string)
@@ -146,10 +151,11 @@ var serverUpdate = &cobra.Command{
 		queryArgs["status"] = status
 		queryArgs["disk_size"] = strconv.Itoa(diskSize)
 		queryArgs["user_uuid"] = userUUID
+		queryArgs["token"] = config.User.Token
 
 		server, err := mutationParser.UpdateServer(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
@@ -158,17 +164,19 @@ var serverUpdate = &cobra.Command{
 }
 
 var serverDelete = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete one of server by UUID.",
-	Long:  `Delete one of server by UUID.`,
-	Args:  cobra.MinimumNArgs(0),
+	Use:     "delete",
+	Short:   "Delete one of server by UUID.",
+	Long:    `Delete one of server by UUID.`,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
 		queryArgs["status"] = "Deleted"
+		queryArgs["token"] = config.User.Token
 		server, err := mutationParser.DeleteServer(queryArgs)
 		if err != nil {
-			fmt.Println(err)
+			reRunIfExpired(cmd)
 			return
 		}
 
