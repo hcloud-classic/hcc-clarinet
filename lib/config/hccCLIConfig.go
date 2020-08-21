@@ -2,10 +2,10 @@ package config
 
 import (
 	"bufio"
-	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"github.com/Terry-Mao/goconf"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/ssh/terminal"
 	"log"
 	"os"
@@ -86,9 +86,11 @@ func GetUserInfo() {
 
 	fmt.Print("User PW : ")
 	User.UserPasswd = getPassword()
-	hashPW := sha256.New()
-	hashPW.Write([]byte(User.UserPasswd))
-	User.UserPasswd = hex.EncodeToString(hashPW.Sum(nil))
+	hashPW, err := bcrypt.GenerateFromPassword([]byte(User.UserPasswd), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatalf("Password hash error: %v", err)
+	}
+	User.UserPasswd = hex.EncodeToString(hashPW)
 }
 
 func SaveTokenString(tokenString string) {
