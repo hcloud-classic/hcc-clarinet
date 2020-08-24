@@ -16,16 +16,18 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
 	"github.com/spf13/cobra"
+
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/lib/config"
+	"hcc/clarinet/lib/errors"
 	"hcc/clarinet/model"
-	"os"
-	"strconv"
 )
 
 // aipCmd represents the aip command
@@ -57,13 +59,21 @@ var aipCreate = &cobra.Command{
 		queryArgs["start_ip_address"] = startIP
 		queryArgs["end_ip_address"] = endIP
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.CreateAdaptiveIP(queryArgs)
+
+		data, err := mutationParser.CreateAdaptiveIP(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		aipData := data.(model.AdaptiveIP)
+		if aipData.Errors.Len() != 0 {
+			err = aipData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -82,13 +92,21 @@ var aipUpdate = &cobra.Command{
 		queryArgs["start_ip_address"] = startIP
 		queryArgs["end_ip_address"] = endIP
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.UpdateAdaptiveIP(queryArgs)
+
+		data, err := mutationParser.UpdateAdaptiveIP(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		aipData := data.(model.AdaptiveIP)
+		if aipData.Errors.Len() != 0 {
+			err = aipData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -102,13 +120,20 @@ var aipDelete = &cobra.Command{
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.DeleteAdaptiveIP(queryArgs)
+		data, err := mutationParser.DeleteAdaptiveIP(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		aipData := data.(model.AdaptiveIP)
+		if aipData.Errors.Len() != 0 {
+			err = aipData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -123,13 +148,20 @@ var aipCreateServer = &cobra.Command{
 		queryArgs["server_uuid"] = serverUUID
 		queryArgs["public_ip"] = publicIP
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.CreateAdaptiveIPServer(queryArgs)
+		data, err := mutationParser.CreateAdaptiveIPServer(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		aipServerData := data.(model.AdaptiveIPServer)
+		if aipServerData.Errors.Len() != 0 {
+			err = aipServerData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -143,13 +175,20 @@ var aipDeleteServer = &cobra.Command{
 		queryArgs := make(map[string]string)
 		queryArgs["server_uuid"] = serverUUID
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.DeleteAdaptiveIPServer(queryArgs)
+		data, err := mutationParser.DeleteAdaptiveIPServer(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		aipServerData := data.(model.AdaptiveIPServer)
+		if aipServerData.Errors.Len() != 0 {
+			err = aipServerData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -162,10 +201,19 @@ var aipList = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["token"] = config.User.Token
-		aipList, err := queryParser.ListAdaptiveIP(queryArgs)
+		data, err := queryParser.ListAdaptiveIP(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
+		}
+
+		availableIPList := data.(model.AvailableIPList)
+		if availableIPList.Errors.Len() != 0 {
+			err = availableIPList.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
 		}
 
 		t := table.NewWriter()
@@ -186,11 +234,11 @@ var aipList = &cobra.Command{
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"Available IP"})
 
-		for _, aip := range aipList.([]string) {
+		for _, aip := range availableIPList.AvailableIPs {
 			t.AppendRow([]interface{}{aip})
 		}
 
-		t.AppendFooter(table.Row{"Total\t" + strconv.Itoa(len(aipList.([]string)))})
+		t.AppendFooter(table.Row{"Total\t" + strconv.Itoa(len(availableIPList.AvailableIPs))})
 		t.Render()
 	},
 }
@@ -210,10 +258,19 @@ var aipListServer = &cobra.Command{
 		queryArgs["private_ip"] = privateIP
 		queryArgs["private_gateway"] = gateway
 		queryArgs["token"] = config.User.Token
-		aipServerList, err := queryParser.ListAdaptiveIPServer(queryArgs)
+		data, err := queryParser.ListAdaptiveIPServer(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
+		}
+
+		aipServerList := data.(model.AdaptiveIPServers)
+		if aipServerList.Errors.Len() != 0 {
+			err = aipServerList.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
 		}
 
 		t := table.NewWriter()
@@ -234,12 +291,12 @@ var aipListServer = &cobra.Command{
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"No", "Server UUID", "Public IP", "Private IP", "Private Gateway"})
 
-		for index, aipServer := range aipServerList.([]model.AdaptiveIPServer) {
+		for index, aipServer := range aipServerList.AdaptiveIPServers {
 			t.AppendRow([]interface{}{index + 1, aipServer.ServerUUID,
 				aipServer.PublicIP, aipServer.PrivateIP, aipServer.PrivateGateway})
 		}
 
-		t.AppendFooter(table.Row{"Total", len(aipServerList.([]model.AdaptiveIPServer))})
+		t.AppendFooter(table.Row{"Total", len(aipServerList.AdaptiveIPServers)})
 		t.Render()
 
 	},

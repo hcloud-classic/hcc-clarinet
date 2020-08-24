@@ -1,16 +1,19 @@
 package cmd
 
 import (
-	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
 	"github.com/spf13/cobra"
+
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/lib/config"
+	"hcc/clarinet/lib/errors"
+	"hcc/clarinet/lib/logger"
 	"hcc/clarinet/model"
-	"os"
-	"strconv"
 )
 
 var serverCmd = &cobra.Command{
@@ -54,13 +57,22 @@ var serverCreate = &cobra.Command{
 		queryArgs["nr_node"] = strconv.Itoa(nrNode)
 		queryArgs["token"] = config.User.Token
 
-		server, err := mutationParser.CreateServer(queryArgs)
+		data, err := mutationParser.CreateServer(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println("Create server SUCCESS\nUUID\t" + server.(model.Server).UUID)
+		serverData := data.(model.Server)
+		if serverData.Errors.Len() != 0 {
+			err = serverData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
+
+		logger.Logger.Println("Create server SUCCESS\nUUID\t" + serverData.UUID)
 	},
 }
 
@@ -92,11 +104,19 @@ var serverList = &cobra.Command{
 		queryArgs["user_uuid"] = userUUID
 		queryArgs["token"] = config.User.Token
 
-		servers, err := queryParser.ListServer(queryArgs)
-
+		data, err := queryParser.ListServer(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
+		}
+
+		serverList := data.(model.Servers)
+		if serverList.Errors.Len() != 0 {
+			err = serverList.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
 		}
 
 		t := table.NewWriter()
@@ -117,7 +137,7 @@ var serverList = &cobra.Command{
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"No", "UUID", "Server Name", "Cores", "Memory", "Disk", "Nodes", "Status"})
 
-		for index, server := range servers.([]model.Server) {
+		for index, server := range serverList.Server {
 			serverUUIDArg := make(map[string]string)
 			serverUUIDArg["server_uuid"] = server.UUID
 			num, _ := queryParser.NumNodesServer(serverUUIDArg)
@@ -126,7 +146,7 @@ var serverList = &cobra.Command{
 				num.(model.ServerNodeNum).Number, server.Status})
 		}
 
-		t.AppendFooter(table.Row{"Total", len(servers.([]model.Server))})
+		t.AppendFooter(table.Row{"Total", len(serverList.Server)})
 		t.Render()
 	},
 }
@@ -153,13 +173,22 @@ var serverUpdate = &cobra.Command{
 		queryArgs["user_uuid"] = userUUID
 		queryArgs["token"] = config.User.Token
 
-		server, err := mutationParser.UpdateServer(queryArgs)
+		data, err := mutationParser.UpdateServer(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println("Successfully update server (" + server.(model.Server).UUID + ") information.")
+		serverData := data.(model.Server)
+		if serverData.Errors.Len() != 0 {
+			err = serverData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
+
+		logger.Logger.Println("Successfully update server (" + serverData.UUID + ") information.")
 	},
 }
 
@@ -174,13 +203,22 @@ var serverDelete = &cobra.Command{
 		queryArgs["uuid"] = uuid
 		queryArgs["status"] = "Deleted"
 		queryArgs["token"] = config.User.Token
-		server, err := mutationParser.DeleteServer(queryArgs)
+		data, err := mutationParser.DeleteServer(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println("Successfully delete server (" + server.(model.Server).UUID + ").")
+		serverData := data.(model.Server)
+		if serverData.Errors.Len() != 0 {
+			err = serverData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
+
+		logger.Logger.Println("Successfully delete server (" + serverData.UUID + ").")
 	},
 }
 

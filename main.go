@@ -1,19 +1,25 @@
 package main
 
 import (
-	Clarinet "hcc/clarinet/driver/cmd"
+	"hcc/clarinet/action/cmd"
 	"hcc/clarinet/lib/config"
+	"hcc/clarinet/lib/logger"
 )
 
 func init() {
+	err := logger.Init()
+	if err != nil {
+		logger.Logger.Fatal(err)
+	}
+
 	config.Parser()
-	Clarinet.Init()
+	cmd.Init()
 }
 
 func main() {
-	if Clarinet.Cmd == nil {
+	if cmd.Cmd == nil {
 		panic("Init Error!!")
 	}
 
-	Clarinet.Cmd.Execute()
+	cmd.Cmd.Execute()
 }

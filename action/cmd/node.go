@@ -16,16 +16,19 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
 	"github.com/spf13/cobra"
+
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/lib/config"
+	"hcc/clarinet/lib/errors"
+	"hcc/clarinet/lib/logger"
 	"hcc/clarinet/model"
-	"os"
-	"strconv"
 )
 
 // nodeCmd represents the node command
@@ -49,13 +52,23 @@ var nodeOn = &cobra.Command{
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.OnOffNode(queryArgs, model.On)
+
+		data, err := mutationParser.OnOffNode(queryArgs, model.On)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println("Flute :" + node.(string))
+		nodeData := data.(model.PowerStateNode)
+		if nodeData.Errors.Len() != 0 {
+			err = nodeData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
+
+		logger.Logger.Println("Flute :" + nodeData.State)
 	},
 }
 
@@ -70,13 +83,23 @@ var nodeOff = &cobra.Command{
 		queryArgs["uuid"] = nodeUUID
 		queryArgs["force_off"] = "true"
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.OnOffNode(queryArgs, model.Off)
+
+		data, err := mutationParser.OnOffNode(queryArgs, model.Off)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println("Flute :" + node.(string))
+		nodeData := data.(model.PowerStateNode)
+		if nodeData.Errors.Len() != 0 {
+			err = nodeData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
+
+		logger.Logger.Println("Flute :" + nodeData.State)
 	},
 }
 
@@ -90,13 +113,22 @@ var nodeRestart = &cobra.Command{
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.OnOffNode(queryArgs, model.Restart)
+		data, err := mutationParser.OnOffNode(queryArgs, model.Restart)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println("Flute :" + node.(string))
+		nodeData := data.(model.PowerStateNode)
+		if nodeData.Errors.Len() != 0 {
+			err = nodeData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
+
+		logger.Logger.Println("Flute :" + nodeData.State)
 	},
 }
 
@@ -117,13 +149,21 @@ var nodeCreate = &cobra.Command{
 		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
 		queryArgs["memory"] = strconv.Itoa(memory)
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.CreateNode(queryArgs)
+
+		data, err := mutationParser.CreateNode(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		nodeData := data.(model.Node)
+		if nodeData.Errors.Len() != 0 {
+			err = nodeData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -146,13 +186,21 @@ var nodeUpdate = &cobra.Command{
 		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
 		queryArgs["memory"] = strconv.Itoa(memory)
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.UpdateNode(queryArgs)
+
+		data, err := mutationParser.UpdateNode(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		nodeData := data.(model.Node)
+		if nodeData.Errors.Len() != 0 {
+			err = nodeData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -166,13 +214,20 @@ var nodeDelete = &cobra.Command{
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.DeleteNode(queryArgs)
+		data, err := mutationParser.DeleteNode(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		nodeData := data.(model.Node)
+		if nodeData.Errors.Len() != 0 {
+			err = nodeData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -190,13 +245,21 @@ var nodeCreateDetail = &cobra.Command{
 		queryArgs["cpu_processors"] = strconv.Itoa(cpuProcessors)
 		queryArgs["cpu_threads"] = strconv.Itoa(cpuThreads)
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.CreateNodeDetail(queryArgs)
+
+		data, err := mutationParser.CreateNodeDetail(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		nodeData := data.(model.NodeDetail)
+		if nodeData.Errors.Len() != 0 {
+			err = nodeData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -211,12 +274,21 @@ var nodeDeleteDetail = &cobra.Command{
 		//queryArgs["node_uuid"] = nodeUUID
 		queryArgs["bmc_ip"] = bmcIP
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.DeleteNodeDetail(queryArgs)
+
+		data, err := mutationParser.DeleteNodeDetail(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
-		fmt.Println(node)
+
+		nodeData := data.(model.NodeDetail)
+		if nodeData.Errors.Len() != 0 {
+			err = nodeData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -242,12 +314,21 @@ var nodeList = &cobra.Command{
 		queryArgs["active"] = strconv.Itoa(active)
 		queryArgs["token"] = config.User.Token
 
-		nodes, err := queryParser.ListNode(queryArgs)
-
+		data, err := queryParser.ListNode(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
+
+		nodeList := data.(model.Nodes)
+		if nodeList.Errors.Len() != 0 {
+			err = nodeList.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
+
 		t := table.NewWriter()
 		t.SetStyle(table.Style{
 			Name: "clarinetTableStyle",
@@ -267,15 +348,13 @@ var nodeList = &cobra.Command{
 		t.AppendHeader(table.Row{"No", "UUID", "Server UUID", "BMC MAC", "BMC IP", "PXE MAC",
 			"Cores", "Memory", "Description", "Active", "Status"})
 
-		for index, node := range nodes.([]model.Node) {
-			serverUUIDArg := make(map[string]string)
-			serverUUIDArg["node_uuid"] = node.UUID
+		for index, node := range nodeList.Nodes {
 			t.AppendRow([]interface{}{
 				index + 1, node.UUID, node.ServerUUID, node.BmcMacAddr, node.BmcIP, node.PXEMacAddr,
 				node.CPUCores, node.Memory, node.Description, node.Active, node.Status})
 		}
 
-		t.AppendFooter(table.Row{"Total", len(nodes.([]model.Node))})
+		t.AppendFooter(table.Row{"Total", len(nodeList.Nodes)})
 		t.Render()
 
 	},
@@ -293,11 +372,21 @@ var nodeDetail = &cobra.Command{
 		queryArgs["node_uuid"] = nodeUUID
 		queryArgs["token"] = config.User.Token
 
-		nodeDetail, err := queryParser.NodeDetail(queryArgs)
+		data, err := queryParser.NodeDetail(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
+
+		nodeDetailData := data.(model.NodeDetail)
+		if nodeDetailData.Errors.Len() != 0 {
+			err = nodeDetailData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
+
 		t := table.NewWriter()
 		t.SetStyle(table.Style{
 			Name: "clarinetTableStyle",
@@ -314,12 +403,11 @@ var nodeDetail = &cobra.Command{
 			},
 		})
 		t.SetOutputMirror(os.Stdout)
-		nd := nodeDetail.(model.NodeDetail)
-		t.AppendHeader(table.Row{"Node UUID", nd.NodeUUID})
+		t.AppendHeader(table.Row{"Node UUID", nodeDetailData.NodeUUID})
 
-		t.AppendRow([]interface{}{"CPU Model", nd.CPUModel})
-		t.AppendRow([]interface{}{"CPU Processors", nd.CPUProcessors})
-		t.AppendRow([]interface{}{"CPU Threads", nd.CPUThreads})
+		t.AppendRow([]interface{}{"CPU Model", nodeDetailData.CPUModel})
+		t.AppendRow([]interface{}{"CPU Processors", nodeDetailData.CPUProcessors})
+		t.AppendRow([]interface{}{"CPU Threads", nodeDetailData.CPUThreads})
 		t.Render()
 
 	},
