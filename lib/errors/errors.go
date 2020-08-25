@@ -4,8 +4,6 @@ import (
 	"errors"
 	"log"
 	"strconv"
-
-	"github.com/golang-collections/collections/stack"
 )
 
 /*** Match Enum squence with xxxList ***/
@@ -113,11 +111,11 @@ func (e HccError) Fatal() {
 }
 
 type HccErrorStack struct {
-	errStack *stack.Stack
+	errStack []HccError
 }
 
 func NewHccErrorStack(errList ...*HccError) *HccErrorStack {
-	es := HccErrorStack{errStack: stack.New()}
+	es := HccErrorStack{errStack: []HccError{HccError{ErrCode: 0, ErrText: ""}}}
 
 	for _, err := range errList {
 		es.Push(err)
@@ -125,22 +123,26 @@ func NewHccErrorStack(errList ...*HccError) *HccErrorStack {
 	return &es
 }
 
-func (es HccErrorStack) Len() int {
-	return es.errStack.Len()
+func (es *HccErrorStack) Len() int {
+	return len(es.errStack)
 }
 
-func (es HccErrorStack) Pop() *HccError {
-	if err := es.errStack.Pop(); err != nil {
-		return NewHccError(err.(HccError).ErrCode, err.(HccError).ErrText)
+func (es *HccErrorStack) Pop() *HccError {
+	l := es.Len()
+	if l > 1 {
+		err := es.errStack[l-1]
+		es.errStack = es.errStack[:l-1]
+		return &err
 	}
-	return NewHccError(0, "")
+	return nil
 }
 
-func (es HccErrorStack) Push(err *HccError) {
-	es.errStack.Push(*err)
+func (es *HccErrorStack) Push(err *HccError) {
+	es.errStack = append(es.errStack, *err)
 }
 
-func (es HccErrorStack) Dump() *HccError {
+// Dump() will clean stack
+func (es *HccErrorStack) Dump() *HccError {
 	var firstErr *HccError = nil
 	if es.Len() == 0 {
 		return nil
@@ -149,7 +151,7 @@ func (es HccErrorStack) Dump() *HccError {
 	errlogger.Printf("Stack Size : %v\n", es.Len())
 	firstErr = es.Pop()
 	firstErr.Println()
-	for err := es.Pop(); err.Code() != 0; err = es.Pop() {
+	for err := es.Pop(); err != nil; err = es.Pop() {
 		err.Println()
 	}
 	errlogger.Println("--------- [ End Here ] ---------")

@@ -3,13 +3,14 @@ package main
 import (
 	"hcc/clarinet/action/cmd"
 	"hcc/clarinet/lib/config"
+	"hcc/clarinet/lib/errors"
 	"hcc/clarinet/lib/logger"
 )
 
 func init() {
 	err := logger.Init()
 	if err != nil {
-		logger.Logger.Fatal(err)
+		errors.NewHccError(errors.ClarinetInternalInitFail, "logger").Fatal()
 	}
 
 	config.Parser()
@@ -18,7 +19,7 @@ func init() {
 
 func main() {
 	if cmd.Cmd == nil {
-		panic("Init Error!!")
+		errors.NewHccError(errors.ClarinetInternalInitFail, "cobra").Fatal()
 	}
 
 	cmd.Cmd.Execute()
