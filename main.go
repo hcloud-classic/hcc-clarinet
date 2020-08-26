@@ -1,12 +1,19 @@
 package main
 
 import (
-	clarinetInit "hcc/clarinet/init"
+	Clarinet "hcc/clarinet/driver/cmd"
+	"hcc/clarinet/lib/config"
 )
 
+func init() {
+	config.Parser()
+	Clarinet.Init()
+}
+
 func main() {
-	err := clarinetInit.MainInit()
-	if err != nil {
-		panic(err)
+	if Clarinet.Cmd == nil {
+		panic("Init Error!!")
 	}
+
+	Clarinet.Cmd.Execute()
 }

@@ -1,0 +1,26 @@
+#/usr/bin/env bash
+
+_clarinet_completions()
+{
+	opts_command="node server aip subnet help"
+	opts_server="create delete list update"
+	opts_node="create delete list update detail off on restart"
+	opts_subnet="create delete dhcpconf list update"
+	opts_aip="create delete list update"
+
+	if [[ "${COMP_CWORD}" == "1" ]];then
+		COMPREPLY=($(compgen -W "${opts_command}" "${COMP_WORDS[1]}"))
+	elif [[ "${COMP_CWORD}" == "2" ]];then
+ 		if [[ "${COMP_WORDS[COMP_CWORD-1]}" == "server" ]];then
+			COMPREPLY=($(compgen -W "${opts_server}" "${COMP_WORDS[2]}"))
+		elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "node" ]];then
+			COMPREPLY=($(compgen -W "${opts_node}" "${COMP_WORDS[2]}"))
+		elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "subnet" ]];then
+			COMPREPLY=($(compgen -W "${opts_subnet}" "${COMP_WORDS[2]}"))
+		elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "aip" ]];then
+			COMPREPLY=($(compgen -W "${opts_aip}" "${COMP_WORDS[2]}"))
+		fi
+	fi
+}
+
+complete -F _clarinet_completions clarinet
