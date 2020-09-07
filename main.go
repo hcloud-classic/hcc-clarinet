@@ -30,7 +30,13 @@ func main() {
 
 	err.Println()
 
-	errStack.Dump()
+	errStack.ConvertReportForm()
+
+	for _, e := range *errStack {
+		print(e.Text() + "\n")
+	}
+
+	// errStack.Dump()
 
 	//cmd.Cmd.Execute()
 }

@@ -99,12 +99,16 @@ func (e HccError) Code() uint64 {
 	return e.ErrCode
 }
 
+func (e HccError) Text() string {
+	return e.ErrText
+}
+
 func (e HccError) ToString() string {
 	m := e.ErrCode / 10000
 	f := e.ErrCode % 10000 / 1000
 	a := e.ErrCode % 1000
 
-	return "[" + middleWareList[m] + "] " + functionList[f] + ": " + actionList[a] + strconv.FormatUint(e.ErrCode, 10) + " " + e.ErrText
+	return "[" + middleWareList[m] + "] Code :" + strconv.FormatUint(e.ErrCode, 10) + " (" + functionList[f] + ") " + actionList[a] + " " + e.ErrText
 }
 
 func (e HccError) Println() {
@@ -165,4 +169,11 @@ func (es *HccErrorStack) Dump() *HccError {
 	}
 	errlogger.Println("--------- [ End Here ] ---------")
 	return firstErr
+}
+
+func (es *HccErrorStack) ConvertReportForm() *HccErrorStack {
+	for idx := 1; idx < es.len(); idx++ {
+		(*es)[idx].ErrText = (*es)[idx].ToString()
+	}
+	return es
 }
