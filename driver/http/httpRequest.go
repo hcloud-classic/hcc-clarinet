@@ -2,8 +2,8 @@ package http
 
 import (
 	"encoding/json"
-	"errors"
 	"hcc/clarinet/lib/config"
+	"hcc/clarinet/lib/errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -11,7 +11,7 @@ import (
 )
 
 // DoHTTPRequest : Send http request to other modules with GraphQL query string.
-func DoHTTPRequest(moduleName string, query string) ([]byte, error) {
+func DoHTTPRequest(moduleName string, query string) ([]byte, *errors.HccError) {
 	var timeout time.Duration
 	var url = "http://"
 
@@ -22,12 +22,11 @@ func DoHTTPRequest(moduleName string, query string) ([]byte, error) {
 	client := &http.Client{Timeout: timeout * time.Millisecond}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewHccError(errors.ClarinetDriverRequestError, err.Error())
 	}
 	resp, err := client.Do(req)
-
 	if err != nil {
-		return nil, err
+		return nil, errors.NewHccError(errors.ClarinetDriverRequestError, err.Error())
 	}
 	defer func() {
 		_ = resp.Body.Close()
@@ -38,7 +37,10 @@ func DoHTTPRequest(moduleName string, query string) ([]byte, error) {
 		respBody, err := ioutil.ReadAll(resp.Body)
 		if err == nil {
 			var result map[string]interface{}
-			json.Unmarshal(respBody, &result)
+			err = json.Unmarshal(respBody, &result)
+			if err != nil {
+				return nil, errors.NewHccError(errors.ClarinetDriverJsonUnmarshalError, err.Error())
+			}
 			errBody, errChk := result["errors"]
 
 			if !errChk {
@@ -49,11 +51,11 @@ func DoHTTPRequest(moduleName string, query string) ([]byte, error) {
 			for index, msg := range errBody.([]interface{}) {
 				errMsg += strconv.Itoa(index+1) + ":" + msg.(map[string]interface{})["message"].(string) + "\n"
 			}
-			return nil, errors.New(errMsg)
+			return nil, errors.NewHccError(errors.ClarinetDriverReceiveError, errMsg)
 		}
 
-		return nil, err
+		return nil, errors.NewHccError(errors.ClarinetDriverParsingError, err.Error())
 	}
 
-	return nil, errors.New("http response returned error code" + strconv.Itoa(resp.StatusCode))
+	return nil, errors.NewHccError(errors.ClarinetDriverResponseError, "http response returned error code"+strconv.Itoa(resp.StatusCode))
 }

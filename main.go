@@ -1,19 +1,42 @@
 package main
 
 import (
-	Clarinet "hcc/clarinet/driver/cmd"
+	"hcc/clarinet/action/cmd"
 	"hcc/clarinet/lib/config"
+	"hcc/clarinet/lib/errors"
+	"hcc/clarinet/lib/logger"
 )
 
 func init() {
+	err := logger.Init()
+	if err != nil {
+		errors.NewHccError(errors.ClarinetInternalInitFail, "logger").Fatal()
+	}
+
 	config.Parser()
-	Clarinet.Init()
+	cmd.Init()
 }
 
 func main() {
-	if Clarinet.Cmd == nil {
-		panic("Init Error!!")
+	if cmd.Cmd == nil {
+		errors.NewHccError(errors.ClarinetInternalInitFail, "cobra").Fatal()
 	}
 
-	Clarinet.Cmd.Execute()
+	errStack := errors.NewHccErrorStack(errors.NewHccError(errors.ClarinetInternalInitFail, "test1"))
+	errStack.Push(errors.NewHccError(errors.ClarinetInternalInitFail, "test2"))
+	errStack.Push(errors.NewHccError(errors.ClarinetInternalInitFail, "test3"))
+
+	err := errStack.Pop()
+
+	err.Println()
+
+	errStack.ConvertReportForm()
+
+	for _, e := range *errStack {
+		print(e.Text() + "\n")
+	}
+
+	// errStack.Dump()
+
+	//cmd.Cmd.Execute()
 }

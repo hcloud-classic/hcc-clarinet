@@ -16,16 +16,18 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
 	"github.com/spf13/cobra"
+
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/lib/config"
+	"hcc/clarinet/lib/errors"
 	"hcc/clarinet/model"
-	"os"
-	"strconv"
 )
 
 var subnetCmd = &cobra.Command{
@@ -61,13 +63,21 @@ var subnetCreate = &cobra.Command{
 		queryArgs["os"] = OS
 		queryArgs["subnet_name"] = subnetName
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.CreateSubnet(queryArgs)
+
+		data, err := mutationParser.CreateSubnet(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		subnetData := data.(model.Subnet)
+		if subnetData.Errors.Len() != 0 {
+			err = subnetData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -91,13 +101,21 @@ var subnetUpdate = &cobra.Command{
 		queryArgs["os"] = OS
 		queryArgs["subnet_name"] = subnetName
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.UpdateSubnet(queryArgs)
+
+		data, err := mutationParser.UpdateSubnet(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		subnetData := data.(model.Subnet)
+		if subnetData.Errors.Len() != 0 {
+			err = subnetData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -111,13 +129,21 @@ var subnetDelete = &cobra.Command{
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.DeleteSubnet(queryArgs)
+
+		data, err := mutationParser.DeleteSubnet(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		subnetData := data.(model.Subnet)
+		if subnetData.Errors.Len() != 0 {
+			err = subnetData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -132,13 +158,21 @@ var subnetCreateDHCPDConf = &cobra.Command{
 		queryArgs["subnet_uuid"] = subnetUUID
 		queryArgs["node_uuids"] = "[" + nodeUUID + "]"
 		queryArgs["token"] = config.User.Token
-		node, err := mutationParser.CreateDHCPDConf(queryArgs)
+
+		data, err := mutationParser.CreateDHCPDConf(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
 		}
 
-		fmt.Println(node)
+		subnetData := data.(model.DHCPDConfResult)
+		if subnetData.Errors.Len() != 0 {
+			err = subnetData.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
+		}
 	},
 }
 
@@ -164,10 +198,19 @@ var subnetList = &cobra.Command{
 		queryArgs["subnet_name"] = subnetName
 		queryArgs["token"] = config.User.Token
 
-		subnetList, err := queryParser.ListSubnet(queryArgs)
+		data, err := queryParser.ListSubnet(queryArgs)
 		if err != nil {
-			reRunIfExpired(cmd)
+			err.Println()
 			return
+		}
+
+		subnetList := data.(model.Subnets)
+		if subnetList.Errors.Len() != 0 {
+			err = subnetList.Errors.Dump()
+			if err.Code() == errors.PiccoloGraphQLTokenExpired {
+				reRunIfExpired(cmd)
+				return
+			}
 		}
 
 		t := table.NewWriter()
@@ -189,13 +232,13 @@ var subnetList = &cobra.Command{
 		t.AppendHeader(table.Row{"No", "UUID", "IP", "Netmask", "Gateway", "Next Server", "Name Server",
 			"Domain Name", "Server UUID", "Leader UUID", "OS", "Subnet Name", "Create At"})
 
-		for index, subnet := range subnetList.([]model.Subnet) {
+		for index, subnet := range subnetList.Subnets {
 			t.AppendRow([]interface{}{index + 1, subnet.UUID, subnet.NetworkIP, subnet.Netmask, subnet.Gateway,
 				subnet.NextServer, subnet.NameServer, subnet.DomainName, subnet.ServerUUID,
 				subnet.LeaderNodeUUID, subnet.OS, subnet.SubnetName, subnet.CreatedAt})
 		}
 
-		t.AppendFooter(table.Row{"Total", len(subnetList.([]model.Subnet))})
+		t.AppendFooter(table.Row{"Total", len(subnetList.Subnets)})
 		t.Render()
 	},
 }
