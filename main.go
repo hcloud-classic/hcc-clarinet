@@ -22,21 +22,5 @@ func main() {
 		errors.NewHccError(errors.ClarinetInternalInitFail, "cobra").Fatal()
 	}
 
-	errStack := errors.NewHccErrorStack(errors.NewHccError(errors.ClarinetInternalInitFail, "test1"))
-	errStack.Push(errors.NewHccError(errors.ClarinetInternalInitFail, "test2"))
-	errStack.Push(errors.NewHccError(errors.ClarinetInternalInitFail, "test3"))
-
-	err := errStack.Pop()
-
-	err.Println()
-
-	errStack.ConvertReportForm()
-
-	for _, e := range *errStack {
-		print(e.Text() + "\n")
-	}
-
-	// errStack.Dump()
-
-	//cmd.Cmd.Execute()
+	cmd.Cmd.Execute()
 }
