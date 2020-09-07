@@ -38,6 +38,7 @@ var functionList = [...]string{"", "Internal", "Driver", "GraphQL", "Grpc", "SQL
 const (
 	initFail uint64 = 1 + iota
 	connectionFail
+	undefinedError
 	argumentError
 	jsonMarshalError
 	jsonUnmarshalError
@@ -47,6 +48,7 @@ const (
 	receiveError  // get error as result from server
 	parsingError
 	tokenExpired
+	dbOperationFail
 )
 
 var actionList = [...]string{
@@ -62,6 +64,7 @@ var actionList = [...]string{
 	"Receive error -> ",
 	"Parsing error -> ",
 	"Token Expired -> ",
+	"DB operationfail -> ",
 }
 
 var errlogger *log.Logger
@@ -69,6 +72,8 @@ var errlogger *log.Logger
 func SetErrLogger(l *log.Logger) {
 	errlogger = l
 }
+
+/*    HCCERROR    */
 
 type HccError struct {
 	ErrCode uint64 // decimal error code
@@ -110,12 +115,12 @@ func (e HccError) Fatal() {
 	errlogger.Fatal(e.ToString())
 }
 
-type HccErrorStack struct {
-	errStack []HccError
-}
+/*    HCCERRORSTACK    */
+
+type HccErrorStack []HccError
 
 func NewHccErrorStack(errList ...*HccError) *HccErrorStack {
-	es := HccErrorStack{errStack: []HccError{HccError{ErrCode: 0, ErrText: ""}}}
+	es := HccErrorStack{HccError{ErrCode: 0, ErrText: ""}}
 
 	for _, err := range errList {
 		es.Push(err)
@@ -124,21 +129,25 @@ func NewHccErrorStack(errList ...*HccError) *HccErrorStack {
 }
 
 func (es *HccErrorStack) Len() int {
-	return len(es.errStack)
+	return es.len() - 1
+}
+
+func (es *HccErrorStack) len() int {
+	return len(*es)
 }
 
 func (es *HccErrorStack) Pop() *HccError {
-	l := es.Len()
+	l := es.len()
 	if l > 1 {
-		err := es.errStack[l-1]
-		es.errStack = es.errStack[:l-1]
+		err := (*es)[l-1]
+		*es = (*es)[:l-1]
 		return &err
 	}
 	return nil
 }
 
 func (es *HccErrorStack) Push(err *HccError) {
-	es.errStack = append(es.errStack, *err)
+	*es = append(*es, *err)
 }
 
 // Dump() will clean stack
