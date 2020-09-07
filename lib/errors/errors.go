@@ -36,6 +36,7 @@ const (
 var functionList = [...]string{"", "Internal", "Driver", "GraphQL", "Grpc", "SQL", "RabbitMQ"}
 
 const (
+	// Use Generally
 	initFail uint64 = 1 + iota
 	connectionFail
 	undefinedError
@@ -48,7 +49,33 @@ const (
 	receiveError  // get error as result from server
 	parsingError
 	tokenExpired
-	dbOperationFail
+	operationFail
+
+	// clarinet specific
+
+	// piccolo specific
+	UUIDGenerationError
+	timestampConversionError
+	prepareError
+	executeError
+	tokenGenerationError
+	loginFailed
+	// cello specific
+
+	// violin-scheduler specific
+
+	// flute specific
+
+	// viola specific
+
+	// piano specific
+
+	// harp specific
+
+	// violin-novnc specific
+
+	// violin specific
+
 )
 
 var actionList = [...]string{
@@ -65,6 +92,32 @@ var actionList = [...]string{
 	"Parsing error -> ",
 	"Token Expired -> ",
 	"DB operationfail -> ",
+
+	// clarinet specific
+
+	// piccolo specific
+	"UUID generation error -> ",
+	"timestamp conversion error -> ",
+	"Prepare error -> ",
+	"Execute error -> ",
+	"Token Generation Error -> ",
+	"Login failed -> ",
+
+	// cello specific
+
+	// violin-scheduler specific
+
+	// flute specific
+
+	// viola specific
+
+	// piano specific
+
+	// harp specific
+
+	// violin-novnc specific
+
+	// violin specific
 }
 
 var errlogger *log.Logger
