@@ -2,6 +2,8 @@ package data
 
 import "hcc/clarinet/model"
 
+// Query
+
 // AdaptiveIPServerData : Data structure of adaptiveip_server
 type AdaptiveIPServerData struct {
 	Data struct {

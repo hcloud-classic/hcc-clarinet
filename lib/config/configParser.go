@@ -1,9 +1,8 @@
 package config
 
 import (
-	"log"
-
 	"github.com/Terry-Mao/goconf"
+	"log"
 )
 
 var conf = goconf.New()
