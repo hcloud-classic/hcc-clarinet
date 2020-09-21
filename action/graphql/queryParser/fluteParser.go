@@ -10,15 +10,28 @@ import (
 
 func Node(args map[string]string) (interface{}, *errors.HccError) {
 	// UUID must checked by cobra
-	arguments, err := argumentParser.GetArgumentStr(map[string]string{
-		"uuid": args["uuid"],
-	})
+	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
 		return nil, err
 	}
 
 	cmd := "node"
-	query := "query { " + cmd + arguments + "{ uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active errors } }"
+	query := `query { ` + cmd + arguments + `{
+		uuid
+		bmc_mac_addr
+		bmc_ip
+		pxe_mac_addr
+		status
+		cpu_cores
+		memory
+		description
+		created_at
+		active
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -57,9 +70,9 @@ func ListNode(args map[string]string) (interface{}, *errors.HccError) {
 			memory
 			description
 			created_at
-			activ
+			active
 		}
-		errors{
+		errors {
 			errcode
 			errtext
 		}
@@ -69,7 +82,7 @@ func ListNode(args map[string]string) (interface{}, *errors.HccError) {
 		return nil, err
 	}
 
-	var nodeData map[string]map[string][]model.Node
+	var nodeData map[string]map[string]model.Nodes
 	if e := json.Unmarshal(result, &nodeData); e != nil {
 		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
 	}
@@ -94,15 +107,22 @@ func NumNode() (interface{}, *errors.HccError) {
 
 func NodeDetail(args map[string]string) (interface{}, *errors.HccError) {
 	// node_uuid must checked by cobra
-	arguments, err := argumentParser.GetArgumentStr(map[string]string{
-		"node_uuid": args["node_uuid"],
-	})
+	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
 		return nil, err
 	}
 
 	cmd := "detail_node"
-	query := "query { " + cmd + arguments + "{ node_uuid cpu_model cpu_processors cpu_threads errors } }"
+	query := `query { ` + cmd + arguments + `{
+		node_uuid
+		cpu_model
+		cpu_processors
+		cpu_threads
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {

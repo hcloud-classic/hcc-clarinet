@@ -101,7 +101,13 @@ func DeleteNode(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "delete_node"
-	query := "mutation _ { " + cmd + arguments + "{ uuid errors} }"
+	query := `mutation _ { ` + cmd + arguments + `{
+		uuid
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -126,7 +132,16 @@ func CreateNodeDetail(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "create_node_detail"
-	query := "mutation _ { " + cmd + arguments + "{ node_uuid cpu_model cpu_processors cpu_threads errors} }"
+	query := `mutation _ { ` + cmd + arguments + `{
+		node_uuid
+		cpu_model
+		cpu_processors
+		cpu_threads
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -148,7 +163,13 @@ func DeleteNodeDetail(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "delete_node_detail"
-	query := "mutation _ { " + cmd + arguments + "{ node_uuid errors} }"
+	query := `mutation _ { ` + cmd + arguments + `{
+		node_uuid
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {

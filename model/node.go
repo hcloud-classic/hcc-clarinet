@@ -32,7 +32,7 @@ type NodeDetail struct {
 
 // Nodes - cgs
 type Nodes struct {
-	Nodes  []Node               `json:"node"`
+	Nodes  []Node               `json:"node_list"`
 	Errors errors.HccErrorStack `json:"errors"`
 }
 

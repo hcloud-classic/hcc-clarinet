@@ -32,7 +32,7 @@ var uuid string
 var serverCmd = &cobra.Command{
 	Use:     `server --uuid "serverUUID"`,
 	Short:   "Get server Information",
-	Long:    `Show server information by given serverUUID`,
+	Long:    `Show server information by given serverUUID at table`,
 	Args:    cobra.MinimumNArgs(0),
 	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {

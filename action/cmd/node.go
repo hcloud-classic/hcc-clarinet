@@ -31,16 +31,66 @@ import (
 	"hcc/clarinet/model"
 )
 
-// nodeCmd represents the node command
-var nodeCmd = &cobra.Command{
-	Use:   "node",
-	Short: "Running node related commands",
-	Long:  `Running node related commands`,
-	Args:  cobra.MinimumNArgs(1),
-}
-
 var serverUUID, nodeUUID, bmcMacAddr, bmcIP, pxeMacAddr, desc, cpuModel string
 var active, cpuCores, cpuProcessors, cpuThreads int
+
+// nodeCmd represents the node command
+var nodeCmd = &cobra.Command{
+	Use:     `node --uuid "NodeUUID"`,
+	Short:   "Get node information",
+	Long:    `Show node information by given nodeUUID at table`,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+		queryArgs["uuid"] = nodeUUID
+		queryArgs["token"] = config.User.Token
+
+		data, err := queryParser.Node(queryArgs)
+		if err != nil {
+			err.Println()
+			return
+		}
+
+		t := table.NewWriter()
+
+		ts := table.Style{
+			Box: table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		}
+
+		nodeData := data.(model.Node)
+		if nodeData.Errors.Len() > 0 {
+			nodeData.Errors.Print()
+		} else {
+
+			t.SetStyle(ts)
+			t.SetOutputMirror(os.Stdout)
+			t.SetTitle("Node Info\n%s", uuid)
+
+			t.AppendRow(table.Row{"BMC MAC", nodeData.BmcMacAddr})
+			t.AppendRow(table.Row{"BMC IP", nodeData.BmcIP})
+			t.AppendRow(table.Row{"PXE MAC", nodeData.PXEMacAddr})
+			t.AppendRow(table.Row{"MEMORY", nodeData.Memory})
+			t.AppendRow(table.Row{"STATUS", nodeData.Status})
+			t.AppendRow(table.Row{"ACTIVE", nodeData.Active})
+			t.AppendRow(table.Row{"Description", nodeData.Description})
+			t.AppendRow(table.Row{"Created At", nodeData.CreatedAt})
+
+			t.Render()
+		}
+
+	},
+}
 
 var nodeOn = &cobra.Command{
 	Use:     "on",
@@ -60,12 +110,9 @@ var nodeOn = &cobra.Command{
 		}
 
 		nodeData := data.(model.PowerStateNode)
-		if nodeData.Errors.Len() != 0 {
-			err = nodeData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if nodeData.Errors.Len() > 0 {
+			nodeData.Errors.Print()
+			return
 		}
 
 		logger.Logger.Println("Flute :" + nodeData.State)
@@ -91,12 +138,9 @@ var nodeOff = &cobra.Command{
 		}
 
 		nodeData := data.(model.PowerStateNode)
-		if nodeData.Errors.Len() != 0 {
-			err = nodeData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if nodeData.Errors.Len() > 0 {
+			nodeData.Errors.Print()
+			return
 		}
 
 		logger.Logger.Println("Flute :" + nodeData.State)
@@ -120,12 +164,9 @@ var nodeRestart = &cobra.Command{
 		}
 
 		nodeData := data.(model.PowerStateNode)
-		if nodeData.Errors.Len() != 0 {
-			err = nodeData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if nodeData.Errors.Len() > 0 {
+			nodeData.Errors.Print()
+			return
 		}
 
 		logger.Logger.Println("Flute :" + nodeData.State)
@@ -157,12 +198,9 @@ var nodeCreate = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() != 0 {
-			err = nodeData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if nodeData.Errors.Len() > 0 {
+			nodeData.Errors.Print()
+			return
 		}
 	},
 }
@@ -194,12 +232,9 @@ var nodeUpdate = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() != 0 {
-			err = nodeData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if nodeData.Errors.Len() > 0 {
+			nodeData.Errors.Print()
+			return
 		}
 	},
 }
@@ -221,12 +256,9 @@ var nodeDelete = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() != 0 {
-			err = nodeData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if nodeData.Errors.Len() > 0 {
+			nodeData.Errors.Print()
+			return
 		}
 	},
 }
@@ -239,8 +271,7 @@ var nodeCreateDetail = &cobra.Command{
 	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		//queryArgs["node_uuid"] = nodeUUID
-		queryArgs["bmc_ip"] = bmcIP
+		queryArgs["node_uuid"] = nodeUUID
 		queryArgs["cpu_model"] = cpuModel
 		queryArgs["cpu_processors"] = strconv.Itoa(cpuProcessors)
 		queryArgs["cpu_threads"] = strconv.Itoa(cpuThreads)
@@ -253,7 +284,7 @@ var nodeCreateDetail = &cobra.Command{
 		}
 
 		nodeData := data.(model.NodeDetail)
-		if nodeData.Errors.Len() != 0 {
+		if nodeData.Errors.Len() > 0 {
 			err = nodeData.Errors.Dump()
 			if err.Code() == errors.PiccoloGraphQLTokenExpired {
 				reRunIfExpired(cmd)
@@ -282,7 +313,7 @@ var nodeDeleteDetail = &cobra.Command{
 		}
 
 		nodeData := data.(model.NodeDetail)
-		if nodeData.Errors.Len() != 0 {
+		if nodeData.Errors.Len() > 0 {
 			err = nodeData.Errors.Dump()
 			if err.Code() == errors.PiccoloGraphQLTokenExpired {
 				reRunIfExpired(cmd)
@@ -321,12 +352,9 @@ var nodeList = &cobra.Command{
 		}
 
 		nodeList := data.(model.Nodes)
-		if nodeList.Errors.Len() != 0 {
-			err = nodeList.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if nodeList.Errors.Len() > 0 {
+			nodeList.Errors.Print()
+			return
 		}
 
 		t := table.NewWriter()
@@ -379,12 +407,9 @@ var nodeDetail = &cobra.Command{
 		}
 
 		nodeDetailData := data.(model.NodeDetail)
-		if nodeDetailData.Errors.Len() != 0 {
-			err = nodeDetailData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if nodeDetailData.Errors.Len() > 0 {
+			nodeDetailData.Errors.Print()
+			return
 		}
 
 		t := table.NewWriter()
@@ -414,6 +439,9 @@ var nodeDetail = &cobra.Command{
 }
 
 func ReadyNodeCmd() {
+	nodeCmd.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
+	nodeCmd.MarkFlagRequired("uuid")
+
 	nodeOn.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
 	nodeOn.MarkFlagRequired("uuid")
 
@@ -461,20 +489,20 @@ func ReadyNodeCmd() {
 	nodeList.Flags().StringVar(&desc, "description", "", "Descriptions of Node")
 	nodeList.Flags().IntVar(&active, "active", 0, "Active status")
 
-	nodeCreateDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
+	nodeCreateDetail.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
 	nodeCreateDetail.Flags().StringVar(&cpuModel, "cpu_model", "", "CPU model")
 	nodeCreateDetail.Flags().IntVar(&cpuProcessors, "cpu_processors", 0, "Number of processor")
 	nodeCreateDetail.Flags().IntVar(&cpuThreads, "cpu_threads", 0, "Number of logical core")
-	nodeCreateDetail.MarkFlagRequired("node_uuid")
+	nodeCreateDetail.MarkFlagRequired("uuid")
 	nodeCreateDetail.MarkFlagRequired("cpu_model")
 	nodeCreateDetail.MarkFlagRequired("cpu_processors")
 	nodeCreateDetail.MarkFlagRequired("cpu_threads")
 
-	nodeDeleteDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
-	nodeDeleteDetail.MarkFlagRequired("node_uuid")
+	nodeDeleteDetail.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
+	nodeDeleteDetail.MarkFlagRequired("uuid")
 
-	nodeDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
-	nodeDetail.MarkFlagRequired("node_uuid")
+	nodeDetail.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
+	nodeDetail.MarkFlagRequired("uuid")
 
 	nodeCreate.AddCommand(nodeCreateDetail)
 	nodeDelete.AddCommand(nodeDeleteDetail)

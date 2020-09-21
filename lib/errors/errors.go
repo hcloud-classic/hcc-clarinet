@@ -235,7 +235,7 @@ func (es *HccErrorStack) Dump() *HccError {
 
 func (es *HccErrorStack) Print() {
 	var stack []HccError = *es
-	logStr := "------ [Dump Error Stack] ------\n"
+	logStr := "\n------ [Start Error Stack] ------\n"
 	for rIdx := es.Len(); rIdx >= 0; rIdx-- {
 		logStr += stack[rIdx].Text() + "\n"
 	}

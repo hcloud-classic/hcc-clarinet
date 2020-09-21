@@ -52,10 +52,10 @@ func DoHTTPRequest(moduleName string, query string) ([]byte, *errors.HccError) {
 			for index, msg := range errBody.([]interface{}) {
 				errMsg += strconv.Itoa(index+1) + ":" + msg.(map[string]interface{})["message"].(string) + "\n"
 			}
-			return nil, errors.NewHccError(errors.ClarinetDriverReceiveError, errMsg)
+			return nil, errors.NewHccError(errors.ClarinetDriverReceiveError, "DoHTTPReq: "+errMsg)
 		}
 
-		return nil, errors.NewHccError(errors.ClarinetDriverParsingError, err.Error())
+		return nil, errors.NewHccError(errors.ClarinetDriverParsingError, "DoHTTPReq: "+err.Error())
 	}
 
 	return nil, errors.NewHccError(errors.ClarinetDriverResponseError, "http response returned error code"+strconv.Itoa(resp.StatusCode))
