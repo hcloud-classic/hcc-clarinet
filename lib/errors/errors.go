@@ -130,8 +130,8 @@ func SetErrLogger(l *log.Logger) {
 /*    HCCERROR    */
 
 type HccError struct {
-	ErrCode uint64 // decimal error code
-	ErrText string // error string
+	ErrCode uint64 `json:"errcode"` // decimal error code
+	ErrText string `json:"errtext"` // error string
 }
 
 func NewHccError(errorCode uint64, errorText string) *HccError {
@@ -231,6 +231,16 @@ func (es *HccErrorStack) Dump() *HccError {
 	}
 	errlogger.Println("--------- [ End Here ] ---------")
 	return firstErr
+}
+
+func (es *HccErrorStack) Print() {
+	var stack []HccError = *es
+	logStr := "------ [Dump Error Stack] ------\n"
+	for rIdx := es.Len(); rIdx >= 0; rIdx-- {
+		logStr += stack[rIdx].Text() + "\n"
+	}
+	logStr += "--------- [ End Here ] ---------"
+	errlogger.Println(logStr)
 }
 
 func (es *HccErrorStack) ConvertReportForm() *HccErrorStack {

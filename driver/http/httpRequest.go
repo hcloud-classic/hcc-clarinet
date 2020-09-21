@@ -2,12 +2,13 @@ package http
 
 import (
 	"encoding/json"
-	"hcc/clarinet/lib/config"
-	"hcc/clarinet/lib/errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
+
+	"hcc/clarinet/lib/config"
+	"hcc/clarinet/lib/errors"
 )
 
 // DoHTTPRequest : Send http request to other modules with GraphQL query string.

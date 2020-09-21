@@ -23,7 +23,7 @@ type Server struct {
 
 // Servers - cgs
 type Servers struct {
-	Server []Server             `json:"server"`
+	Server []Server             `json:"server_list"`
 	Errors errors.HccErrorStack `json:"errors"`
 }
 

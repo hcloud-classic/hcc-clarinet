@@ -2,17 +2,19 @@ package config
 
 import (
 	"bufio"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/Terry-Mao/goconf"
-	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/crypto/ssh/terminal"
 	"log"
 	"os"
 	"os/signal"
 	goUser "os/user"
 	"path/filepath"
 	"syscall"
+
+	"github.com/Terry-Mao/goconf"
+	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 type ClarinetConfig struct {
@@ -85,12 +87,14 @@ func GetUserInfo() {
 	/*TODO: Check alphanumeric user id*/
 
 	fmt.Print("User PW : ")
-	User.UserPasswd = getPassword()
-	hashPW, err := bcrypt.GenerateFromPassword([]byte(User.UserPasswd), bcrypt.DefaultCost)
+	// User.UserPasswd = getPassword()
+	md := sha256.Sum256([]byte(getPassword()))
+	mdStr := hex.EncodeToString(md[:])
+	hashPW, err := bcrypt.GenerateFromPassword([]byte(mdStr), bcrypt.DefaultCost)
 	if err != nil {
 		log.Fatalf("Password hash error: %v", err)
 	}
-	User.UserPasswd = hex.EncodeToString(hashPW)
+	User.UserPasswd = string(hashPW)
 }
 
 func SaveTokenString(tokenString string) {

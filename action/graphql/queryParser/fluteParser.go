@@ -45,8 +45,25 @@ func ListNode(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "list_node"
-	query := "query { " + cmd + arguments + "{ uuid server_uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active errors } }"
-
+	query := `query { ` + cmd + arguments + `{
+		node_list {
+			uuid
+			server_uuid
+			bmc_mac_addr
+			bmc_ip
+			pxe_mac_addr
+			status
+			cpu_cores
+			memory
+			description
+			created_at
+			activ
+		}
+		errors{
+			errcode
+			errtext
+		}
+	} }`
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
 		return nil, err

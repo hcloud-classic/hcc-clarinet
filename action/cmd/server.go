@@ -11,17 +11,9 @@ import (
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/lib/config"
-	"hcc/clarinet/lib/errors"
 	"hcc/clarinet/lib/logger"
 	"hcc/clarinet/model"
 )
-
-var serverCmd = &cobra.Command{
-	Use:   "server [server options...]",
-	Short: "Running server commands",
-	Long:  `server: Running server related commands.`,
-	Args:  cobra.MinimumNArgs(1),
-}
 
 var subnetUUID string
 var OS string
@@ -36,6 +28,85 @@ var nrNode int
 var row int
 var page int
 var uuid string
+
+var serverCmd = &cobra.Command{
+	Use:     `server --uuid "serverUUID"`,
+	Short:   "Get server Information",
+	Long:    `Show server information by given serverUUID`,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+		queryArgs["uuid"] = uuid
+		queryArgs["token"] = config.User.Token
+
+		data, err := queryParser.Server(queryArgs)
+		if err != nil {
+			err.Println()
+			return
+		}
+
+		t := table.NewWriter()
+
+		ts := table.Style{
+			Box: table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		}
+
+		serverData := data.(model.Server)
+		if serverData.Errors.Len() > 0 {
+			serverData.Errors.Print()
+		} else {
+
+			t.SetStyle(ts)
+			t.SetOutputMirror(os.Stdout)
+			t.SetTitle("Server Info\n%s", uuid)
+
+			t.AppendRow(table.Row{"Name", serverData.ServerName})
+			t.AppendRow(table.Row{"OS", serverData.OS})
+			t.AppendRow(table.Row{"CPU", serverData.CPU})
+			t.AppendRow(table.Row{"Memory", serverData.Memory})
+			t.AppendRow(table.Row{"Disk", serverData.DiskSize})
+			t.AppendRow(table.Row{"Status", serverData.Status})
+			t.AppendRow(table.Row{"Description", serverData.ServerDesc})
+			t.AppendRow(table.Row{"Created At", serverData.CreatedAt})
+
+			t.Render()
+		}
+		queryArgs["server_uuid"] = uuid
+		delete(queryArgs, "uuid")
+
+		data, err = queryParser.ListServerNode(queryArgs)
+		if err != nil {
+			err.Println()
+			return
+		}
+
+		serverNodeList := data.(model.ServerNodes)
+		if serverNodeList.Errors.Len() > 0 {
+			serverNodeList.Errors.Print()
+		}
+
+		t = table.NewWriter()
+		t.SetStyle(ts)
+		t.SetOutputMirror(os.Stdout)
+
+		t.AppendHeader(table.Row{"Node UUID", "CPU Model", "sockets", "Cores", "Threads", "Memory", "Created At"})
+		for _, node := range serverNodeList.NodeList {
+			t.AppendRow(table.Row{node.NodeUUID, node.CPUModel, node.CPUSocket, node.CPUCores, node.CPUThreads, node.Memory, node.CreatedAt})
+		}
+		t.Render()
+	},
+}
 
 var serverCreate = &cobra.Command{
 	Use:   "create",
@@ -64,15 +135,11 @@ var serverCreate = &cobra.Command{
 		}
 
 		serverData := data.(model.Server)
-		if serverData.Errors.Len() != 0 {
-			err = serverData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if serverData.Errors.Len() > 0 {
+			serverData.Errors.Print()
 		}
 
-		logger.Logger.Println("Create server SUCCESS\nUUID\t" + serverData.UUID)
+		logger.Logger.Println("Create SUCCESS] " + serverData.ServerName + " (" + serverData.UUID + ")")
 	},
 }
 
@@ -111,12 +178,8 @@ var serverList = &cobra.Command{
 		}
 
 		serverList := data.(model.Servers)
-		if serverList.Errors.Len() != 0 {
-			err = serverList.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if serverList.Errors.Len() > 0 {
+			serverList.Errors.Print()
 		}
 
 		t := table.NewWriter()
@@ -140,6 +203,7 @@ var serverList = &cobra.Command{
 		for index, server := range serverList.Server {
 			serverUUIDArg := make(map[string]string)
 			serverUUIDArg["server_uuid"] = server.UUID
+			serverUUIDArg["token"] = config.User.Token
 			num, _ := queryParser.NumNodesServer(serverUUIDArg)
 			t.AppendRow([]interface{}{
 				index + 1, server.UUID, server.ServerName, server.CPU, server.Memory, server.DiskSize,
@@ -180,15 +244,12 @@ var serverUpdate = &cobra.Command{
 		}
 
 		serverData := data.(model.Server)
-		if serverData.Errors.Len() != 0 {
-			err = serverData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if serverData.Errors.Len() > 0 {
+			logger.Logger.Println("Update Fail")
+			serverData.Errors.Print()
 		}
 
-		logger.Logger.Println("Successfully update server (" + serverData.UUID + ") information.")
+		logger.Logger.Println("Update SUCCESS " + serverData.ServerName + " (" + serverData.UUID + ")")
 	},
 }
 
@@ -210,12 +271,8 @@ var serverDelete = &cobra.Command{
 		}
 
 		serverData := data.(model.Server)
-		if serverData.Errors.Len() != 0 {
-			err = serverData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if serverData.Errors.Len() > 0 {
+			serverData.Errors.Print()
 		}
 
 		logger.Logger.Println("Successfully delete server (" + serverData.UUID + ").")
@@ -223,6 +280,12 @@ var serverDelete = &cobra.Command{
 }
 
 func ReadyServerCmd() {
+
+	serverCmd.AddCommand(serverCreate, serverList, serverUpdate, serverDelete)
+
+	serverCmd.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
+	serverCmd.MarkFlagRequired("uuid")
+
 	serverCreate.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "UUID of subnet")
 	serverCreate.Flags().StringVar(&OS, "os", "", "Type of OS")
 	serverCreate.Flags().StringVar(&serverName, "server_name", "", "Name of server")
@@ -261,6 +324,4 @@ func ReadyServerCmd() {
 
 	serverDelete.Flags().StringVar(&uuid, "uuid", "", "UUID of server")
 	serverDelete.MarkFlagRequired("uuid")
-
-	serverCmd.AddCommand(serverCreate, serverList, serverUpdate, serverDelete)
 }
