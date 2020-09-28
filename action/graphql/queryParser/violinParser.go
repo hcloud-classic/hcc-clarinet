@@ -1,121 +1,137 @@
 package queryParser
 
 import (
+	"encoding/json"
 	"errors"
-	"hcc/clarinet/data"
+	"hcc/clarinet/action/graphql"
 	"hcc/clarinet/http"
-	"strconv"
+	"hcc/clarinet/model"
 )
 
-func Server(args map[string]interface{}) (interface{}, error) {
-	uuid, uuidOk := args["uuid"].(string)
-
-	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+func Server(args map[string]string) (interface{}, error) {
+	// UUID must checked by cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"uuid": args["uuid"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	var serverData data.ServerData
-	query := "query { server(uuid: \"" + uuid + "\") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
+	cmd := "server"
+	query := "query { " + cmd + " (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid created_at } }"
 
-	return http.DoHTTPRequest("violin", true, "ServerData", serverData, query)
+	result, err := http.DoHTTPRequest("violin", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var serverData map[string]map[string]model.Server
+	err = json.Unmarshal(result, &serverData)
+	if err != nil {
+		return nil, err
+	}
+	return serverData["data"][cmd], nil
 }
 
-func ListServer(args map[string]interface{}) (interface{}, error) {
+func ListServer(args map[string]string) (interface{}, error) {
 
-	var arguments = ""
+	if (args["row"] != "0") != (args["page"] != "0") {
 
-	subnetUUID, _ := args["subnet_uuid"].(string)
-	os, _ := args["os"].(string)
-	serverName, _ := args["server_name"].(string)
-	serverDesc, _ := args["server_desc"].(string)
-	cpu, _ := args["cpu"].(int)
-	memory, _ := args["memory"].(int)
-	diskSize, _ := args["disk_size"].(int)
-	status, _ := args["status"].(string)
-	userUUID, _ := args["user_uuid"].(string)
-
-	row, _ := args["row"].(int)
-	page, _ := args["page"].(int)
-
-	if row != 0 && page != 0 {
-		arguments += "row:" + strconv.Itoa(row) + ",page:" + strconv.Itoa(page) + ","
-	}
-	if subnetUUID != "" {
-		arguments += "subnet_uuid:\"" + subnetUUID + "\","
-	}
-	if os != "" {
-		arguments += "os:\"" + os + "\","
-	}
-	if serverName != "" {
-		arguments += "server_name:\"" + serverName + "\","
-	}
-	if serverDesc != "" {
-		arguments += "server_desc:\"" + serverDesc + "\","
-	}
-	if cpu != 0 {
-		arguments += "cpu:" + strconv.Itoa(cpu) + ","
-	}
-	if memory != 0 {
-		arguments += "memory:" + strconv.Itoa(memory) + "\","
-	}
-	if diskSize != 0 {
-		arguments += "disk_size:" + strconv.Itoa(diskSize) + "\","
-	}
-	if status != "" {
-		arguments += "status:\"" + status + "\","
-	}
-	if userUUID != "" {
-		arguments += "user_uuid:\"" + userUUID + "\","
-	}
-	if len(arguments) > 0 {
-		arguments = arguments[0 : len(arguments)-1]
+		return nil, errors.New("Need [BOTH | NEITHER] row & page")
 	}
 
-	var listServerData data.ListServerData
-	query := "query { list_server(" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
-	return http.DoHTTPRequest("violin", true, "ListServerData", listServerData, query)
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "list_server"
+	query := "query { " + cmd + " (" + arguments + ") { uuid subnet_uuid os server_name server_desc cpu memory disk_size status user_uuid } }"
+
+	result, err := http.DoHTTPRequest("violin", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var serverData map[string]map[string][]model.Server
+	err = json.Unmarshal(result, &serverData)
+	if err != nil {
+		return nil, err
+	}
+	return serverData["data"][cmd], nil
 }
 
-func ServerNode(args map[string]interface{}) (interface{}, error) {
-	uuid, uuidOk := args["uuid"].(string)
-
-	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+func ServerNode(args map[string]string) (interface{}, error) {
+	// uuid must checked by cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"uuid": args["uuid"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	var serverNodeData data.ServerNodeData
-	query := "query { server_node(uuid: \"" + uuid + "\") { uuid server_uuid node_uuid created_at } }"
+	cmd := "server_node"
+	query := "query { " + cmd + " (" + arguments + ") { uuid server_uuid node_uuid created_at } }"
 
-	return http.DoHTTPRequest("violin", true, "ServerNodeData", serverNodeData, query)
-}
-
-func ListServerNode(args map[string]interface{}) (interface{}, error) {
-	serverUUID, serverUUIDOk := args["server_uuid"].(string)
-	if !serverUUIDOk {
-		return nil, errors.New("need a server_uuid argument")
+	result, err := http.DoHTTPRequest("violin", query)
+	if err != nil {
+		return nil, err
 	}
 
-	var listServerNodeData data.ListServerNodeData
-	query := "query { list_server_node(server_uuid: \"" + serverUUID + "\") { uuid server_uuid node_uuid created_at } }"
-
-	return http.DoHTTPRequest("violin", true, "ListServerNodeData", listServerNodeData, query)
+	var serverNodeData map[string]map[string]model.ServerNode
+	err = json.Unmarshal(result, &serverNodeData)
+	if err != nil {
+		return nil, err
+	}
+	return serverNodeData["data"][cmd], nil
 }
 
-func AllServerNode() (interface{}, error) {
-	var allServerNodeData data.AllServerNodeData
-	query := "query { all_server_node { uuid server_uuid node_uuid created_at } }"
-
-	return http.DoHTTPRequest("violin", true, "AllServerNodeData", allServerNodeData, query)
-}
-
-func NumNodesServer(args map[string]interface{}) (interface{}, error) {
-	serverUUID, serverUUIDOk := args["server_uuid"].(string)
-	if !serverUUIDOk {
-		return nil, errors.New("need a server_uuid argument")
+func ListServerNode(args map[string]string) (interface{}, error) {
+	// server_uuid must checked by cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"server_uuid": args["server_uuid"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	var numNodesServer data.NumNodesServerData
-	query := "query { num_nodes_server(server_uuid: \"" + serverUUID + "\") { number } }"
+	cmd := "list_server_node"
+	query := "query { " + cmd + " (" + arguments + ") { uuid server_uuid node_uuid created_at } }"
 
-	return http.DoHTTPRequest("violin", true, "NumNodesServerData", numNodesServer, query)
+	result, err := http.DoHTTPRequest("violin", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var serverNodeData map[string]map[string]model.ServerNode
+	err = json.Unmarshal(result, &serverNodeData)
+	if err != nil {
+		return nil, err
+	}
+	return serverNodeData["data"][cmd], nil
+}
+
+func NumNodesServer(args map[string]string) (interface{}, error) {
+	// server_uuid must checked by caller or cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"server_uuid": args["server_uuid"],
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "num_nodes_server"
+	query := "query { " + cmd + "(" + arguments + ") { number } }"
+
+	result, err := http.DoHTTPRequest("violin", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var serverNodeNum map[string]map[string]model.ServerNodeNum
+	err = json.Unmarshal(result, &serverNodeNum)
+	if err != nil {
+		return nil, err
+	}
+	return serverNodeNum["data"][cmd], nil
 }

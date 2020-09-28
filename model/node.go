@@ -27,3 +27,12 @@ type Nodes struct {
 type NodeNum struct {
 	Number int `json:"number"`
 }
+
+// PowerState - younseok.shim
+type PowerState int
+
+const (
+	On PowerState = 1 + iota
+	Off
+	Restart
+)

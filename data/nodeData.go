@@ -41,14 +41,6 @@ type NodeDetailData struct {
 
 // Mutation
 
-type PowerState int
-
-const (
-	On PowerState = 1 + iota
-	Off
-	Restart
-)
-
 // OnNodeData : Data structure of on_node
 type OnNodeData struct {
 	Data struct {
