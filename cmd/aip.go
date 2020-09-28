@@ -30,7 +30,7 @@ import (
 // aipCmd represents the aip command
 var AIPCmd = &cobra.Command{
 	Use:   "aip",
-	Short: "A brief description of your command",
+	Short: "Commands for Adaptive IP",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -39,6 +39,8 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Args: cobra.MinimumNArgs(1),
 }
+
+var startIP, endIP string
 
 func ReadyAIPCmd() {
 

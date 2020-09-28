@@ -1,100 +1,64 @@
 package queryParser
 
 import (
+	"encoding/json"
 	"errors"
+	"hcc/clarinet/action/graphql"
 	"hcc/clarinet/http"
+	"hcc/clarinet/model"
 	"strconv"
 )
 
-func Subnet(args map[string]interface{}) (interface{}, error) {
-	uuid, uuidOk := args["uuid"].(string)
-
-	if !uuidOk {
-		return nil, errors.New("need a uuid argument")
+func Subnet(args map[string]string) (interface{}, error) {
+	// UUID flag must checked by cobra
+	arguments, err := argumentParser.GetArgumentStr(map[string]string{
+		"uuid": args["uuid"],
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	query := "query { subnet(uuid: \"" + uuid + "\") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
+	cmd := "subnet"
+	query := "query { " + cmd + " (" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
 
-	return http.DoHTTPRequest("harp", query)
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var subnetData map[string]map[string]model.Subnet
+	err = json.Unmarshal(result, &subnetData)
+	if err != nil {
+		return nil, err
+	}
+	return subnetData["data"][cmd], nil
 }
 
-func ListSubnet(args map[string]interface{}) (interface{}, error) {
-	networkIP, networkIPOk := args["network_ip"].(string)
-	netmask, netmaskOk := args["netmask"].(string)
-	gateway, gatewayOk := args["gateway"].(string)
-	nextServer, nextServerOk := args["next_server"].(string)
-	nameServer, nameServerOk := args["name_server"].(string)
-	domainName, domainNameOk := args["domain_name"].(string)
-	serverUUID, serverUUIDOk := args["sever_uuid"].(string)
-	leaderNodeUUID, leaderNodeUUIDOk := args["leader_node_uuid"].(string)
-	os, osOk := args["os"].(string)
-	subnetName, subnetNameOk := args["subnet_name"].(string)
+func ListSubnet(args map[string]string) (interface{}, error) {
 
-	row, rowOk := args["row"].(int)
-	page, pageOk := args["page"].(int)
-	if !rowOk || !pageOk {
-		return nil, errors.New("need row and page arguments")
+	if (args["row"] != "0") != (args["page"] != "0") {
+		return nil, errors.New("Need [BOTH | NEITHER] row & page")
 	}
 
-	arguments := "row:" + strconv.Itoa(row) + ",page:" + strconv.Itoa(page) + ","
-	if networkIPOk {
-		arguments += "network_ip:\"" + networkIP + "\","
-	}
-	if netmaskOk {
-		arguments += "netmask:\"" + netmask + "\","
-	}
-	if gatewayOk {
-		arguments += "gateway:\"" + gateway + "\","
-	}
-	if nextServerOk {
-		arguments += "next_server:\"" + nextServer + "\","
-	}
-	if nameServerOk {
-		arguments += "name_server:\"" + nameServer + "\","
-	}
-	if domainNameOk {
-		arguments += "domain_name:\"" + domainName + "\","
-	}
-	if serverUUIDOk {
-		arguments += "sever_uuid:\"" + serverUUID + "\","
-	}
-	if leaderNodeUUIDOk {
-		arguments += "leader_node_uuid:\"" + leaderNodeUUID + "\","
-	}
-	if osOk {
-		arguments += "os:\"" + os + "\","
-	}
-	if subnetNameOk {
-		arguments += "subnet_name:\"" + subnetName + "\","
-	}
-	arguments = arguments[0 : len(arguments)-1]
-
-	query := "query { list_subnet(" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
-
-	return http.DoHTTPRequest("harp", query)
-}
-
-func AllSubnet(args map[string]interface{}) (interface{}, error) {
-	row, rowOk := args["row"].(int)
-	page, pageOk := args["page"].(int)
-	var query string
-
-	if !rowOk && !pageOk {
-		query = "query { all_subnet { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
-	} else if rowOk && pageOk {
-		query = "query { all_subnet(row:" + strconv.Itoa(row) + ", page:" + strconv.Itoa(page) +
-			") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
-	} else {
-		return nil, errors.New("please insert row and page arguments or leave arguments as empty state")
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
 	}
 
-	return http.DoHTTPRequest("harp", query)
-}
+	cmd := "list_subnet"
+	query := "query { " + cmd + " (" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at } }"
 
-func NumSubnet() (interface{}, error) {
-	query := "query { num_subnet { number } }"
+	result, err := http.DoHTTPRequest("harp", query)
+	if err != nil {
+		return nil, err
+	}
 
-	return http.DoHTTPRequest("harp", query)
+	var subnetListData map[string]map[string][]model.Subnet
+	err = json.Unmarshal(result, subnetListData)
+	if err != nil {
+		return nil, err
+	}
+	return subnetListData["data"][cmd], nil
 }
 
 func AdaptiveIP(args map[string]interface{}) (interface{}, error) {
