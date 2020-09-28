@@ -27,8 +27,11 @@ import (
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/lib/config"
 	"hcc/clarinet/lib/errors"
+	"hcc/clarinet/lib/logger"
 	"hcc/clarinet/model"
 )
+
+var startIP, endIP, aipUUID, publicIP, privateIP string
 
 // aipCmd represents the aip command
 var aipCmd = &cobra.Command{
@@ -40,10 +43,54 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Args: cobra.MinimumNArgs(1),
-}
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
+	Run: func(cmd *cobra.Command, args []string) {
+		query := make(map[string]string)
+		query["token"] = config.User.Token
 
-var startIP, endIP, aipUUID, publicIP, privateIP string
+		data, err := queryParser.AdaptiveIP(query)
+		if err != nil {
+			err.Println()
+			return
+		}
+
+		aipData := data.(model.AdaptiveIP)
+		if aipData.Errors.Len() >= 0 {
+			aipData.Errors.Print()
+			return
+		}
+
+		t := table.NewWriter()
+
+		ts := table.Style{
+			Box: table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		}
+
+		t.SetStyle(ts)
+		t.SetOutputMirror(os.Stdout)
+		t.SetTitle("Adaptive IP Settings")
+
+		t.AppendRow(table.Row{"External iface IP", aipData.ExtIfaceAddress})
+		t.AppendRow(table.Row{"Netmask", aipData.Netmask})
+		t.AppendRow(table.Row{"Gateway", aipData.Gateway})
+		t.AppendRow(table.Row{"Start IP Address", aipData.StartIPAddress})
+		t.AppendRow(table.Row{"End IP Address", aipData.EndIPAddress})
+
+		t.Render()
+
+	},
+}
 
 var aipCreate = &cobra.Command{
 	Use:     "create",
@@ -182,13 +229,12 @@ var aipDeleteServer = &cobra.Command{
 		}
 
 		aipServerData := data.(model.AdaptiveIPServer)
-		if aipServerData.Errors.Len() != 0 {
-			err = aipServerData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if aipServerData.Errors.Len() >= 0 {
+			aipServerData.Errors.Print()
+			return
 		}
+
+		logger.Logger.Printf("Successfully Deleted aipServer - %s\n", serverUUID)
 	},
 }
 
@@ -208,12 +254,9 @@ var aipList = &cobra.Command{
 		}
 
 		availableIPList := data.(model.AvailableIPList)
-		if availableIPList.Errors.Len() != 0 {
-			err = availableIPList.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if availableIPList.Errors.Len() >= 0 {
+			availableIPList.Errors.Print()
+			return
 		}
 
 		t := table.NewWriter()
@@ -251,13 +294,12 @@ var aipListServer = &cobra.Command{
 	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		queryArgs["row"] = strconv.Itoa(row)
-		queryArgs["page"] = strconv.Itoa(page)
 		queryArgs["server_uuid"] = serverUUID
 		queryArgs["public_ip"] = publicIP
 		queryArgs["private_ip"] = privateIP
 		queryArgs["private_gateway"] = gateway
 		queryArgs["token"] = config.User.Token
+
 		data, err := queryParser.ListAdaptiveIPServer(queryArgs)
 		if err != nil {
 			err.Println()
@@ -265,12 +307,9 @@ var aipListServer = &cobra.Command{
 		}
 
 		aipServerList := data.(model.AdaptiveIPServers)
-		if aipServerList.Errors.Len() != 0 {
-			err = aipServerList.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if aipServerList.Errors.Len() >= 0 {
+			aipServerList.Errors.Print()
+			return
 		}
 
 		t := table.NewWriter()
@@ -289,11 +328,11 @@ var aipListServer = &cobra.Command{
 			},
 		})
 		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"No", "Server UUID", "Public IP", "Private IP", "Private Gateway"})
+		t.AppendHeader(table.Row{"No", "Server UUID", "Public IP", "Private IP", "Private Gateway", "Created At"})
 
 		for index, aipServer := range aipServerList.AdaptiveIPServers {
 			t.AppendRow([]interface{}{index + 1, aipServer.ServerUUID,
-				aipServer.PublicIP, aipServer.PrivateIP, aipServer.PrivateGateway})
+				aipServer.PublicIP, aipServer.PrivateIP, aipServer.PrivateGateway, aipServer.CreatedAt})
 		}
 
 		t.AppendFooter(table.Row{"Total", len(aipServerList.AdaptiveIPServers)})
@@ -337,8 +376,6 @@ func ReadyAIPCmd() {
 
 	aipDelete.AddCommand(aipDeleteServer)
 
-	aipListServer.Flags().IntVar(&row, "row", 0, "Number Of rows to show")
-	aipListServer.Flags().IntVar(&page, "page", 0, "Number Of page to show")
 	aipListServer.Flags().StringVar(&serverUUID, "server_uuid", "", "UUID of Server")
 	aipListServer.Flags().StringVar(&publicIP, "public_ip", "", "Public IP of Server")
 	aipListServer.Flags().StringVar(&privateIP, "private_ip", "", "Private IP of Server")

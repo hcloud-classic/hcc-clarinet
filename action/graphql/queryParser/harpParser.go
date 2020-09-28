@@ -20,14 +20,33 @@ func ListSubnet(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "list_subnet"
-	query := "query { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name created_at errors } }"
+	query := `query { ` + cmd + arguments + `{ 
+	subnet_list {
+		uuid
+		network_ip
+		netmask
+		gateway
+		next_server
+		name_server
+		domain_name
+		server_uuid
+		leader_node_uuid
+		os
+		subnet_name
+		created_at
+	}
+	errors {
+		errcode
+		errtext
+	}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
 		return nil, err
 	}
 
-	var subnetListData map[string]map[string][]model.Subnet
+	var subnetListData map[string]map[string]model.Subnets
 	if e := json.Unmarshal(result, &subnetListData); e != nil {
 		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
 	}
@@ -36,8 +55,10 @@ func ListSubnet(args map[string]string) (interface{}, *errors.HccError) {
 
 func ListAdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
 
+	arguments, err := argumentParser.GetArgumentStr(args)
+
 	cmd := "adaptiveip_available_ip_list"
-	query := "query { " + cmd + " { available_ip_list errors } }"
+	query := "query { " + cmd + arguments + " { available_ip_list errors { errtext errcode } } }"
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -53,9 +74,6 @@ func ListAdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
 
 func ListAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccError) {
 	// server_uuid must checked by cobra
-	if (args["row"] != "0") != (args["page"] != "0") {
-		return nil, errors.NewHccError(errors.ClarinetGraphQLArgumentError, "Need [BOTH | NEITHER] row & page")
-	}
 
 	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
@@ -63,7 +81,18 @@ func ListAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccError
 	}
 
 	cmd := "list_adaptiveip_server"
-	query := "query { " + cmd + arguments + "{ server_uuid public_ip private_ip private_gateway errors } }"
+	query := `query { ` + cmd + arguments + `{
+		adaptiveip_server_list {
+			server_uuid
+			public_ip
+			private_ip
+			private_gateway
+		}
+		errors {
+			errtext
+			errcode
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -74,5 +103,38 @@ func ListAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccError
 	if e := json.Unmarshal(result, &aipServerListData); e != nil {
 		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
 	}
+
 	return aipServerListData["data"][cmd], nil
+}
+
+func AdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "adaptiveip_setting"
+	query := `query { ` + cmd + arguments + `{
+		end_ip_address
+		ext_ifaceip_address
+		gateway_address
+		netmask
+		start_ip_address
+		errors {
+			errtext
+			errcode
+		}
+	}}`
+
+	result, err := http.DoHTTPRequest("piccolo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var aipData map[string]map[string]model.AdaptiveIP
+	if e := json.Unmarshal(result, &aipData); e != nil {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+	}
+
+	return aipData["data"][cmd], nil
 }

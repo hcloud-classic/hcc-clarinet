@@ -69,13 +69,13 @@ var nodeCmd = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() > 0 {
+		if nodeData.Errors.Len() >= 0 {
 			nodeData.Errors.Print()
 		} else {
 
 			t.SetStyle(ts)
 			t.SetOutputMirror(os.Stdout)
-			t.SetTitle("Node Info\n%s", uuid)
+			t.SetTitle("Node Info\n%s", nodeUUID)
 
 			t.AppendRow(table.Row{"BMC MAC", nodeData.BmcMacAddr})
 			t.AppendRow(table.Row{"BMC IP", nodeData.BmcIP})

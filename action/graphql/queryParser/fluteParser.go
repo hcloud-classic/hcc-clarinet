@@ -89,6 +89,7 @@ func ListNode(args map[string]string) (interface{}, *errors.HccError) {
 	return nodeData["data"][cmd], nil
 }
 
+// Not Used
 func NumNode() (interface{}, *errors.HccError) {
 	cmd := "num_node"
 	query := "query { " + cmd + " { number errors } }"

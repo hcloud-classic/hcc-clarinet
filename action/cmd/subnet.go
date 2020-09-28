@@ -205,12 +205,9 @@ var subnetList = &cobra.Command{
 		}
 
 		subnetList := data.(model.Subnets)
-		if subnetList.Errors.Len() != 0 {
-			err = subnetList.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if subnetList.Errors.Len() >= 0 {
+			subnetList.Errors.Print()
+			return
 		}
 
 		t := table.NewWriter()

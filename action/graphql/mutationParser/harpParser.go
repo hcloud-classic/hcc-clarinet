@@ -19,7 +19,7 @@ func CreateSubnet(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "create_subnet"
-	query := "mutation _ { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name errors } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name errors { errcode errtext } } }"
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func UpdateSubnet(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "update_subnet"
-	query := "mutation _ { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name errors } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name errors { errcode errtext } } }"
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -60,15 +60,13 @@ func UpdateSubnet(args map[string]string) (interface{}, *errors.HccError) {
 
 func DeleteSubnet(args map[string]string) (interface{}, *errors.HccError) {
 	// UUID flag must checked by cobra
-	arguments, err := argumentParser.GetArgumentStr(map[string]string{
-		"uuid": args["uuid"],
-	})
+	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
 		return nil, err
 	}
 
 	cmd := "delete_subnet"
-	query := "mutation _ { " + cmd + arguments + "{ uuid errors } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid errors { errcode errtext} } }"
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -83,16 +81,13 @@ func DeleteSubnet(args map[string]string) (interface{}, *errors.HccError) {
 
 func CreateDHCPDConf(args map[string]string) (interface{}, *errors.HccError) {
 	// nodeUUID & subnetUUID flag must checked by cobra
-	arguments, err := argumentParser.GetArgumentStr(map[string]string{
-		"subnet_uuid": args["subnet_uuid"],
-		"node_uuids":  args["node_uuids"],
-	})
+	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
 		return nil, err
 	}
 
 	cmd := "create_dhcpd_conf"
-	query := "mutation _ { " + cmd + arguments + " { errors } }"
+	query := "mutation _ { " + cmd + arguments + " { result errors { errcode errtext } } }"
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -117,7 +112,7 @@ func CreateAdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "create_adaptiveip"
-	query := "mutation _ { " + cmd + arguments + "{ uuid network_address netmask gateway start_ip_address end_ip_address errors } }"
+	query := "mutation _ { " + cmd + arguments + "{ ext_ifaceip_address netmask gateway_address start_ip_address end_ip_address errors { errcode errtext } } }"
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -132,6 +127,7 @@ func CreateAdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
 
 }
 
+// Not Used
 func UpdateAdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
 	// UUID flag must checked by cobra
 	if argumentParser.CheckArgsMin(args, 2) {
@@ -158,6 +154,7 @@ func UpdateAdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
 	return aipData["data"][cmd], nil
 }
 
+// Not Used
 func DeleteAdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
 	// UUID flag must checked by cobra
 	arguments, err := argumentParser.GetArgumentStr(map[string]string{
@@ -193,7 +190,7 @@ func CreateAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccErr
 	}
 
 	cmd := "create_adaptiveip_server"
-	query := "mutation _ { " + cmd + arguments + "{ server_uuid public_ip private_ip private_gateway status created_at errors } }"
+	query := "mutation _ { " + cmd + arguments + "{ server_uuid public_ip private_ip private_gateway created_at errors { errcode errtext } } }"
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -209,15 +206,13 @@ func CreateAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccErr
 
 func DeleteAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccError) {
 	// UUID flag must checked by cobra
-	arguments, err := argumentParser.GetArgumentStr(map[string]string{
-		"server_uuid": args["server_uuid"],
-	})
+	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
 		return nil, err
 	}
 
 	cmd := "delete_adaptiveip_server"
-	query := "mutation _ { " + cmd + arguments + "{ errors }}"
+	query := "mutation _ { " + cmd + arguments + "{ errors { errcode errtext } }}"
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {

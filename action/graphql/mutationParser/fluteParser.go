@@ -22,16 +22,18 @@ func OnOffNode(args map[string]string, state model.PowerState) (interface{}, *er
 	switch state {
 	case model.On:
 		cmd = "on_node"
-		query += cmd + arguments + "}"
+		query += cmd
 	case model.Off:
 		cmd = "off_node"
-		query += cmd + arguments + "}"
+		query += cmd
 	case model.Restart:
 		cmd = "force_restart_node"
-		query += cmd + arguments + "}"
+		query += cmd
 	default:
 		return nil, errors.NewHccError(errors.ClarinetGraphQLRequestError, "Undefined Power state")
 	}
+
+	query += arguments + " { result errors { errcode errtext } } }"
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -53,7 +55,7 @@ func CreateNode(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "create_node"
-	query := "mutation _ { " + cmd + arguments + "{ uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active errors } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active errors { errcode errtext } } }"
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -79,7 +81,7 @@ func UpdateNode(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "update_node"
-	query := "mutation _ { " + cmd + arguments + "{ uuid bmc_mac_addr errors } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid bmc_mac_addr errors { errcode errtext } } }"
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
