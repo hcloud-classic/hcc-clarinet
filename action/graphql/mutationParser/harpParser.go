@@ -2,7 +2,6 @@ package mutationParser
 
 import (
 	"errors"
-	"hcc/clarinet/data"
 	"hcc/clarinet/http"
 )
 
@@ -52,13 +51,12 @@ func CreateSubnet(args map[string]interface{}) (interface{}, error) {
 	os, _ := args["os"].(string)
 	subnetName, _ := args["subnet_name"].(string)
 
-	var createSubnetData data.CreateSubnetData
 	query := "mutation _ { create_subnet(network_ip: \"" + networkIP + "\", netmask: \"" + netmask + "\", gateway: \"" +
 		gateway + "\", next_server: \"" + nextServer + "\", name_server: \"" + nameServer + "\", domain_name: \"" +
 		domainName + "\", server_uuid: \"" + serverUUID + "\", leader_node_uuid: \"" + leaderNodeUUID + "\", os: \"" +
 		os + "\", subnet_name: \"" + subnetName + "\") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
 
-	return http.DoHTTPRequest("harp", true, "CreateSubnetData", createSubnetData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
@@ -67,100 +65,99 @@ func UpdateSubnet(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	if checkSubnetArgsEach(args) {
+	if !checkSubnetArgsEach(args) {
 		return nil, errors.New("need some arguments")
 	}
 
-	networkIP, networkIPOk := args["network_ip"].(string)
-	netmask, netmaskOk := args["netmask"].(string)
-	gateway, gatewayOk := args["gateway"].(string)
-	nextServer, nextServerOk := args["next_server"].(string)
-	nameServer, nameServerOk := args["name_server"].(string)
-	domainName, domainNameOk := args["domain_name"].(string)
-	serverUUID, serverUUIDOk := args["server_uuid"].(string)
-	leaderNodeUUID, leaderNodeUUIDOk := args["leader_node_uuid"].(string)
-	os, osOk := args["os"].(string)
-	subnetName, subnetNameOk := args["subnet_name"].(string)
+	networkIP, _ := args["network_ip"].(string)
+	netmask, _ := args["netmask"].(string)
+	gateway, _ := args["gateway"].(string)
+	nextServer, _ := args["next_server"].(string)
+	nameServer, _ := args["name_server"].(string)
+	domainName, _ := args["domain_name"].(string)
+	serverUUID, _ := args["server_uuid"].(string)
+	leaderNodeUUID, _ := args["leader_node_uuid"].(string)
+	os, _ := args["os"].(string)
+	subnetName, _ := args["subnet_name"].(string)
 
 	arguments := "uuid:\"" + requestedUUID + "\""
-	if networkIPOk {
+	if networkIP != "" {
 		arguments += "network_ip:\"" + networkIP + "\","
 	}
-	if netmaskOk {
+	if netmask != "" {
 		arguments += "netmask:\"" + netmask + "\","
 	}
-	if gatewayOk {
+	if gateway != "" {
 		arguments += "gateway:\"" + gateway + "\","
 	}
-	if nextServerOk {
+	if nextServer != "" {
 		arguments += "next_server:\"" + nextServer + "\","
 	}
-	if nameServerOk {
+	if nameServer != "" {
 		arguments += "next_server:\"" + nameServer + "\","
 	}
-	if domainNameOk {
+	if domainName != "" {
 		arguments += "domain_name:\"" + domainName + "\","
 	}
-	if serverUUIDOk {
+	if serverUUID != "" {
 		arguments += "server_uuid:\"" + serverUUID + "\","
 	}
-	if leaderNodeUUIDOk {
+	if leaderNodeUUID != "" {
 		arguments += "leader_node_uuid:\"" + leaderNodeUUID + "\","
 	}
-	if osOk {
+	if os != "" {
 		arguments += "os:\"" + os + "\","
 	}
-	if subnetNameOk {
+	if subnetName != "" {
 		arguments += "subnet_name:\"" + subnetName + "\","
 	}
 	arguments = arguments[0 : len(arguments)-1]
 
-	var updateSubnetData data.UpdateSubnetData
 	query := "mutation _ { update_subnet(" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
 
-	return http.DoHTTPRequest("harp", true, "UpdateSubnetData", updateSubnetData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func DeleteSubnet(args map[string]interface{}) (interface{}, error) {
-	requestedUUID, requestedUUIDOk := args["uuid"].(string)
-	if !requestedUUIDOk {
+	requestedUUID, _ := args["uuid"].(string)
+	if requestedUUID == "" {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	var deleteSubnetData data.DeleteSubnetData
 	query := "mutation _ { delete_subnet(uuid:\"" + requestedUUID + "\") { uuid } }"
 
-	return http.DoHTTPRequest("harp", true, "DeleteSubnetData", deleteSubnetData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func CreateDHCPDConf(args map[string]interface{}) (interface{}, error) {
-	subnetUUID, subnetUUIDOk := args["subnet_uuid"].(string)
-	node_uuids, node_uuidsOk := args["node_uuids"].(string)
-	if !subnetUUIDOk || !node_uuidsOk {
+	subnetUUID, _ := args["subnet_uuid"].(string)
+	node_uuids, _ := args["node_uuids"].(string)
+
+	if subnetUUID == "" || node_uuids == "" {
 		return nil, errors.New("need subnet_uuid and node_uuids arguments")
 	}
 
 	query := "mutation _ { create_dhcpd_conf(subnet_uuid: \"" + subnetUUID + "\", node_uuids: \"" + node_uuids + "\") }"
 
-	return http.DoHTTPRequest("harp", false, "", nil, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func checkAdaptiveIPArgsEach(args map[string]interface{}) bool {
-	_, networkAddressOk := args["network_address"].(string)
-	_, netmaskOk := args["netmask"].(string)
-	_, gatewayOk := args["gateway"].(string)
-	_, startIPaddressOk := args["start_ip_address"].(string)
-	_, endIPaddressOk := args["end_ip_address"].(string)
+	networkAddressOk := args["network_address"].(string) != ""
+	netmaskOk := args["netmask"].(string) != ""
+	gatewayOk := args["gateway"].(string) != ""
+	startIPaddressOk := args["start_ip_address"].(string) != ""
+	endIPaddressOk := args["end_ip_address"].(string) != ""
 
 	return networkAddressOk || netmaskOk || gatewayOk || startIPaddressOk || endIPaddressOk
 }
 
 func checkAdaptiveIPArgsAll(args map[string]interface{}) bool {
-	_, networkAddressOk := args["network_address"].(string)
-	_, netmaskOk := args["netmask"].(string)
-	_, gatewayOk := args["gateway"].(string)
-	_, startIPaddressOk := args["start_ip_address"].(string)
-	_, endIPaddressOk := args["end_ip_address"].(string)
+	networkAddressOk := args["network_address"].(string) != ""
+	netmaskOk := args["netmask"].(string) != ""
+	gatewayOk := args["gateway"].(string) != ""
+	startIPaddressOk := args["start_ip_address"].(string) != ""
+	endIPaddressOk := args["end_ip_address"].(string) != ""
 
 	return networkAddressOk && netmaskOk && gatewayOk && startIPaddressOk && endIPaddressOk
 }
@@ -173,14 +170,13 @@ func CreateAdaptiveIP(args map[string]interface{}) (interface{}, error) {
 	networkAddress, _ := args["network_address"].(string)
 	netmask, _ := args["netmask"].(string)
 	gateway, _ := args["gateway"].(string)
-	startIPaddressOk, _ := args["start_ip_address"].(string)
-	endIPaddressOk, _ := args["end_ip_address"].(string)
+	startIPaddress, _ := args["start_ip_address"].(string)
+	endIPaddress, _ := args["end_ip_address"].(string)
 
-	var createAdaptiveIPData data.CreateAdaptiveIPData
 	query := "mutation _ { create_adaptiveip(network_address: \"" + networkAddress + "\", netmask: \"" + netmask + "\", gateway: \"" +
-		gateway + "\", start_ip_address: \"" + startIPaddressOk + "\", end_ip_address: \"" + endIPaddressOk + "\") { uuid network_address netmask gateway start_ip_address end_ip_address } }"
+		gateway + "\", start_ip_address: \"" + startIPaddress + "\", end_ip_address: \"" + endIPaddress + "\") { uuid network_address netmask gateway start_ip_address end_ip_address } }"
 
-	return http.DoHTTPRequest("harp", true, "CreateAdaptiveIPData", createAdaptiveIPData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func UpdateAdaptiveIP(args map[string]interface{}) (interface{}, error) {
@@ -189,56 +185,54 @@ func UpdateAdaptiveIP(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	if checkAdaptiveIPArgsEach(args) {
+	if !checkAdaptiveIPArgsEach(args) {
 		return nil, errors.New("need some arguments")
 	}
 
-	networkIP, networkIPOk := args["network_ip"].(string)
-	netmask, netmaskOk := args["netmask"].(string)
-	gateway, gatewayOk := args["gateway"].(string)
-	startIPaddress, startIPaddressOk := args["start_ip_address"].(string)
-	endIPaddress, endIPaddressOk := args["end_ip_address"].(string)
+	networkIP, _ := args["network_ip"].(string)
+	netmask, _ := args["netmask"].(string)
+	gateway, _ := args["gateway"].(string)
+	startIPaddress, _ := args["start_ip_address"].(string)
+	endIPaddress, _ := args["end_ip_address"].(string)
 
 	arguments := "uuid:\"" + requestedUUID + "\""
-	if networkIPOk {
+	if networkIP != "" {
 		arguments += "network_ip:\"" + networkIP + "\","
 	}
-	if netmaskOk {
+	if netmask != "" {
 		arguments += "netmask:\"" + netmask + "\","
 	}
-	if gatewayOk {
+	if gateway != "" {
 		arguments += "gateway:\"" + gateway + "\","
 	}
-	if startIPaddressOk {
+	if startIPaddress != "" {
 		arguments += "start_ip_address:\"" + startIPaddress + "\","
 	}
-	if endIPaddressOk {
+	if endIPaddress != "" {
 		arguments += "end_ip_address:\"" + endIPaddress + "\","
 	}
 	arguments = arguments[0 : len(arguments)-1]
 
-	var updateAdaptiveIPData data.UpdateAdaptiveIPData
 	query := "mutation _ { update_adaptiveip(" + arguments + ") { uuid network_address netmask gateway start_ip_address end_ip_address } }"
 
-	return http.DoHTTPRequest("harp", true, "UpdateAdaptiveIPData", updateAdaptiveIPData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func DeleteAdaptiveIP(args map[string]interface{}) (interface{}, error) {
-	requestedUUID, requestedUUIDOk := args["uuid"].(string)
-	if !requestedUUIDOk {
+	requestedUUID, _ := args["uuid"].(string)
+	if requestedUUID == "" {
 		return nil, errors.New("need a uuid argument")
 	}
 
-	var deleteAdaptiveIPData data.DeleteAdaptiveIPData
 	query := "mutation _ { delete_adaptiveip(uuid:\"" + requestedUUID + "\") { uuid } }"
 
-	return http.DoHTTPRequest("harp", true, "DeleteAdaptiveIPData", deleteAdaptiveIPData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func checkAdaptiveIPServerArgsAll(args map[string]interface{}) bool {
-	_, adaptiveIPUUIDOk := args["adaptiveip_uuid"].(string)
-	_, serverUUIDOk := args["server_uuid"].(string)
-	_, publicIPOk := args["public_ip"].(string)
+	adaptiveIPUUIDOk := args["adaptiveip_uuid"].(string) != ""
+	serverUUIDOk := args["server_uuid"].(string) != ""
+	publicIPOk := args["public_ip"].(string) != ""
 
 	return adaptiveIPUUIDOk && serverUUIDOk && publicIPOk
 }
@@ -252,11 +246,10 @@ func CreateAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 	serverUUID, _ := args["server_uuid"].(string)
 	publicIP, _ := args["public_ip"].(string)
 
-	var createAdaptiveIPServerData data.CreateAdaptiveIPServerData
 	query := "mutation _ { create_adaptiveip_server(adaptiveip_uuid: \"" + adaptiveIPUUID + "\", server_uuid: \"" + serverUUID + "\", public_ip: \"" +
 		publicIP + "\") { adaptiveip_uuid server_uuid public_ip private_ip private_gateway } }"
 
-	return http.DoHTTPRequest("harp", true, "CreateAdaptiveIPServerData", createAdaptiveIPServerData, query)
+	return http.DoHTTPRequest("harp", query)
 }
 
 func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
@@ -265,8 +258,7 @@ func DeleteAdaptiveIPServer(args map[string]interface{}) (interface{}, error) {
 		return nil, errors.New("need a server_uuid argument")
 	}
 
-	var deleteAdaptiveIPServerData data.DeleteAdaptiveIPServerData
 	query := "mutation _ { delete_adaptiveip_server(server_uuid:\"" + requestedUUID + "\") { server_uuid } }"
 
-	return http.DoHTTPRequest("harp", true, "DeleteAdaptiveIPServerData", deleteAdaptiveIPServerData, query)
+	return http.DoHTTPRequest("harp", query)
 }
