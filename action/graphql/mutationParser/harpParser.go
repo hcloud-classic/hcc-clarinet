@@ -9,7 +9,7 @@ import (
 )
 
 func CreateSubnet(args map[string]string) (interface{}, error) {
-	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
+	if b, ef := argumentParser.CheckArgsAll(args, len(args), "server_uuid", "leader_node_uuid"); b {
 		return nil, errors.New("Check flag value of " + ef)
 	}
 
@@ -19,8 +19,8 @@ func CreateSubnet(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "create_subnet"
-	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
-
+	query := "mutation _ { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
+	print(query)
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func UpdateSubnet(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "update_subnet"
-	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name } }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
@@ -71,7 +71,7 @@ func DeleteSubnet(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "delete_subnet"
-	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid } }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
@@ -96,7 +96,7 @@ func CreateDHCPDConf(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "create_dhcpd_conf"
-	query := "mutation _ { " + cmd + " (" + arguments + ") }"
+	query := "mutation _ { " + cmd + arguments + "}"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
@@ -122,7 +122,7 @@ func CreateAdaptiveIP(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "create_adaptiveip"
-	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid network_address netmask gateway start_ip_address end_ip_address } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid network_address netmask gateway start_ip_address end_ip_address } }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
@@ -150,7 +150,7 @@ func UpdateAdaptiveIP(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "update_adaptiveip"
-	query := "mutation _ { " + cmd + " (" + arguments + ") { uuid network_address netmask gateway start_ip_address end_ip_address } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid network_address netmask gateway start_ip_address end_ip_address } }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
@@ -175,7 +175,7 @@ func DeleteAdaptiveIP(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "delete_adaptiveip"
-	query := "mutation _ { " + cmd + "(" + arguments + ") { uuid } }"
+	query := "mutation _ { " + cmd + arguments + "{ uuid } }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
@@ -201,7 +201,7 @@ func CreateAdaptiveIPServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "create_adaptiveip_server"
-	query := "mutation _ { " + cmd + "(" + arguments + " ) { adaptiveip_uuid server_uuid public_ip private_ip private_gateway } }"
+	query := "mutation _ { " + cmd + arguments + "{ server_uuid public_ip private_ip private_gateway status created_at} }"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {
@@ -226,7 +226,7 @@ func DeleteAdaptiveIPServer(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "delete_adaptiveip_server"
-	query := "mutation _ { " + cmd + " (" + arguments + ") { server_uuid } }"
+	query := "mutation _ { " + cmd + arguments + "}"
 
 	result, err := http.DoHTTPRequest("harp", query)
 	if err != nil {

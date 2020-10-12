@@ -28,15 +28,15 @@ import (
 )
 
 // nodeCmd represents the node command
-var NodeCmd = &cobra.Command{
+var nodeCmd = &cobra.Command{
 	Use:   "node",
 	Short: "Running node related commands",
 	Long:  `Running node related commands`,
 	Args:  cobra.MinimumNArgs(1),
 }
 
-var serverUUID, nodeUUID, bmcMacAddr, bmcIP, pxeMacAddr, desc, active, cpuModel string
-var cpuCores, cpuProcessors, cpuThreads int
+var serverUUID, nodeUUID, bmcMacAddr, bmcIP, pxeMacAddr, desc, cpuModel string
+var active, cpuCores, cpuProcessors, cpuThreads int
 
 var nodeOn = &cobra.Command{
 	Use:   "on",
@@ -64,6 +64,7 @@ var nodeOff = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
+		queryArgs["force_off"] = "true"
 		node, err := mutationParser.OnOffNode(queryArgs, model.Off)
 		if err != nil {
 			fmt.Println(err)
@@ -94,7 +95,7 @@ var nodeRestart = &cobra.Command{
 
 var nodeCreate = &cobra.Command{
 	Use:   "create",
-	Short: "",
+	Short: "Create node or Add detail information of node",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -104,7 +105,7 @@ var nodeCreate = &cobra.Command{
 		queryArgs["pxe_mac_addr"] = pxeMacAddr
 		queryArgs["status"] = status
 		queryArgs["description"] = desc
-		queryArgs["active"] = active
+		queryArgs["active"] = strconv.Itoa(active)
 		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
 		queryArgs["memory"] = strconv.Itoa(memory)
 		node, err := mutationParser.CreateNode(queryArgs)
@@ -119,18 +120,19 @@ var nodeCreate = &cobra.Command{
 
 var nodeUpdate = &cobra.Command{
 	Use:   "update",
-	Short: "",
+	Short: "Update node information",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
+		queryArgs["server_uuid"] = serverUUID
 		queryArgs["bmc_mac_addr"] = bmcMacAddr
 		queryArgs["bmc_ip"] = bmcIP
 		queryArgs["pxe_mac_addr"] = pxeMacAddr
 		queryArgs["args"] = status
 		queryArgs["desctiption"] = desc
-		queryArgs["active"] = active
+		queryArgs["active"] = strconv.Itoa(active)
 		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
 		queryArgs["memory"] = strconv.Itoa(memory)
 		node, err := mutationParser.UpdateNode(queryArgs)
@@ -145,7 +147,7 @@ var nodeUpdate = &cobra.Command{
 
 var nodeDelete = &cobra.Command{
 	Use:   "delete",
-	Short: "",
+	Short: "Delete node",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -162,13 +164,14 @@ var nodeDelete = &cobra.Command{
 }
 
 var nodeCreateDetail = &cobra.Command{
-	Use:   "create_detail",
-	Short: "",
+	Use:   "detail",
+	Short: "Create detail information of node",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		queryArgs["node_uuid"] = nodeUUID
+		//queryArgs["node_uuid"] = nodeUUID
+		queryArgs["bmc_ip"] = bmcIP
 		queryArgs["cpu_model"] = cpuModel
 		queryArgs["cpu_processors"] = strconv.Itoa(cpuProcessors)
 		queryArgs["cpu_threads"] = strconv.Itoa(cpuThreads)
@@ -183,13 +186,14 @@ var nodeCreateDetail = &cobra.Command{
 }
 
 var nodeDeleteDetail = &cobra.Command{
-	Use:   "delete_detail",
-	Short: "",
+	Use:   "detail",
+	Short: "Delte detail information of node",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		queryArgs["node_uuid"] = nodeUUID
+		//queryArgs["node_uuid"] = nodeUUID
+		queryArgs["bmc_ip"] = bmcIP
 		node, err := mutationParser.DeleteNodeDetail(queryArgs)
 		if err != nil {
 			fmt.Println(err)
@@ -201,7 +205,7 @@ var nodeDeleteDetail = &cobra.Command{
 
 var nodeList = &cobra.Command{
 	Use:   "list",
-	Short: "",
+	Short: "Show node list",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -217,7 +221,7 @@ var nodeList = &cobra.Command{
 		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
 		queryArgs["memory"] = strconv.Itoa(memory)
 		queryArgs["description"] = desc
-		queryArgs["active"] = active
+		queryArgs["active"] = strconv.Itoa(active)
 
 		nodes, err := queryParser.ListNode(queryArgs)
 
@@ -241,14 +245,14 @@ var nodeList = &cobra.Command{
 			},
 		})
 		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"No", "UUID", "BMC MAC", "BMC IP", "PXE MAC",
+		t.AppendHeader(table.Row{"No", "UUID", "Server UUID", "BMC MAC", "BMC IP", "PXE MAC",
 			"Cores", "Memory", "Description", "Active", "Status"})
 
 		for index, node := range nodes.([]model.Node) {
 			serverUUIDArg := make(map[string]string)
 			serverUUIDArg["node_uuid"] = node.UUID
 			t.AppendRow([]interface{}{
-				index + 1, node.UUID, node.BmcMacAddr, node.BmcIP, node.PXEMacAddr,
+				index + 1, node.UUID, node.ServerUUID, node.BmcMacAddr, node.BmcIP, node.PXEMacAddr,
 				node.CPUCores, node.Memory, node.Description, node.Active, node.Status})
 		}
 
@@ -260,7 +264,7 @@ var nodeList = &cobra.Command{
 
 var nodeDetail = &cobra.Command{
 	Use:   "detail",
-	Short: "",
+	Short: "Show detail information of node",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -268,13 +272,36 @@ var nodeDetail = &cobra.Command{
 
 		queryArgs["node_uuid"] = nodeUUID
 
-		node, err := queryParser.NodeDetail(queryArgs)
+		nodeDetail, err := queryParser.NodeDetail(queryArgs)
 
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(node)
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		nd := nodeDetail.(model.NodeDetail)
+		t.AppendHeader(table.Row{"Node UUID", nd.NodeUUID})
+
+		t.AppendRow([]interface{}{"CPU Model", nd.CPUModel})
+		t.AppendRow([]interface{}{"CPU Processors", nd.CPUProcessors})
+		t.AppendRow([]interface{}{"CPU Threads", nd.CPUThreads})
+		t.Render()
+
 	},
 }
 
@@ -293,31 +320,38 @@ func ReadyNodeCmd() {
 	nodeCreate.Flags().StringVar(&pxeMacAddr, "pxe_mac_addr", "", "PXE MAC address")
 	nodeCreate.Flags().StringVar(&status, "status", "", "Status")
 	nodeCreate.Flags().StringVar(&desc, "description", "", "Description")
-	nodeCreate.Flags().StringVar(&active, "active", "", "Active state")
+	nodeCreate.Flags().IntVar(&active, "active", 0, "Active state")
 	nodeCreate.Flags().IntVar(&cpuCores, "cpu_cores", 0, "Number of CPU cores")
 	nodeCreate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
-	nodeCreate.MarkFlagRequired("bmc_mac_addr")
 	nodeCreate.MarkFlagRequired("bmc_ip")
-	nodeCreate.MarkFlagRequired("pxe_mac_addr")
-	nodeCreate.MarkFlagRequired("status")
 	nodeCreate.MarkFlagRequired("description")
-	nodeCreate.MarkFlagRequired("active")
-	nodeCreate.MarkFlagRequired("cpu")
-	nodeCreate.MarkFlagRequired("memory")
 
-	nodeUpdate.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
+	nodeUpdate.Flags().StringVar(&nodeUUID, "uuid", "", "Node UUID")
+	nodeUpdate.Flags().StringVar(&serverUUID, "server_uuid", "", "Server UUID")
 	nodeUpdate.Flags().StringVar(&bmcMacAddr, "bmc_mac_addr", "", "MAC address of BMC")
 	nodeUpdate.Flags().StringVar(&bmcIP, "bmc_ip", "", "IP address of BMC")
 	nodeUpdate.Flags().StringVar(&pxeMacAddr, "pxe_mac_addr", "", "PXE MAC address")
 	nodeUpdate.Flags().StringVar(&status, "status", "", "status")
 	nodeUpdate.Flags().StringVar(&desc, "description", "", "Description")
-	nodeUpdate.Flags().StringVar(&active, "active", "", "Active state")
+	nodeUpdate.Flags().IntVar(&active, "active", 0, "Active state")
 	nodeUpdate.Flags().IntVar(&cpuCores, "cpu", 0, "Number of CPU cores")
 	nodeUpdate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
-	nodeUpdate.MarkFlagRequired("uuid")
+	nodeUpdate.MarkFlagRequired("bmc_ip")
 
 	nodeDelete.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
 	nodeDelete.MarkFlagRequired("uuid")
+
+	nodeList.Flags().IntVar(&row, "row", 0, "rows of node list")
+	nodeList.Flags().IntVar(&page, "page", 0, "page of node list")
+	nodeList.Flags().StringVar(&serverUUID, "server_uuid", "", "server UUID")
+	nodeList.Flags().StringVar(&bmcMacAddr, "bmc_mac_addr", "", "MAC address of BMC")
+	nodeList.Flags().StringVar(&bmcIP, "bmc_ip", "", "IP of BMC")
+	nodeList.Flags().StringVar(&pxeMacAddr, "pxe_mac_addr", "", "MAC address for PXE boot")
+	nodeList.Flags().StringVar(&status, "status", "", "status")
+	nodeList.Flags().IntVar(&cpuCores, "cpu_cores", 0, "Number of CPU cores")
+	nodeList.Flags().IntVar(&memory, "memory", 0, "Size of memory")
+	nodeList.Flags().StringVar(&desc, "description", "", "Descriptions of Node")
+	nodeList.Flags().IntVar(&active, "active", 0, "Active status")
 
 	nodeCreateDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
 	nodeCreateDetail.Flags().StringVar(&cpuModel, "cpu_model", "", "CPU model")
@@ -331,23 +365,12 @@ func ReadyNodeCmd() {
 	nodeDeleteDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
 	nodeDeleteDetail.MarkFlagRequired("node_uuid")
 
-	nodeList.Flags().IntVar(&row, "row", 0, "rows of node list")
-	nodeList.Flags().IntVar(&page, "page", 0, "page of node list")
-	nodeList.Flags().StringVar(&serverUUID, "server_uuid", "", "server UUID")
-	nodeList.Flags().StringVar(&bmcMacAddr, "bmc_mac_addr", "", "MAC address of BMC")
-	nodeList.Flags().StringVar(&bmcIP, "bmc_ip", "", "IP of BMC")
-	nodeList.Flags().StringVar(&pxeMacAddr, "pxe_mac_addr", "", "MAC address for PXE boot")
-	nodeList.Flags().StringVar(&status, "status", "", "status")
-	nodeList.Flags().IntVar(&cpuCores, "cpu_cores", 0, "Number of CPU cores")
-	nodeList.Flags().IntVar(&memory, "memory", 0, "Size of memory")
-	nodeList.Flags().StringVar(&desc, "description", "", "Descriptions of Node")
-	nodeList.Flags().StringVar(&active, "active", "", "Active status")
-
 	nodeDetail.Flags().StringVar(&nodeUUID, "node_uuid", "", "UUID of node")
 	nodeDetail.MarkFlagRequired("node_uuid")
 
-	NodeCmd.AddCommand(nodeOn, nodeOff, nodeRestart,
+	nodeCreate.AddCommand(nodeCreateDetail)
+	nodeDelete.AddCommand(nodeDeleteDetail)
+	nodeCmd.AddCommand(nodeOn, nodeOff, nodeRestart,
 		nodeCreate, nodeUpdate, nodeDelete,
-		nodeCreateDetail, nodeDeleteDetail,
 		nodeList, nodeDetail)
 }

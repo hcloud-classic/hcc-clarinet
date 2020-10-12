@@ -5,24 +5,36 @@ import (
 	"strconv"
 )
 
-func CheckArgsMin(args map[string]string, min int) bool {
+func CheckArgsMin(args map[string]string, min int, mustchk ...string) bool {
 	for key, value := range args {
 		if value == "" || value == "0" {
 			delete(args, key)
 		}
 	}
 
+	for _, key := range mustchk {
+		if _, exist := args[key]; !exist {
+			return false
+		}
+	}
+
 	return len(args) < min
 }
 
-func CheckArgsAll(args map[string]string, max int) (bool, string) {
+func CheckArgsAll(args map[string]string, max int, exception ...string) (bool, string) {
 	var emptyField string = ""
 
 	for key, value := range args {
+		for _, e := range exception {
+			if e == key {
+				goto CONTINUE
+			}
+		}
 		if value == "" || value == "0" {
 			emptyField += (key + " ")
 			delete(args, key)
 		}
+	CONTINUE:
 	}
 
 	return len(args) < max, emptyField
@@ -91,19 +103,36 @@ func GenStrArg(arguments *string, args map[string]string, fn func(string) (bool,
 	return err
 }
 
-func GetArgumentStr(strArgs map[string]string) (string, error) {
+func GetArgumentStr(strArgs map[string]string, fn ...interface{}) (string, error) {
 
 	intArgs := SplitIntArgs(strArgs)
 	var arguments = ""
+	var fnStr func(string) (bool, error)
+	var fnInt func(int) (bool, error)
 
-	err := GenStrArg(&arguments, strArgs, nil)
+	if len(fn) == 2 {
+		fnStr = fn[0].(func(string) (bool, error))
+		fnInt = fn[1].(func(int) (bool, error))
+	} else if len(fn) == 1 {
+		fnStr = fn[0].(func(string) (bool, error))
+		fnInt = nil
+	} else {
+		fnStr = nil
+		fnInt = nil
+	}
+
+	err := GenStrArg(&arguments, strArgs, fnStr)
 	if err != nil {
 		return arguments, err
 	}
 
-	err = GenIntArg(&arguments, intArgs, nil)
+	err = GenIntArg(&arguments, intArgs, fnInt)
 	if err != nil {
 		return arguments, err
+	}
+
+	if arguments != "" {
+		arguments = "(" + arguments + ")"
 	}
 	return arguments, nil
 }

@@ -18,9 +18,12 @@ func Node(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "node"
-	query := "query { " + cmd + " (" + arguments + ") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
+	query := "query { " + cmd + arguments + "{ uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
 
 	result, err := http.DoHTTPRequest("flute", query)
+	if err != nil {
+		return nil, err
+	}
 
 	var nodeData map[string]map[string]model.Node
 	err = json.Unmarshal(result, &nodeData)
@@ -43,9 +46,12 @@ func ListNode(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "list_node"
-	query := "query { " + cmd + " (" + arguments + ") { uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
+	query := "query { " + cmd + arguments + "{ uuid server_uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active } }"
 
 	result, err := http.DoHTTPRequest("flute", query)
+	if err != nil {
+		return nil, err
+	}
 
 	var nodeData map[string]map[string][]model.Node
 	err = json.Unmarshal(result, &nodeData)
@@ -60,6 +66,9 @@ func NumNode() (interface{}, error) {
 	query := "query { " + cmd + " { number } }"
 
 	result, err := http.DoHTTPRequest("flute", query)
+	if err != nil {
+		return nil, err
+	}
 
 	var nodeNum map[string]map[string]model.NodeNum
 	err = json.Unmarshal(result, &nodeNum)
@@ -79,9 +88,12 @@ func NodeDetail(args map[string]string) (interface{}, error) {
 	}
 
 	cmd := "detail_node"
-	query := "query { " + cmd + " (" + arguments + ") { node_uuid cpu_model cpu_processors cpu_threads } }"
+	query := "query { " + cmd + arguments + "{ node_uuid cpu_model cpu_processors cpu_threads } }"
 
 	result, err := http.DoHTTPRequest("flute", query)
+	if err != nil {
+		return nil, err
+	}
 
 	var nodeDetail map[string]map[string]model.NodeDetail
 	err = json.Unmarshal(result, &nodeDetail)

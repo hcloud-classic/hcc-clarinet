@@ -27,8 +27,7 @@ import (
 	"strconv"
 )
 
-// aipCmd represents the aip command
-var SubnetCmd = &cobra.Command{
+var subnetCmd = &cobra.Command{
 	Use:   "subnet",
 	Short: "Commands for Subnet",
 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -56,7 +55,7 @@ var subnetCreate = &cobra.Command{
 		queryArgs["name_server"] = nameServer
 		queryArgs["domain_name"] = domainName
 		queryArgs["server_uuid"] = serverUUID
-		queryArgs["leader_node_uid"] = leaderUUID
+		queryArgs["leader_node_uuid"] = leaderUUID
 		queryArgs["os"] = OS
 		queryArgs["subnet_name"] = subnetName
 		node, err := mutationParser.CreateSubnet(queryArgs)
@@ -84,7 +83,7 @@ var subnetUpdate = &cobra.Command{
 		queryArgs["name_server"] = nameServer
 		queryArgs["domain_name"] = domainName
 		queryArgs["server_uuid"] = serverUUID
-		queryArgs["leader_node_uid"] = leaderUUID
+		queryArgs["leader_node_uuid"] = leaderUUID
 		queryArgs["os"] = OS
 		queryArgs["subnet_name"] = subnetName
 		node, err := mutationParser.UpdateSubnet(queryArgs)
@@ -123,7 +122,7 @@ var subnetCreateDHCPDConf = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["subnet_uuid"] = subnetUUID
-		queryArgs["node_uuids"] = nodeUUID
+		queryArgs["node_uuids"] = "[" + nodeUUID + "]"
 		node, err := mutationParser.CreateDHCPDConf(queryArgs)
 		if err != nil {
 			fmt.Println(err)
@@ -150,7 +149,7 @@ var subnetList = &cobra.Command{
 		queryArgs["name_server"] = nameServer
 		queryArgs["domain_name"] = domainName
 		queryArgs["server_uuid"] = serverUUID
-		queryArgs["leader_node_uid"] = leaderUUID
+		queryArgs["leader_node_uuid"] = leaderUUID
 		queryArgs["os"] = OS
 		queryArgs["subnet_name"] = subnetName
 
@@ -207,8 +206,6 @@ func ReadySubnetCmd() {
 	subnetCreate.MarkFlagRequired("next_server")
 	subnetCreate.MarkFlagRequired("name_server")
 	subnetCreate.MarkFlagRequired("domain_name")
-	subnetCreate.MarkFlagRequired("server_uuid")
-	subnetCreate.MarkFlagRequired("leader_node_uuid")
 	subnetCreate.MarkFlagRequired("os")
 	subnetCreate.MarkFlagRequired("subnet_name")
 
@@ -246,5 +243,5 @@ func ReadySubnetCmd() {
 	subnetList.Flags().StringVar(&OS, "os", "", "OS type")
 	subnetList.Flags().StringVar(&subnetName, "subnet_name", "", "Subnet Name")
 
-	SubnetCmd.AddCommand(subnetCreate, subnetUpdate, subnetDelete, subnetCreateDHCPDConf, subnetList)
+	subnetCmd.AddCommand(subnetCreate, subnetUpdate, subnetDelete, subnetCreateDHCPDConf, subnetList)
 }

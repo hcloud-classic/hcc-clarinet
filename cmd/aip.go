@@ -28,7 +28,7 @@ import (
 )
 
 // aipCmd represents the aip command
-var AIPCmd = &cobra.Command{
+var aipCmd = &cobra.Command{
 	Use:   "aip",
 	Short: "Commands for Adaptive IP",
 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -112,7 +112,6 @@ var aipCreateServer = &cobra.Command{
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		queryArgs["adaptiveip_uuid"] = aipUUID
 		queryArgs["server_uuid"] = serverUUID
 		queryArgs["public_ip"] = publicIP
 		node, err := mutationParser.CreateAdaptiveIPServer(queryArgs)
@@ -145,18 +144,11 @@ var aipDeleteServer = &cobra.Command{
 
 var aipList = &cobra.Command{
 	Use:   "list",
-	Short: "Creat Adaptive IP",
+	Short: "Show available Adaptive IP List",
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		queryArgs["row"] = strconv.Itoa(row)
-		queryArgs["page"] = strconv.Itoa(page)
-		queryArgs["network_ip"] = netIP
-		queryArgs["netmask"] = netMask
-		queryArgs["gateway"] = gateway
-		queryArgs["start_ip_address"] = startIP
-		queryArgs["end_ip_address"] = endIP
 		aipList, err := queryParser.ListAdaptiveIP(queryArgs)
 		if err != nil {
 			fmt.Println(err)
@@ -172,21 +164,20 @@ var aipList = &cobra.Command{
 			},
 			Options: table.Options{
 				DrawBorder:      true,
-				SeparateColumns: true,
+				SeparateColumns: false,
 				SeparateFooter:  true,
 				SeparateHeader:  true,
 				SeparateRows:    false,
 			},
 		})
 		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"No", "UUID", "IP", "Netmask", "Gateway", "Start IP", "End IP", "Created At"})
+		t.AppendHeader(table.Row{"Available IP"})
 
-		for index, aip := range aipList.([]model.AdaptiveIP) {
-			t.AppendRow([]interface{}{index + 1, aip.UUID, aip.NetworkAddress, aip.Netmask,
-				aip.Gateway, aip.StartIPAddress, aip.EndIPAddress, aip.CreatedAt})
+		for _, aip := range aipList.([]string) {
+			t.AppendRow([]interface{}{aip})
 		}
 
-		t.AppendFooter(table.Row{"Total", len(aipList.([]model.AdaptiveIP))})
+		t.AppendFooter(table.Row{"Total\t" + strconv.Itoa(len(aipList.([]string)))})
 		t.Render()
 	},
 }
@@ -226,10 +217,10 @@ var aipListServer = &cobra.Command{
 			},
 		})
 		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"No", "AIP UUID", "Server UUID", "Public IP", "Private IP", "Private Gateway"})
+		t.AppendHeader(table.Row{"No", "Server UUID", "Public IP", "Private IP", "Private Gateway"})
 
 		for index, aipServer := range aipServerList.([]model.AdaptiveIPServer) {
-			t.AppendRow([]interface{}{index + 1, aipServer.AdaptiveIPUUID, aipServer.ServerUUID,
+			t.AppendRow([]interface{}{index + 1, aipServer.ServerUUID,
 				aipServer.PublicIP, aipServer.PrivateIP, aipServer.PrivateGateway})
 		}
 
@@ -240,16 +231,16 @@ var aipListServer = &cobra.Command{
 }
 
 func ReadyAIPCmd() {
-	aipCreate.Flags().StringVar(&netIP, "network_ip", "", "Network Address")
+	aipCreate.Flags().StringVar(&netIP, "network_address", "", "Network Address")
 	aipCreate.Flags().StringVar(&netMask, "netmask", "", "Netmask")
 	aipCreate.Flags().StringVar(&gateway, "gateway", "", "Gateway")
 	aipCreate.Flags().StringVar(&startIP, "start_ip_address", "", "Start IP Address")
 	aipCreate.Flags().StringVar(&netIP, "end_ip_address", "", "End IP Address")
-	nodeDelete.MarkFlagRequired("network_address")
-	nodeDelete.MarkFlagRequired("netmask")
-	nodeDelete.MarkFlagRequired("gateway")
-	nodeDelete.MarkFlagRequired("start_ip_address")
-	nodeDelete.MarkFlagRequired("end_ip_address")
+	aipCreate.MarkFlagRequired("network_address")
+	aipCreate.MarkFlagRequired("netmask")
+	aipCreate.MarkFlagRequired("gateway")
+	aipCreate.MarkFlagRequired("start_ip_address")
+	aipCreate.MarkFlagRequired("end_ip_address")
 
 	aipUpdate.Flags().StringVar(&uuid, "uuid", "", "UUID")
 	aipUpdate.Flags().StringVar(&netIP, "network_ip", "", "Network Address")
@@ -257,28 +248,19 @@ func ReadyAIPCmd() {
 	aipUpdate.Flags().StringVar(&gateway, "gateway", "", "Gateway")
 	aipUpdate.Flags().StringVar(&startIP, "start_ip_address", "", "Start IP Address")
 	aipUpdate.Flags().StringVar(&netIP, "end_ip_address", "", "End IP Address")
+	aipUpdate.MarkFlagRequired("uuid")
 
 	aipDelete.Flags().StringVar(&uuid, "uuid", "", "UUID")
 	aipDelete.MarkFlagRequired("uuid")
 
-	aipList.Flags().IntVar(&row, "row", 0, "Number of rows to show")
-	aipList.Flags().IntVar(&page, "page", 0, "Nuber of page to show")
-	aipList.Flags().StringVar(&netIP, "network_ip", "", "Network Address")
-	aipList.Flags().StringVar(&netMask, "netmask", "", "Netmask")
-	aipList.Flags().StringVar(&gateway, "gateway", "", "Gateway")
-	aipList.Flags().StringVar(&startIP, "start_ip_address", "", "Start IP Address")
-	aipList.Flags().StringVar(&netIP, "end_ip_address", "", "End IP Address")
-
-	aipCreateServer.Flags().StringVar(&aipUUID, "adaptiveip_uuid", "", "UUID of Adatative IP")
 	aipCreateServer.Flags().StringVar(&serverUUID, "server_uuid", "", "UUID of Server")
 	aipCreateServer.Flags().StringVar(&publicIP, "public_ip", "", "Public IP")
-	aipCreateServer.MarkFlagRequired("adaptiveip_uuid")
 	aipCreateServer.MarkFlagRequired("server_uuid")
 	aipCreateServer.MarkFlagRequired("public_ip")
 
 	aipCreate.AddCommand(aipCreateServer)
 
-	aipDeleteServer.Flags().StringVar(&uuid, "server_uuid", "", "UUID of Server")
+	aipDeleteServer.Flags().StringVar(&serverUUID, "server_uuid", "", "UUID of Server")
 	aipDeleteServer.MarkFlagRequired("server_uuid")
 
 	aipDelete.AddCommand(aipDeleteServer)
@@ -289,9 +271,8 @@ func ReadyAIPCmd() {
 	aipListServer.Flags().StringVar(&publicIP, "public_ip", "", "Public IP of Server")
 	aipListServer.Flags().StringVar(&privateIP, "private_ip", "", "Private IP of Server")
 	aipListServer.Flags().StringVar(&gateway, "private_gateway", "", "Private Gateway IP")
-	aipListServer.MarkFlagRequired("suber_uuid")
 
 	aipList.AddCommand(aipListServer)
 
-	AIPCmd.AddCommand(aipCreate, aipUpdate, aipDelete, aipList)
+	aipCmd.AddCommand(aipCreate, aipUpdate, aipDelete, aipList)
 }

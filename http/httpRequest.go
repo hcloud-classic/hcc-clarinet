@@ -1,12 +1,12 @@
 package http
 
 import (
+	"encoding/json"
 	"errors"
 	"hcc/clarinet/lib/config"
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -50,17 +50,23 @@ func DoHTTPRequest(moduleName string, query string) ([]byte, error) {
 		// Check response
 		respBody, err := ioutil.ReadAll(resp.Body)
 		if err == nil {
-			result := string(respBody)
+			var result map[string]interface{}
+			json.Unmarshal(respBody, &result)
+			errBody, errChk := result["errors"]
 
-			if strings.Contains(result, "errors") {
-				return nil, errors.New(result)
+			if !errChk {
+				return respBody, nil
 			}
+			errMsg := ""
 
-			return []byte(result), nil
+			for index, msg := range errBody.([]interface{}) {
+				errMsg += strconv.Itoa(index+1) + ":" + msg.(map[string]interface{})["message"].(string) + "\n"
+			}
+			return nil, errors.New(errMsg)
 		}
 
 		return nil, err
 	}
 
-	return nil, errors.New("http response returned error code")
+	return nil, errors.New("http response returned error code" + strconv.Itoa(resp.StatusCode))
 }
