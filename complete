@@ -4,7 +4,7 @@ _clarinet_completions()
 {
 	opts_command="node server aip subnet help"
 	opts_server="create delete list update"
-	opts_node="create delete list update detail off on restart"
+	opts_node="create delete list update detail on off restart"
 	opts_subnet="create delete dhcpconf list update"
 	opts_aip="create delete list update"
 

@@ -26,7 +26,6 @@ import (
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/lib/config"
-	"hcc/clarinet/lib/errors"
 	"hcc/clarinet/model"
 )
 
@@ -71,12 +70,8 @@ var subnetCreate = &cobra.Command{
 		}
 
 		subnetData := data.(model.Subnet)
-		if subnetData.Errors.Len() != 0 {
-			err = subnetData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if subnetData.Errors.Len() > 0 {
+			subnetData.Errors.Print()
 		}
 	},
 }
@@ -109,12 +104,8 @@ var subnetUpdate = &cobra.Command{
 		}
 
 		subnetData := data.(model.Subnet)
-		if subnetData.Errors.Len() != 0 {
-			err = subnetData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if subnetData.Errors.Len() > 0 {
+			subnetData.Errors.Print()
 		}
 	},
 }
@@ -137,12 +128,8 @@ var subnetDelete = &cobra.Command{
 		}
 
 		subnetData := data.(model.Subnet)
-		if subnetData.Errors.Len() != 0 {
-			err = subnetData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if subnetData.Errors.Len() > 0 {
+			subnetData.Errors.Print()
 		}
 	},
 }
@@ -166,12 +153,8 @@ var subnetCreateDHCPDConf = &cobra.Command{
 		}
 
 		subnetData := data.(model.DHCPDConfResult)
-		if subnetData.Errors.Len() != 0 {
-			err = subnetData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if subnetData.Errors.Len() > 0 {
+			subnetData.Errors.Print()
 		}
 	},
 }
@@ -205,9 +188,8 @@ var subnetList = &cobra.Command{
 		}
 
 		subnetList := data.(model.Subnets)
-		if subnetList.Errors.Len() >= 0 {
+		if subnetList.Errors.Len() > 0 {
 			subnetList.Errors.Print()
-			return
 		}
 
 		t := table.NewWriter()

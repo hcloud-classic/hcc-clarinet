@@ -9,9 +9,6 @@ import (
 )
 
 func CreateSubnet(args map[string]string) (interface{}, *errors.HccError) {
-	if b, ef := argumentParser.CheckArgsAll(args, len(args), "server_uuid", "leader_node_uuid"); b {
-		return nil, errors.NewHccError(errors.ClarinetGraphQLParsingError, "Check flag value of "+ef)
-	}
 
 	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
@@ -34,10 +31,6 @@ func CreateSubnet(args map[string]string) (interface{}, *errors.HccError) {
 
 func UpdateSubnet(args map[string]string) (interface{}, *errors.HccError) {
 	// UUID flag must checked by cobra
-	if argumentParser.CheckArgsMin(args, 2) {
-		return nil, errors.NewHccError(errors.ClarinetGraphQLParsingError, "Need at least 1 more flag except uuid")
-	}
-
 	arguments, err := argumentParser.GetArgumentStr(args)
 	if err != nil {
 		return nil, err
