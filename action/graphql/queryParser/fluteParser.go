@@ -68,7 +68,6 @@ func ListNode(args map[string]string) (interface{}, *errors.HccError) {
 			status
 			cpu_cores
 			memory
-			description
 			created_at
 			active
 		}

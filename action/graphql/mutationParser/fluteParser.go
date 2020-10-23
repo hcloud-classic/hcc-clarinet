@@ -55,7 +55,23 @@ func CreateNode(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "create_node"
-	query := "mutation _ { " + cmd + arguments + "{ uuid bmc_mac_addr bmc_ip pxe_mac_addr status cpu_cores memory description created_at active errors { errcode errtext } } }"
+	query := `mutation _ { ` + cmd + arguments + `{
+		uuid
+		server_uuid
+		bmc_mac_addr
+		bmc_ip
+		pxe_mac_addr
+		status
+		cpu_cores
+		memory
+		description
+		created_at
+		active
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -81,7 +97,23 @@ func UpdateNode(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "update_node"
-	query := "mutation _ { " + cmd + arguments + "{ uuid bmc_mac_addr errors { errcode errtext } } }"
+	query := `mutation _ { ` + cmd + arguments + `{
+		uuid
+		server_uuid
+		bmc_mac_addr
+		bmc_ip
+		pxe_mac_addr
+		status
+		cpu_cores
+		memory
+		description
+		created_at
+		active
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -105,6 +137,16 @@ func DeleteNode(args map[string]string) (interface{}, *errors.HccError) {
 	cmd := "delete_node"
 	query := `mutation _ { ` + cmd + arguments + `{
 		uuid
+		server_uuid
+		bmc_mac_addr
+		bmc_ip
+		pxe_mac_addr
+		status
+		cpu_cores
+		memory
+		description
+		created_at
+		active
 		errors {
 			errcode
 			errtext
@@ -167,6 +209,9 @@ func DeleteNodeDetail(args map[string]string) (interface{}, *errors.HccError) {
 	cmd := "delete_node_detail"
 	query := `mutation _ { ` + cmd + arguments + `{
 		node_uuid
+		cpu_model
+		cpu_processors
+		cpu_threads
 		errors {
 			errcode
 			errtext

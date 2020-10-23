@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -26,7 +27,6 @@ import (
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/lib/config"
-	"hcc/clarinet/lib/errors"
 	"hcc/clarinet/lib/logger"
 	"hcc/clarinet/model"
 )
@@ -110,7 +110,7 @@ var nodeOn = &cobra.Command{
 		}
 
 		nodeData := data.(model.PowerStateNode)
-		if nodeData.Errors.Len() > 0 {
+		if nodeData.Errors.Len() >= 0 {
 			nodeData.Errors.Print()
 			return
 		}
@@ -138,7 +138,7 @@ var nodeOff = &cobra.Command{
 		}
 
 		nodeData := data.(model.PowerStateNode)
-		if nodeData.Errors.Len() > 0 {
+		if nodeData.Errors.Len() >= 0 {
 			nodeData.Errors.Print()
 			return
 		}
@@ -164,7 +164,7 @@ var nodeRestart = &cobra.Command{
 		}
 
 		nodeData := data.(model.PowerStateNode)
-		if nodeData.Errors.Len() > 0 {
+		if nodeData.Errors.Len() >= 0 {
 			nodeData.Errors.Print()
 			return
 		}
@@ -191,6 +191,8 @@ var nodeCreate = &cobra.Command{
 		queryArgs["memory"] = strconv.Itoa(memory)
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Create Node .... ")
+
 		data, err := mutationParser.CreateNode(queryArgs)
 		if err != nil {
 			err.Println()
@@ -198,10 +200,41 @@ var nodeCreate = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() > 0 {
+		if nodeData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
 			nodeData.Errors.Print()
 			return
 		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", nodeData.UUID})
+		t.AppendRow([]interface{}{"Server UUID", nodeData.ServerUUID})
+		t.AppendRow([]interface{}{"BMC IP", nodeData.BmcIP})
+		t.AppendRow([]interface{}{"BMC MAC", nodeData.BmcMacAddr})
+		t.AppendRow([]interface{}{"PXE MAC", nodeData.PXEMacAddr})
+		t.AppendRow([]interface{}{"CORES", nodeData.CPUCores})
+		t.AppendRow([]interface{}{"MEMORY", nodeData.Memory})
+		t.AppendRow([]interface{}{"POWER", nodeData.Status})
+		t.AppendRow([]interface{}{"ACTIVE", nodeData.Active})
+		t.AppendRow([]interface{}{"DESCRIPTION", nodeData.Description})
+		t.Render()
 	},
 }
 
@@ -225,6 +258,8 @@ var nodeUpdate = &cobra.Command{
 		queryArgs["memory"] = strconv.Itoa(memory)
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Update Node .... ")
+
 		data, err := mutationParser.UpdateNode(queryArgs)
 		if err != nil {
 			err.Println()
@@ -232,10 +267,41 @@ var nodeUpdate = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() > 0 {
+		if nodeData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
 			nodeData.Errors.Print()
 			return
 		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", nodeData.UUID})
+		t.AppendRow([]interface{}{"Server UUID", nodeData.ServerUUID})
+		t.AppendRow([]interface{}{"BMC IP", nodeData.BmcIP})
+		t.AppendRow([]interface{}{"BMC MAC", nodeData.BmcMacAddr})
+		t.AppendRow([]interface{}{"PXE MAC", nodeData.PXEMacAddr})
+		t.AppendRow([]interface{}{"CORES", nodeData.CPUCores})
+		t.AppendRow([]interface{}{"MEMORY", nodeData.Memory})
+		t.AppendRow([]interface{}{"POWER", nodeData.Status})
+		t.AppendRow([]interface{}{"ACTIVE", nodeData.Active})
+		t.AppendRow([]interface{}{"DESCRIPTION", nodeData.Description})
+		t.Render()
 	},
 }
 
@@ -249,6 +315,9 @@ var nodeDelete = &cobra.Command{
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
 		queryArgs["token"] = config.User.Token
+
+		fmt.Print("Delete Node .... ")
+
 		data, err := mutationParser.DeleteNode(queryArgs)
 		if err != nil {
 			err.Println()
@@ -256,10 +325,41 @@ var nodeDelete = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() > 0 {
+		if nodeData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
 			nodeData.Errors.Print()
 			return
 		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", nodeData.UUID})
+		t.AppendRow([]interface{}{"Server UUID", nodeData.ServerUUID})
+		t.AppendRow([]interface{}{"BMC IP", nodeData.BmcIP})
+		t.AppendRow([]interface{}{"BMC MAC", nodeData.BmcMacAddr})
+		t.AppendRow([]interface{}{"PXE MAC", nodeData.PXEMacAddr})
+		t.AppendRow([]interface{}{"CORES", nodeData.CPUCores})
+		t.AppendRow([]interface{}{"MEMORY", nodeData.Memory})
+		t.AppendRow([]interface{}{"POWER", nodeData.Status})
+		t.AppendRow([]interface{}{"ACTIVE", nodeData.Active})
+		t.AppendRow([]interface{}{"DESCRIPTION", nodeData.Description})
+		t.Render()
 	},
 }
 
@@ -277,6 +377,8 @@ var nodeCreateDetail = &cobra.Command{
 		queryArgs["cpu_threads"] = strconv.Itoa(cpuThreads)
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Create Node Detail Info .... ")
+
 		data, err := mutationParser.CreateNodeDetail(queryArgs)
 		if err != nil {
 			err.Println()
@@ -284,13 +386,35 @@ var nodeCreateDetail = &cobra.Command{
 		}
 
 		nodeData := data.(model.NodeDetail)
-		if nodeData.Errors.Len() > 0 {
-			err = nodeData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if nodeData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
+			nodeData.Errors.Print()
+			return
 		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", nodeData.NodeUUID})
+		t.AppendRow([]interface{}{"CPU MODEL", nodeData.CPUModel})
+		t.AppendRow([]interface{}{"NUM PROCESSOR", nodeData.CPUProcessors})
+		t.AppendRow([]interface{}{"NUM THREADS", nodeData.CPUThreads})
+		t.Render()
 	},
 }
 
@@ -302,9 +426,10 @@ var nodeDeleteDetail = &cobra.Command{
 	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		//queryArgs["node_uuid"] = nodeUUID
-		queryArgs["bmc_ip"] = bmcIP
+		queryArgs["node_uuid"] = nodeUUID
 		queryArgs["token"] = config.User.Token
+
+		fmt.Print("Create Node Detail Info .... ")
 
 		data, err := mutationParser.DeleteNodeDetail(queryArgs)
 		if err != nil {
@@ -313,13 +438,35 @@ var nodeDeleteDetail = &cobra.Command{
 		}
 
 		nodeData := data.(model.NodeDetail)
-		if nodeData.Errors.Len() > 0 {
-			err = nodeData.Errors.Dump()
-			if err.Code() == errors.PiccoloGraphQLTokenExpired {
-				reRunIfExpired(cmd)
-				return
-			}
+		if nodeData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
+			nodeData.Errors.Print()
+			return
 		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", nodeData.NodeUUID})
+		t.AppendRow([]interface{}{"CPU MODEL", nodeData.CPUModel})
+		t.AppendRow([]interface{}{"NUM PROCESSOR", nodeData.CPUProcessors})
+		t.AppendRow([]interface{}{"NUM THREADS", nodeData.CPUThreads})
+		t.Render()
 	},
 }
 
@@ -341,7 +488,6 @@ var nodeList = &cobra.Command{
 		queryArgs["status"] = status
 		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
 		queryArgs["memory"] = strconv.Itoa(memory)
-		queryArgs["description"] = desc
 		queryArgs["active"] = strconv.Itoa(active)
 		queryArgs["token"] = config.User.Token
 
@@ -352,7 +498,7 @@ var nodeList = &cobra.Command{
 		}
 
 		nodeList := data.(model.Nodes)
-		if nodeList.Errors.Len() > 0 {
+		if nodeList.Errors.Len() >= 0 {
 			nodeList.Errors.Print()
 			return
 		}
@@ -374,12 +520,12 @@ var nodeList = &cobra.Command{
 		})
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"No", "UUID", "Server UUID", "BMC MAC", "BMC IP", "PXE MAC",
-			"Cores", "Memory", "Description", "Active", "Status"})
+			"Cores", "Memory", "Active", "Status"})
 
 		for index, node := range nodeList.Nodes {
 			t.AppendRow([]interface{}{
 				index + 1, node.UUID, node.ServerUUID, node.BmcMacAddr, node.BmcIP, node.PXEMacAddr,
-				node.CPUCores, node.Memory, node.Description, node.Active, node.Status})
+				node.CPUCores, node.Memory, node.Active, node.Status})
 		}
 
 		t.AppendFooter(table.Row{"Total", len(nodeList.Nodes)})
@@ -407,7 +553,7 @@ var nodeDetail = &cobra.Command{
 		}
 
 		nodeDetailData := data.(model.NodeDetail)
-		if nodeDetailData.Errors.Len() > 0 {
+		if nodeDetailData.Errors.Len() >= 0 {
 			nodeDetailData.Errors.Print()
 			return
 		}
@@ -452,11 +598,11 @@ func ReadyNodeCmd() {
 	nodeRestart.MarkFlagRequired("uuid")
 
 	nodeCreate.Flags().StringVar(&bmcMacAddr, "bmc_mac_addr", "", "MAC address of BMC")
-	nodeCreate.Flags().StringVar(&bmcIP, "bmc_ip", "", "IP address of BMC")
+	nodeCreate.Flags().StringVar(&bmcIP, "bmc_ip", "", "IP address of BMC [x.x.x.x/x]")
 	nodeCreate.Flags().StringVar(&pxeMacAddr, "pxe_mac_addr", "", "PXE MAC address")
 	nodeCreate.Flags().StringVar(&status, "status", "", "Status")
 	nodeCreate.Flags().StringVar(&desc, "description", "", "Description")
-	nodeCreate.Flags().IntVar(&active, "active", 0, "Active state")
+	nodeCreate.Flags().IntVar(&active, "active", 0, "Active state [0|1]")
 	nodeCreate.Flags().IntVar(&cpuCores, "cpu_cores", 0, "Number of CPU cores")
 	nodeCreate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
 	nodeCreate.MarkFlagRequired("bmc_ip")
@@ -472,7 +618,7 @@ func ReadyNodeCmd() {
 	nodeUpdate.Flags().IntVar(&active, "active", 0, "Active state")
 	nodeUpdate.Flags().IntVar(&cpuCores, "cpu", 0, "Number of CPU cores")
 	nodeUpdate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
-	nodeUpdate.MarkFlagRequired("bmc_ip")
+	nodeUpdate.MarkFlagRequired("uuid")
 
 	nodeDelete.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
 	nodeDelete.MarkFlagRequired("uuid")
@@ -486,7 +632,6 @@ func ReadyNodeCmd() {
 	nodeList.Flags().StringVar(&status, "status", "", "status")
 	nodeList.Flags().IntVar(&cpuCores, "cpu_cores", 0, "Number of CPU cores")
 	nodeList.Flags().IntVar(&memory, "memory", 0, "Size of memory")
-	nodeList.Flags().StringVar(&desc, "description", "", "Descriptions of Node")
 	nodeList.Flags().IntVar(&active, "active", 0, "Active status")
 
 	nodeCreateDetail.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
