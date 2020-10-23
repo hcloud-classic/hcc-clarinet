@@ -83,10 +83,11 @@ func ListAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccError
 	cmd := "list_adaptiveip_server"
 	query := `query { ` + cmd + arguments + `{
 		adaptiveip_server_list {
-			server_uuid
-			public_ip
-			private_ip
+			created_at
 			private_gateway
+			private_ip
+			public_ip
+			server_uuid
 		}
 		errors {
 			errtext

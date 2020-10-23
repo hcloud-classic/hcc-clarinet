@@ -9,7 +9,7 @@ type AdaptiveIP struct {
 	UUID            string               `json:"uuid"`
 	ExtIfaceAddress string               `json:"ext_ifaceip_address"`
 	Netmask         string               `json:"netmask"`
-	Gateway         string               `json:"gateway"`
+	Gateway         string               `json:"gateway_address"`
 	StartIPAddress  string               `json:"start_ip_address"`
 	EndIPAddress    string               `json:"end_ip_address"`
 	Errors          errors.HccErrorStack `json:"errors"`
