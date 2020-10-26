@@ -24,7 +24,7 @@ type Subnet struct {
 
 // Subnets - cgs
 type Subnets struct {
-	Subnets []Subnet             `json:"subnet"`
+	Subnets []Subnet             `json:"subnet_list"`
 	Errors  errors.HccErrorStack `json:"errors"`
 }
 

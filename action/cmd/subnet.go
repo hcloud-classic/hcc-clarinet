@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -63,16 +64,53 @@ var subnetCreate = &cobra.Command{
 		queryArgs["subnet_name"] = subnetName
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Create Subnet .... ")
+
 		data, err := mutationParser.CreateSubnet(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
 
 		subnetData := data.(model.Subnet)
-		if subnetData.Errors.Len() > 0 {
+		if subnetData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
 			subnetData.Errors.Print()
+			return
 		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", subnetData.UUID})
+		t.AppendRow([]interface{}{"Subnet Name", subnetData.SubnetName})
+		t.AppendRow([]interface{}{"Domain Name", subnetData.DomainName})
+		t.AppendRow([]interface{}{"Network IP", subnetData.NetworkIP})
+		t.AppendRow([]interface{}{"Netmask", subnetData.Netmask})
+		t.AppendRow([]interface{}{"Gateway", subnetData.Gateway})
+		t.AppendRow([]interface{}{"DNS", subnetData.NameServer})
+		t.AppendRow([]interface{}{"Next Server", subnetData.NextServer})
+		t.AppendRow([]interface{}{"Server UUID", subnetData.ServerUUID})
+		t.AppendRow([]interface{}{"Leader UUID", subnetData.LeaderNodeUUID})
+		t.AppendRow([]interface{}{"OS", subnetData.OS})
+		t.AppendRow([]interface{}{"Created At", subnetData.CreatedAt})
+		t.Render()
 	},
 }
 
@@ -97,16 +135,53 @@ var subnetUpdate = &cobra.Command{
 		queryArgs["subnet_name"] = subnetName
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Update Subnet .... ")
+
 		data, err := mutationParser.UpdateSubnet(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
 
 		subnetData := data.(model.Subnet)
-		if subnetData.Errors.Len() > 0 {
+		if subnetData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
 			subnetData.Errors.Print()
+			return
 		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", subnetData.UUID})
+		t.AppendRow([]interface{}{"Subnet Name", subnetData.SubnetName})
+		t.AppendRow([]interface{}{"Domain Name", subnetData.DomainName})
+		t.AppendRow([]interface{}{"Network IP", subnetData.NetworkIP})
+		t.AppendRow([]interface{}{"Netmask", subnetData.Netmask})
+		t.AppendRow([]interface{}{"Gateway", subnetData.Gateway})
+		t.AppendRow([]interface{}{"DNS", subnetData.NameServer})
+		t.AppendRow([]interface{}{"Next Server", subnetData.NextServer})
+		t.AppendRow([]interface{}{"Server UUID", subnetData.ServerUUID})
+		t.AppendRow([]interface{}{"Leader UUID", subnetData.LeaderNodeUUID})
+		t.AppendRow([]interface{}{"OS", subnetData.OS})
+		t.AppendRow([]interface{}{"Created At", subnetData.CreatedAt})
+		t.Render()
 	},
 }
 
@@ -121,16 +196,53 @@ var subnetDelete = &cobra.Command{
 		queryArgs["uuid"] = uuid
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Delete Subnet .... ")
+
 		data, err := mutationParser.DeleteSubnet(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
 
 		subnetData := data.(model.Subnet)
-		if subnetData.Errors.Len() > 0 {
+		if subnetData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
 			subnetData.Errors.Print()
+			return
 		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", subnetData.UUID})
+		t.AppendRow([]interface{}{"Subnet Name", subnetData.SubnetName})
+		t.AppendRow([]interface{}{"Domain Name", subnetData.DomainName})
+		t.AppendRow([]interface{}{"Network IP", subnetData.NetworkIP})
+		t.AppendRow([]interface{}{"Netmask", subnetData.Netmask})
+		t.AppendRow([]interface{}{"Gateway", subnetData.Gateway})
+		t.AppendRow([]interface{}{"DNS", subnetData.NameServer})
+		t.AppendRow([]interface{}{"Next Server", subnetData.NextServer})
+		t.AppendRow([]interface{}{"Server UUID", subnetData.ServerUUID})
+		t.AppendRow([]interface{}{"Leader UUID", subnetData.LeaderNodeUUID})
+		t.AppendRow([]interface{}{"OS", subnetData.OS})
+		t.AppendRow([]interface{}{"Created At", subnetData.CreatedAt})
+		t.Render()
 	},
 }
 
@@ -146,16 +258,23 @@ var subnetCreateDHCPDConf = &cobra.Command{
 		queryArgs["node_uuids"] = "[" + nodeUUID + "]"
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Create DHCP Configuration .... ")
+
 		data, err := mutationParser.CreateDHCPDConf(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
 
 		subnetData := data.(model.DHCPDConfResult)
-		if subnetData.Errors.Len() > 0 {
+		if subnetData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
 			subnetData.Errors.Print()
+			return
 		}
+
+		fmt.Println("[SUCCESS]")
 	},
 }
 
@@ -188,8 +307,9 @@ var subnetList = &cobra.Command{
 		}
 
 		subnetList := data.(model.Subnets)
-		if subnetList.Errors.Len() > 0 {
+		if subnetList.Errors.Len() >= 0 {
 			subnetList.Errors.Print()
+			return
 		}
 
 		t := table.NewWriter()
@@ -223,7 +343,7 @@ var subnetList = &cobra.Command{
 }
 
 func ReadySubnetCmd() {
-	subnetCreate.Flags().StringVar(&netIP, "network_ip", "", "Network IP")
+	subnetCreate.Flags().StringVar(&netIP, "network_ip", "", "Network IP [x.x.x.0]")
 	subnetCreate.Flags().StringVar(&netMask, "netmask", "", "Network Mask")
 	subnetCreate.Flags().StringVar(&gateway, "gateway", "", "Gateway")
 	subnetCreate.Flags().StringVar(&nextServer, "next_server", "", "Next Server")
@@ -242,8 +362,15 @@ func ReadySubnetCmd() {
 	subnetCreate.MarkFlagRequired("os")
 	subnetCreate.MarkFlagRequired("subnet_name")
 
+	subnetCreateDHCPDConf.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "Subnet UUID")
+	subnetCreateDHCPDConf.Flags().StringVar(&nodeUUID, "node_uuids", "", "Node UUIDs")
+	subnetCreateDHCPDConf.MarkFlagRequired("subnet_uuid")
+	subnetCreateDHCPDConf.MarkFlagRequired("node_uuids")
+
+	subnetCreate.AddCommand(subnetCreateDHCPDConf)
+
 	subnetUpdate.Flags().StringVar(&uuid, "uuid", "", "UUID")
-	subnetUpdate.Flags().StringVar(&netIP, "network_ip", "", "Network IP")
+	subnetUpdate.Flags().StringVar(&netIP, "network_ip", "", "Network IP [x.x.x.0]")
 	subnetUpdate.Flags().StringVar(&netMask, "netmask", "", "Network Mask")
 	subnetUpdate.Flags().StringVar(&gateway, "gateway", "", "Gateway")
 	subnetUpdate.Flags().StringVar(&nextServer, "next_server", "", "Next Server")
@@ -258,14 +385,9 @@ func ReadySubnetCmd() {
 	subnetDelete.Flags().StringVar(&uuid, "uuid", "", "UUID")
 	subnetDelete.MarkFlagRequired("uuid")
 
-	subnetCreateDHCPDConf.Flags().StringVar(&subnetUUID, "subnet_uuid", "", "Subnet UUID")
-	subnetCreateDHCPDConf.Flags().StringVar(&nodeUUID, "node_uuids", "", "Node UUIDs")
-	subnetCreateDHCPDConf.MarkFlagRequired("subnet_uuid")
-	subnetCreateDHCPDConf.MarkFlagRequired("node_uuids")
-
 	subnetList.Flags().IntVar(&row, "row", 0, "")
 	subnetList.Flags().IntVar(&page, "page", 0, "")
-	subnetList.Flags().StringVar(&netIP, "network_ip", "", "Network IP")
+	subnetList.Flags().StringVar(&netIP, "network_ip", "", "Network IP [x.x.x.0]")
 	subnetList.Flags().StringVar(&netMask, "netmask", "", "Network Mask")
 	subnetList.Flags().StringVar(&gateway, "gateway", "", "Gateway")
 	subnetList.Flags().StringVar(&nextServer, "next_server", "", "Next Server")
@@ -276,5 +398,5 @@ func ReadySubnetCmd() {
 	subnetList.Flags().StringVar(&OS, "os", "", "OS type")
 	subnetList.Flags().StringVar(&subnetName, "subnet_name", "", "Subnet Name")
 
-	subnetCmd.AddCommand(subnetCreate, subnetUpdate, subnetDelete, subnetCreateDHCPDConf, subnetList)
+	subnetCmd.AddCommand(subnetCreate, subnetUpdate, subnetDelete, subnetList)
 }

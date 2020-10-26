@@ -16,7 +16,23 @@ func CreateSubnet(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "create_subnet"
-	query := "mutation _ { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name errors { errcode errtext } } }"
+	query := `mutation _ { ` + cmd + arguments + `{
+		uuid
+		network_ip
+		netmask
+		gateway
+		next_server
+		name_server
+		domain_name
+		server_uuid
+		leader_node_uuid
+		os
+		subnet_name
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
 		return nil, err
@@ -37,7 +53,23 @@ func UpdateSubnet(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "update_subnet"
-	query := "mutation _ { " + cmd + arguments + "{ uuid network_ip netmask gateway next_server name_server domain_name server_uuid leader_node_uuid os subnet_name errors { errcode errtext } } }"
+	query := `mutation _ { ` + cmd + arguments + `{
+		uuid
+		network_ip
+		netmask
+		gateway
+		next_server
+		name_server
+		domain_name
+		server_uuid
+		leader_node_uuid
+		os
+		subnet_name
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -59,7 +91,23 @@ func DeleteSubnet(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "delete_subnet"
-	query := "mutation _ { " + cmd + arguments + "{ uuid errors { errcode errtext} } }"
+	query := `mutation _ { ` + cmd + arguments + `{
+		uuid
+		network_ip
+		netmask
+		gateway
+		next_server
+		name_server
+		domain_name
+		server_uuid
+		leader_node_uuid
+		os
+		subnet_name
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {
@@ -80,7 +128,13 @@ func CreateDHCPDConf(args map[string]string) (interface{}, *errors.HccError) {
 	}
 
 	cmd := "create_dhcpd_conf"
-	query := "mutation _ { " + cmd + arguments + " { result errors { errcode errtext } } }"
+	query := `mutation _ { ` + cmd + arguments + `{
+		result
+		errors {
+			errcode
+			errtext
+		}
+	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)
 	if err != nil {

@@ -27,7 +27,6 @@ import (
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/lib/config"
-	"hcc/clarinet/lib/logger"
 	"hcc/clarinet/model"
 )
 
@@ -103,19 +102,23 @@ var nodeOn = &cobra.Command{
 		queryArgs["uuid"] = nodeUUID
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Power On .... ")
+
 		data, err := mutationParser.OnOffNode(queryArgs, model.On)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
 
 		nodeData := data.(model.PowerStateNode)
 		if nodeData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
 			nodeData.Errors.Print()
 			return
 		}
 
-		logger.Logger.Println("Flute :" + nodeData.State)
+		fmt.Println("[SUCCESS]")
 	},
 }
 
@@ -131,19 +134,23 @@ var nodeOff = &cobra.Command{
 		queryArgs["force_off"] = "true"
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Power Off .... ")
+
 		data, err := mutationParser.OnOffNode(queryArgs, model.Off)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
 
 		nodeData := data.(model.PowerStateNode)
 		if nodeData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
 			nodeData.Errors.Print()
 			return
 		}
 
-		logger.Logger.Println("Flute :" + nodeData.State)
+		fmt.Println("[SUCCESS]")
 	},
 }
 
@@ -157,19 +164,24 @@ var nodeRestart = &cobra.Command{
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
 		queryArgs["token"] = config.User.Token
+
+		fmt.Print("Restart .... ")
+
 		data, err := mutationParser.OnOffNode(queryArgs, model.Restart)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
 
 		nodeData := data.(model.PowerStateNode)
 		if nodeData.Errors.Len() >= 0 {
+			fmt.Println("[FAIL]")
 			nodeData.Errors.Print()
 			return
 		}
 
-		logger.Logger.Println("Flute :" + nodeData.State)
+		fmt.Println("[SUCCESS]")
 	},
 }
 
@@ -195,6 +207,7 @@ var nodeCreate = &cobra.Command{
 
 		data, err := mutationParser.CreateNode(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
@@ -262,6 +275,7 @@ var nodeUpdate = &cobra.Command{
 
 		data, err := mutationParser.UpdateNode(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
@@ -320,6 +334,7 @@ var nodeDelete = &cobra.Command{
 
 		data, err := mutationParser.DeleteNode(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
@@ -381,6 +396,7 @@ var nodeCreateDetail = &cobra.Command{
 
 		data, err := mutationParser.CreateNodeDetail(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
@@ -433,6 +449,7 @@ var nodeDeleteDetail = &cobra.Command{
 
 		data, err := mutationParser.DeleteNodeDetail(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}

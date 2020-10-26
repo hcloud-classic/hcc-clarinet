@@ -21,24 +21,24 @@ func ListSubnet(args map[string]string) (interface{}, *errors.HccError) {
 
 	cmd := "list_subnet"
 	query := `query { ` + cmd + arguments + `{ 
-	subnet_list {
-		uuid
-		network_ip
-		netmask
-		gateway
-		next_server
-		name_server
-		domain_name
-		server_uuid
-		leader_node_uuid
-		os
-		subnet_name
-		created_at
-	}
-	errors {
-		errcode
-		errtext
-	}
+		subnet_list {
+			uuid
+			network_ip
+			netmask
+			gateway
+			next_server
+			name_server
+			domain_name
+			server_uuid
+			leader_node_uuid
+			os
+			subnet_name
+			created_at
+		}
+		errors {
+			errcode
+			errtext
+		}
 	} }`
 
 	result, err := http.DoHTTPRequest("piccolo", query)

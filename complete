@@ -5,7 +5,7 @@ _clarinet_completions()
 	opts_command="node server aip subnet help"
 	opts_server="create delete list update"
 	opts_node="create delete list update detail on off restart"
-	opts_subnet="create delete dhcpconf list update"
+	opts_subnet="create delete list update"
 	opts_aip="create delete list"
 
 	if [[ "${COMP_CWORD}" == "1" ]];then
@@ -28,6 +28,10 @@ _clarinet_completions()
 				COMPREPLY=($(compgen -W "server" "${COMP_WORDS[3]}"))
 			elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "list" ]];then
 				COMPREPLY=($(compgen -W "server available" "${COMP_WORDS[3]}"))
+			fi
+		elif [[ "${COMP_WORDS[COMP_CWORD-2]}" == "subnet" ]];then
+			if [[ "${COMP_WORDS[COMP_CWORD-1]}" == "create" ]];then
+				COMPREPLY=($(compgen -W "dhcpconf" "${COMP_WORDS[3]}"))
 			fi
 		fi
 	fi

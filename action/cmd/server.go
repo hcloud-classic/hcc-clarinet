@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -11,7 +12,6 @@ import (
 	"hcc/clarinet/action/graphql/mutationParser"
 	"hcc/clarinet/action/graphql/queryParser"
 	"hcc/clarinet/lib/config"
-	"hcc/clarinet/lib/logger"
 	"hcc/clarinet/model"
 )
 
@@ -128,18 +128,66 @@ var serverCreate = &cobra.Command{
 		queryArgs["nr_node"] = strconv.Itoa(nrNode)
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Create Server .... ")
+
 		data, err := mutationParser.CreateServer(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
 
 		serverData := data.(model.Server)
 		if serverData.Errors.Len() > 0 {
+			fmt.Println("[FAIL]")
 			serverData.Errors.Print()
+			return
 		}
 
-		logger.Logger.Println("Create SUCCESS] " + serverData.ServerName + " (" + serverData.UUID + ")")
+		serverUUIDArg := make(map[string]string)
+		serverUUIDArg["server_uuid"] = serverData.UUID
+		serverUUIDArg["token"] = config.User.Token
+
+		data, err = queryParser.NumNodesServer(serverUUIDArg)
+		if err != nil {
+			fmt.Println("[FAIL]")
+			err.Println()
+			return
+		}
+
+		numNodeData := data.(model.ServerNodeNum)
+		if numNodeData.Errors.Len() > 0 {
+			fmt.Println("[FAIL]")
+			numNodeData.Errors.Print()
+			return
+		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", serverData.UUID})
+		t.AppendRow([]interface{}{"NAME", serverData.ServerName})
+		t.AppendRow([]interface{}{"CORES", serverData.CPU})
+		t.AppendRow([]interface{}{"MEMORY", serverData.Memory})
+		t.AppendRow([]interface{}{"DISK", serverData.DiskSize})
+		t.AppendRow([]interface{}{"NODES", numNodeData.Number})
+		t.AppendRow([]interface{}{"STATUS", serverData.Status})
+		t.Render()
 	},
 }
 
@@ -180,6 +228,7 @@ var serverList = &cobra.Command{
 		serverList := data.(model.Servers)
 		if serverList.Errors.Len() > 0 {
 			serverList.Errors.Print()
+			return
 		}
 
 		t := table.NewWriter()
@@ -237,19 +286,66 @@ var serverUpdate = &cobra.Command{
 		queryArgs["user_uuid"] = userUUID
 		queryArgs["token"] = config.User.Token
 
+		fmt.Print("Update Server .... ")
+
 		data, err := mutationParser.UpdateServer(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
 
 		serverData := data.(model.Server)
 		if serverData.Errors.Len() > 0 {
-			logger.Logger.Println("Update Fail")
+			fmt.Println("[FAIL]")
 			serverData.Errors.Print()
+			return
 		}
 
-		logger.Logger.Println("Update SUCCESS " + serverData.ServerName + " (" + serverData.UUID + ")")
+		serverUUIDArg := make(map[string]string)
+		serverUUIDArg["server_uuid"] = serverData.UUID
+		serverUUIDArg["token"] = config.User.Token
+
+		data, err = queryParser.NumNodesServer(serverUUIDArg)
+		if err != nil {
+			fmt.Println("[FAIL]")
+			err.Println()
+			return
+		}
+
+		numNodeData := data.(model.ServerNodeNum)
+		if numNodeData.Errors.Len() > 0 {
+			fmt.Println("[FAIL]")
+			numNodeData.Errors.Print()
+			return
+		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", serverData.UUID})
+		t.AppendRow([]interface{}{"NAME", serverData.ServerName})
+		t.AppendRow([]interface{}{"CORES", serverData.CPU})
+		t.AppendRow([]interface{}{"MEMORY", serverData.Memory})
+		t.AppendRow([]interface{}{"DISK", serverData.DiskSize})
+		t.AppendRow([]interface{}{"NODES", numNodeData.Number})
+		t.AppendRow([]interface{}{"STATUS", serverData.Status})
+		t.Render()
 	},
 }
 
@@ -262,20 +358,49 @@ var serverDelete = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = uuid
-		queryArgs["status"] = "Deleted"
 		queryArgs["token"] = config.User.Token
+
+		fmt.Print("Delete Server .... ")
+
 		data, err := mutationParser.DeleteServer(queryArgs)
 		if err != nil {
+			fmt.Println("[FAIL]")
 			err.Println()
 			return
 		}
 
 		serverData := data.(model.Server)
 		if serverData.Errors.Len() > 0 {
+			fmt.Println("[FAIL]")
 			serverData.Errors.Print()
+			return
 		}
 
-		logger.Logger.Println("Successfully delete server (" + serverData.UUID + ").")
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"UUID", serverData.UUID})
+		t.AppendRow([]interface{}{"NAME", serverData.ServerName})
+		t.AppendRow([]interface{}{"CORES", serverData.CPU})
+		t.AppendRow([]interface{}{"MEMORY", serverData.Memory})
+		t.AppendRow([]interface{}{"DISK", serverData.DiskSize})
+		t.AppendRow([]interface{}{"STATUS", serverData.Status})
+		t.Render()
 	},
 }
 
