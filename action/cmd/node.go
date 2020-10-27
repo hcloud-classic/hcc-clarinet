@@ -193,14 +193,8 @@ var nodeCreate = &cobra.Command{
 	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
-		queryArgs["bmc_mac_addr"] = bmcMacAddr
 		queryArgs["bmc_ip"] = bmcIP
-		queryArgs["pxe_mac_addr"] = pxeMacAddr
-		queryArgs["status"] = status
 		queryArgs["description"] = desc
-		queryArgs["active"] = strconv.Itoa(active)
-		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
-		queryArgs["memory"] = strconv.Itoa(memory)
 		queryArgs["token"] = config.User.Token
 
 		fmt.Print("Create Node .... ")
@@ -614,14 +608,8 @@ func ReadyNodeCmd() {
 	nodeRestart.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
 	nodeRestart.MarkFlagRequired("uuid")
 
-	nodeCreate.Flags().StringVar(&bmcMacAddr, "bmc_mac_addr", "", "MAC address of BMC")
 	nodeCreate.Flags().StringVar(&bmcIP, "bmc_ip", "", "IP address of BMC [x.x.x.x/x]")
-	nodeCreate.Flags().StringVar(&pxeMacAddr, "pxe_mac_addr", "", "PXE MAC address")
-	nodeCreate.Flags().StringVar(&status, "status", "", "Status")
 	nodeCreate.Flags().StringVar(&desc, "description", "", "Description")
-	nodeCreate.Flags().IntVar(&active, "active", 0, "Active state [0|1]")
-	nodeCreate.Flags().IntVar(&cpuCores, "cpu_cores", 0, "Number of CPU cores")
-	nodeCreate.Flags().IntVar(&memory, "memory", 0, "Size of memory")
 	nodeCreate.MarkFlagRequired("bmc_ip")
 	nodeCreate.MarkFlagRequired("description")
 
