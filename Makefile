@@ -50,6 +50,7 @@ kill:
 	@./kill_clarinet.sh
 
 build: ## Build the binary file
+	@$(GOROOT)/bin/go get -u github.com/hcloudclassic/hcc_errors
 	@$(GOROOT)/bin/go build -o ${PROJECT_NAME} main.go
 
 clean: ## Remove previous build

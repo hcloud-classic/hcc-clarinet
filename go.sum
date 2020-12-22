@@ -136,6 +136,8 @@ github.com/hcloudclassic/hcc_errors v0.0.0-20201222054415-dee0fe9fabfd h1:mNPfpf
 github.com/hcloudclassic/hcc_errors v0.0.0-20201222054415-dee0fe9fabfd/go.mod h1:P5OMCtJ7iVkPNfmxiv2BJYql5fIlC8kpJ8ltraReisY=
 github.com/hcloudclassic/hcc_errors v0.0.0-20201222055551-b47be347209a h1:1ZgoMvLJp7h2SnCw9gRxT+SMZ7qhySA7sFytt7BrRQg=
 github.com/hcloudclassic/hcc_errors v0.0.0-20201222055551-b47be347209a/go.mod h1:P5OMCtJ7iVkPNfmxiv2BJYql5fIlC8kpJ8ltraReisY=
+github.com/hcloudclassic/hcc_errors v1.0.1 h1:7kMhs66uIkzG7EIaqbN9ZZK4ZKl6iVRfuE4ZTZsDT5M=
+github.com/hcloudclassic/hcc_errors v1.0.1/go.mod h1:P5OMCtJ7iVkPNfmxiv2BJYql5fIlC8kpJ8ltraReisY=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/jedib0t/go-pretty v4.3.0+incompatible h1:CGs8AVhEKg/n9YbUenWmNStRW2PHJzaeDodcfvRAbIo=
