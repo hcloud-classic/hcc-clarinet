@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	errors "github.com/hcloudclassic/hcc_errors"
 	"hcc/clarinet/lib/config"
-	"hcc/clarinet/lib/errors"
 )
 
 // DoHTTPRequest : Send http request to other modules with GraphQL query string.

@@ -1,12 +1,12 @@
 package logger
 
-import "hcc/clarinet/lib/errors"
+import errors "github.com/hcloudclassic/hcc_errors"
 
 // Init : Prepare logger
 func Init() error {
 	if !Prepare() {
 		errors.SetErrLogger(Logger)
-		return errors.NewHccError(errors.ClarinetInternalInitFail, "logger").New()
+		return errors.NewHccError(errors.ClarinetInternalInitFail, "logger").ToError()
 	}
 	errors.SetErrLogger(Logger)
 

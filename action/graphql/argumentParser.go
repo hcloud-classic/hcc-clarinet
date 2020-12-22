@@ -3,7 +3,7 @@ package argumentParser
 import (
 	"strconv"
 
-	"hcc/clarinet/lib/errors"
+	errors "github.com/hcloudclassic/hcc_errors"
 )
 
 func CheckArgsMin(args map[string]string, min int, mustchk ...string) bool {
@@ -73,8 +73,7 @@ func GenIntArg(arguments *string, args map[string]int, fn func(int) (bool, *erro
 		if b, e := checkF(arg); b && e == nil {
 			*arguments += key + ": " + strconv.Itoa(arg) + ", "
 		} else if e != nil {
-			e.ErrText += key
-			err = e
+			err = errors.NewHccError(e.Code(), e.Text()+key)
 			break
 		}
 	}

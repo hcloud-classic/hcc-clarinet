@@ -1,6 +1,6 @@
 package model
 
-import "hcc/clarinet/lib/errors"
+import errors "github.com/hcloudclassic/hcc_errors"
 
 // AdaptiveIPServer - ish
 type AdaptiveIPServer struct {

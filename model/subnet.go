@@ -1,7 +1,7 @@
 package model
 
 import (
-	"hcc/clarinet/lib/errors"
+	errors "github.com/hcloudclassic/hcc_errors"
 	"time"
 )
 

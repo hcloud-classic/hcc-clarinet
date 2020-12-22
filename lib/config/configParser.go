@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/Terry-Mao/goconf"
 
-	"hcc/clarinet/lib/errors"
+	errors "github.com/hcloudclassic/hcc_errors"
 )
 
 var conf = goconf.New()

@@ -1,6 +1,6 @@
 package model
 
-import "hcc/clarinet/lib/errors"
+import errors "github.com/hcloudclassic/hcc_errors"
 
 type Login struct {
 	Token  string               `json:"token"`

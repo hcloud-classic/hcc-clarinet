@@ -1,8 +1,6 @@
 package model
 
-import (
-	"hcc/clarinet/lib/errors"
-)
+import errors "github.com/hcloudclassic/hcc_errors"
 
 // AdaptiveIP - ish
 type AdaptiveIP struct {

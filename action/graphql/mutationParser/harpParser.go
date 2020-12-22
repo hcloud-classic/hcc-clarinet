@@ -2,9 +2,9 @@ package mutationParser
 
 import (
 	"encoding/json"
+	errors "github.com/hcloudclassic/hcc_errors"
 	"hcc/clarinet/action/graphql"
 	"hcc/clarinet/driver/http"
-	"hcc/clarinet/lib/errors"
 	"hcc/clarinet/model"
 )
 
