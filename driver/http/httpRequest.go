@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	errors "github.com/hcloudclassic/hcc_errors"
+	errors "github.com/hcloud-classic/hcc_errors"
 	"hcc/clarinet/lib/config"
 )
 

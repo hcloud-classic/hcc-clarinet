@@ -2,7 +2,7 @@ package queryParser
 
 import (
 	"encoding/json"
-	errors "github.com/hcloudclassic/hcc_errors"
+	errors "github.com/hcloud-classic/hcc_errors"
 	"hcc/clarinet/action/graphql"
 	"hcc/clarinet/driver/http"
 	"hcc/clarinet/model"

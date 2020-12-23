@@ -1,7 +1,7 @@
 package model
 
 import (
-	errors "github.com/hcloudclassic/hcc_errors"
+	errors "github.com/hcloud-classic/hcc_errors"
 	"time"
 )
 

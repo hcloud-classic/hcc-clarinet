@@ -1,7 +1,7 @@
 package main
 
 import (
-	errors "github.com/hcloudclassic/hcc_errors"
+	errors "github.com/hcloud-classic/hcc_errors"
 	"hcc/clarinet/action/cmd"
 	"hcc/clarinet/lib/config"
 	"hcc/clarinet/lib/logger"
