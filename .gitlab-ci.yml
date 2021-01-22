@@ -2,7 +2,6 @@ stages:
   - init
   - test
   - build
-  - run
 
 before_script:
   - export GOROOT="/usr/local/go"
