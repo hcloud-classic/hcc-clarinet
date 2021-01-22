@@ -50,7 +50,8 @@ kill:
 	@./kill_clarinet.sh
 
 build: ## Build the binary file
-	@$(GOROOT)/bin/go get -u=patch github.com/hcloud-classic/hcc_errors
+	@$(GOROOT)/bin/go get -u=patch --insecure github.com/hcloud-classic/hcc_errors@patch
+	@$(GOROOT)/bin/go mod vendor
 	@$(GOROOT)/bin/go build -o ${PROJECT_NAME} main.go
 
 clean: ## Remove previous build

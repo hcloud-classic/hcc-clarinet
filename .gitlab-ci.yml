@@ -47,7 +47,6 @@ go_report:
 build:
   stage: build
   script:
-    - make
     - ./install.sh
     - echo "Finished"
 #  only:
