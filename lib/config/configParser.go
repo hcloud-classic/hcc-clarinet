@@ -2,89 +2,63 @@ package config
 
 import (
 	"github.com/Terry-Mao/goconf"
-	"log"
+
+	errors "github.com/hcloud-classic/hcc_errors"
 )
 
 var conf = goconf.New()
-var config = piccoloConfig{}
+var usrConf = goconf.New()
+var config = ClarinetConfig{}
 var err error
 
-func parseFlute() {
-	config.FluteConfig = conf.Get("flute")
-	if config.FluteConfig == nil {
-		log.Panic("no flute section")
-	}
-
-	Flute = flute{}
-	Flute.ServerAddress, err = config.FluteConfig.String("flute_server_address")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	Flute.ServerPort, err = config.FluteConfig.Int("flute_server_port")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	Flute.RequestTimeoutMs, err = config.FluteConfig.Int("flute_request_timeout_ms")
-	if err != nil {
-		log.Panic(err)
+func parseUser() {
+	User = user{}
+	config.UserConfig = usrConf.Get("user")
+	if config.UserConfig == nil {
+		errors.NewHccError(errors.ClarinetInternalParsingError, "user config").Fatal()
+	} else {
+		User.Token, err = config.UserConfig.String("token")
+		if err != nil {
+			errors.NewHccError(errors.ClarinetInternalParsingError, "user token").Fatal()
+		}
 	}
 }
 
-func parseHarp() {
-	config.HarpConfig = conf.Get("harp")
-	if config.HarpConfig == nil {
-		log.Panic("no harp section")
+func parsePiccolo() {
+	config.PiccoloConfig = conf.Get("piccolo")
+	if config.PiccoloConfig == nil {
+		errors.NewHccError(errors.ClarinetInternalParsingError, "piccolo config").Fatal()
 	}
 
-	Harp = harp{}
-	Harp.ServerAddress, err = config.HarpConfig.String("harp_server_address")
+	Piccolo = piccolo{}
+	Piccolo.ServerAddress, err = config.PiccoloConfig.String("piccolo_server_address")
 	if err != nil {
-		log.Panic(err)
+		errors.NewHccError(errors.ClarinetInternalParsingError, "piccolo server address").Fatal()
 	}
 
-	Harp.ServerPort, err = config.HarpConfig.Int("harp_server_port")
+	Piccolo.ServerPort, err = config.PiccoloConfig.Int("piccolo_server_port")
 	if err != nil {
-		log.Panic(err)
+		errors.NewHccError(errors.ClarinetInternalParsingError, "piccolo server port").Fatal()
 	}
 
-	Harp.RequestTimeoutMs, err = config.HarpConfig.Int("harp_request_timeout_ms")
+	Piccolo.RequestTimeoutMs, err = config.PiccoloConfig.Int("piccolo_request_timeout_ms")
 	if err != nil {
-		log.Panic(err)
-	}
-}
-
-func parseViolin() {
-	config.ViolinConfig = conf.Get("violin")
-	if config.ViolinConfig == nil {
-		log.Panic("no violin section")
-	}
-
-	Violin = violin{}
-	Violin.ServerAddress, err = config.ViolinConfig.String("violin_server_address")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	Violin.ServerPort, err = config.ViolinConfig.Int("violin_server_port")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	Violin.RequestTimeoutMs, err = config.ViolinConfig.Int("violin_request_timeout_ms")
-	if err != nil {
-		log.Panic(err)
+		errors.NewHccError(errors.ClarinetInternalParsingError, "piccolo timeout").Fatal()
 	}
 }
 
 // Parser : Parse config file
 func Parser() {
 	if err = conf.Parse(configLocation); err != nil {
-		log.Panic(err)
+		errors.NewHccError(errors.ClarinetInternalParsingError, err.Error()).Fatal()
 	}
+	parsePiccolo()
 
-	parseFlute()
-	parseHarp()
-	parseViolin()
+	setUserConfFilePath()
+	if err = usrConf.Parse(userConfLocation); err != nil {
+		if err = createConfFile(); err != nil {
+			errors.NewHccError(errors.ClarinetInternalParsingError, err.Error()).Fatal()
+		}
+	}
+	parseUser()
 }
