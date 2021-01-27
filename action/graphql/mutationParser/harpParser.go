@@ -2,10 +2,12 @@ package mutationParser
 
 import (
 	"encoding/json"
-	errors "github.com/hcloud-classic/hcc_errors"
+
 	"hcc/clarinet/action/graphql"
 	"hcc/clarinet/driver/http"
 	"hcc/clarinet/model"
+
+	errors "innogrid.com/hcloud-classic/hcc_errors"
 )
 
 func CreateSubnet(args map[string]string) (interface{}, *errors.HccError) {

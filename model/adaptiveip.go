@@ -1,6 +1,6 @@
 package model
 
-import errors "github.com/hcloud-classic/hcc_errors"
+import errors "innogrid.com/hcloud-classic/hcc_errors"
 
 // AdaptiveIP - ish
 type AdaptiveIP struct {

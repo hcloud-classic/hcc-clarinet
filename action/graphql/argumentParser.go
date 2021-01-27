@@ -3,7 +3,7 @@ package argumentParser
 import (
 	"strconv"
 
-	errors "github.com/hcloud-classic/hcc_errors"
+	errors "innogrid.com/hcloud-classic/hcc_errors"
 )
 
 func CheckArgsMin(args map[string]string, min int, mustchk ...string) bool {
