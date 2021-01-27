@@ -2,6 +2,7 @@ stages:
   - init
   - test
   - build
+  - deploy
 
 before_script:
   - export GOROOT="/usr/local/go"
@@ -47,7 +48,12 @@ go_report:
 build:
   stage: build
   script:
+    - make
+    
+deploy:
+  stage: deploy
+  script:
     - ./install.sh
     - echo "Finished"
-#  only:
-#  - master
+  only:
+  - master
