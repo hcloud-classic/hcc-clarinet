@@ -12,6 +12,7 @@ copy_dir:
   stage: init
   script:
     - make copy_dir
+    - ln -sf $GOPATH/src/hcc/hcc_errors ../hcc_errors
 
 unit_tests:
   stage: test
