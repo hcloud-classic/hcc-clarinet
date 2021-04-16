@@ -85,7 +85,7 @@ func ListNode(args map[string]string) (interface{}, *errors.HccError) {
 
 	var nodeData map[string]map[string]model.Nodes
 	if e := json.Unmarshal(result, &nodeData); e != nil {
-		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, e.Error())
 	}
 	return nodeData["data"][cmd], nil
 }
