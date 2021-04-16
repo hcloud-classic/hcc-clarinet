@@ -55,7 +55,7 @@ func CheckToken(args map[string]string) (interface{}, *errors.HccError) {
 
 	var valid map[string]map[string]model.Valid
 	if e := json.Unmarshal(result, &valid); e != nil {
-		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, e.Error())
 	}
 	return valid["data"][cmd], nil
 }

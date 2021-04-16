@@ -50,8 +50,10 @@ var aipCmd = &cobra.Command{
 		}
 
 		aipData := data.(model.AdaptiveIP)
-		if aipData.Errors.Len() >= 0 {
-			aipData.Errors.Print()
+		if len(aipData.Errors) > 0 {
+			for _, hrr := range aipData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -111,8 +113,10 @@ var aipCreateServer = &cobra.Command{
 		}
 
 		aipServerData := data.(model.AdaptiveIPServer)
-		if aipServerData.Errors.Len() >= 0 {
-			aipServerData.Errors.Print()
+		if len(aipServerData.Errors) > 0 {
+			for _, hrr := range aipServerData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 	},
@@ -139,8 +143,10 @@ var aipCreateSetting = &cobra.Command{
 		}
 
 		aipData := data.(model.AdaptiveIP)
-		if aipData.Errors.Len() >= 0 {
-			aipData.Errors.Print()
+		if len(aipData.Errors) > 0 {
+			for _, hrr := range aipData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 	},
@@ -170,8 +176,10 @@ var aipDeleteServer = &cobra.Command{
 		}
 
 		aipServerData := data.(model.AdaptiveIPServer)
-		if aipServerData.Errors.Len() >= 0 {
-			aipServerData.Errors.Print()
+		if len(aipServerData.Errors) > 0 {
+			for _, hrr := range aipServerData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -202,8 +210,10 @@ var aipListAvailable = &cobra.Command{
 		}
 
 		availableIPList := data.(model.AvailableIPList)
-		if availableIPList.Errors.Len() >= 0 {
-			availableIPList.Errors.Print()
+		if len(availableIPList.Errors) > 0 {
+			for _, hrr := range availableIPList.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -255,8 +265,10 @@ var aipListServer = &cobra.Command{
 		}
 
 		aipServerList := data.(model.AdaptiveIPServers)
-		if aipServerList.Errors.Len() >= 0 {
-			aipServerList.Errors.Print()
+		if len(aipServerList.Errors) > 0 {
+			for _, hrr := range aipServerList.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
