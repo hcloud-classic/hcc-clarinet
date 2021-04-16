@@ -535,8 +535,6 @@ var nodeList = &cobra.Command{
 			return
 		}
 
-		fmt.Println(nodeList)
-
 		t := table.NewWriter()
 		t.SetStyle(table.Style{
 			Name: "clarinetTableStyle",
