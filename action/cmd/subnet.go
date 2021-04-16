@@ -74,9 +74,10 @@ var subnetCreate = &cobra.Command{
 		}
 
 		subnetData := data.(model.Subnet)
-		if subnetData.Errors.Len() >= 0 {
-			fmt.Println("[FAIL]")
-			subnetData.Errors.Print()
+		if len(subnetData.Errors) > 0 {
+			for _, hrr := range subnetData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -145,9 +146,10 @@ var subnetUpdate = &cobra.Command{
 		}
 
 		subnetData := data.(model.Subnet)
-		if subnetData.Errors.Len() >= 0 {
-			fmt.Println("[FAIL]")
-			subnetData.Errors.Print()
+		if len(subnetData.Errors) > 0 {
+			for _, hrr := range subnetData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -206,9 +208,10 @@ var subnetDelete = &cobra.Command{
 		}
 
 		subnetData := data.(model.Subnet)
-		if subnetData.Errors.Len() >= 0 {
-			fmt.Println("[FAIL]")
-			subnetData.Errors.Print()
+		if len(subnetData.Errors) > 0 {
+			for _, hrr := range subnetData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -268,9 +271,10 @@ var subnetCreateDHCPDConf = &cobra.Command{
 		}
 
 		subnetData := data.(model.DHCPDConfResult)
-		if subnetData.Errors.Len() >= 0 {
-			fmt.Println("[FAIL]")
-			subnetData.Errors.Print()
+		if len(subnetData.Errors) > 0 {
+			for _, hrr := range subnetData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -307,8 +311,10 @@ var subnetList = &cobra.Command{
 		}
 
 		subnetList := data.(model.Subnets)
-		if subnetList.Errors.Len() >= 0 {
-			subnetList.Errors.Print()
+		if len(subnetList.Errors) > 0 {
+			for _, hrr := range subnetList.Errors {
+				hrr.Println()
+			}
 			return
 		}
 

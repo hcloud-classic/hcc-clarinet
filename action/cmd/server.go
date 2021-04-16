@@ -63,8 +63,10 @@ var serverCmd = &cobra.Command{
 		}
 
 		serverData := data.(model.Server)
-		if serverData.Errors.Len() > 0 {
-			serverData.Errors.Print()
+		if len(serverData.Errors) > 0 {
+			for _, hrr := range serverData.Errors {
+				hrr.Println()
+			}
 		} else {
 
 			t.SetStyle(ts)
@@ -92,8 +94,11 @@ var serverCmd = &cobra.Command{
 		}
 
 		serverNodeList := data.(model.ServerNodes)
-		if serverNodeList.Errors.Len() > 0 {
-			serverNodeList.Errors.Print()
+		if len(serverNodeList.Errors) > 0 {
+			for _, hrr := range serverNodeList.Errors {
+				hrr.Println()
+			}
+			return
 		}
 
 		t = table.NewWriter()
@@ -138,9 +143,10 @@ var serverCreate = &cobra.Command{
 		}
 
 		serverData := data.(model.Server)
-		if serverData.Errors.Len() > 0 {
-			fmt.Println("[FAIL]")
-			serverData.Errors.Print()
+		if len(serverData.Errors) > 0 {
+			for _, hrr := range serverData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -156,9 +162,11 @@ var serverCreate = &cobra.Command{
 		}
 
 		numNodeData := data.(model.ServerNodeNum)
-		if numNodeData.Errors.Len() > 0 {
+		if len(numNodeData.Errors) > 0 {
 			fmt.Println("[FAIL]")
-			numNodeData.Errors.Print()
+			for _, hrr := range numNodeData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -226,8 +234,10 @@ var serverList = &cobra.Command{
 		}
 
 		serverList := data.(model.Servers)
-		if serverList.Errors.Len() > 0 {
-			serverList.Errors.Print()
+		if len(serverList.Errors) > 0 {
+			for _, hrr := range serverList.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -296,9 +306,10 @@ var serverUpdate = &cobra.Command{
 		}
 
 		serverData := data.(model.Server)
-		if serverData.Errors.Len() > 0 {
-			fmt.Println("[FAIL]")
-			serverData.Errors.Print()
+		if len(serverData.Errors) > 0 {
+			for _, hrr := range serverData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -314,9 +325,11 @@ var serverUpdate = &cobra.Command{
 		}
 
 		numNodeData := data.(model.ServerNodeNum)
-		if numNodeData.Errors.Len() > 0 {
+		if len(numNodeData.Errors) > 0 {
 			fmt.Println("[FAIL]")
-			numNodeData.Errors.Print()
+			for _, hrr := range numNodeData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -370,9 +383,10 @@ var serverDelete = &cobra.Command{
 		}
 
 		serverData := data.(model.Server)
-		if serverData.Errors.Len() > 0 {
-			fmt.Println("[FAIL]")
-			serverData.Errors.Print()
+		if len(serverData.Errors) > 0 {
+			for _, hrr := range serverData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 

@@ -68,8 +68,10 @@ var nodeCmd = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() >= 0 {
-			nodeData.Errors.Print()
+		if len(nodeData.Errors) > 0 {
+			for _, hrr := range nodeData.Errors {
+				hrr.Println()
+			}
 		} else {
 
 			t.SetStyle(ts)
@@ -112,9 +114,11 @@ var nodeOn = &cobra.Command{
 		}
 
 		nodeData := data.(model.PowerStateNode)
-		if nodeData.Errors.Len() >= 0 {
+		if len(nodeData.Errors) > 0 {
 			fmt.Println("[FAIL]")
-			nodeData.Errors.Print()
+			for _, hrr := range nodeData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -144,9 +148,11 @@ var nodeOff = &cobra.Command{
 		}
 
 		nodeData := data.(model.PowerStateNode)
-		if nodeData.Errors.Len() >= 0 {
+		if len(nodeData.Errors) > 0 {
 			fmt.Println("[FAIL]")
-			nodeData.Errors.Print()
+			for _, hrr := range nodeData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -175,9 +181,11 @@ var nodeRestart = &cobra.Command{
 		}
 
 		nodeData := data.(model.PowerStateNode)
-		if nodeData.Errors.Len() >= 0 {
+		if len(nodeData.Errors) > 0 {
 			fmt.Println("[FAIL]")
-			nodeData.Errors.Print()
+			for _, hrr := range nodeData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -207,9 +215,11 @@ var nodeCreate = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() >= 0 {
+		if len(nodeData.Errors) > 0 {
 			fmt.Println("[FAIL]")
-			nodeData.Errors.Print()
+			for _, hrr := range nodeData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -275,9 +285,11 @@ var nodeUpdate = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() >= 0 {
+		if len(nodeData.Errors) > 0 {
 			fmt.Println("[FAIL]")
-			nodeData.Errors.Print()
+			for _, hrr := range nodeData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -334,9 +346,11 @@ var nodeDelete = &cobra.Command{
 		}
 
 		nodeData := data.(model.Node)
-		if nodeData.Errors.Len() >= 0 {
+		if len(nodeData.Errors) > 0 {
 			fmt.Println("[FAIL]")
-			nodeData.Errors.Print()
+			for _, hrr := range nodeData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -396,9 +410,11 @@ var nodeCreateDetail = &cobra.Command{
 		}
 
 		nodeData := data.(model.NodeDetail)
-		if nodeData.Errors.Len() >= 0 {
+		if len(nodeData.Errors) > 0 {
 			fmt.Println("[FAIL]")
-			nodeData.Errors.Print()
+			for _, hrr := range nodeData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -449,9 +465,11 @@ var nodeDeleteDetail = &cobra.Command{
 		}
 
 		nodeData := data.(model.NodeDetail)
-		if nodeData.Errors.Len() >= 0 {
+		if len(nodeData.Errors) > 0 {
 			fmt.Println("[FAIL]")
-			nodeData.Errors.Print()
+			for _, hrr := range nodeData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
@@ -509,10 +527,15 @@ var nodeList = &cobra.Command{
 		}
 
 		nodeList := data.(model.Nodes)
-		if nodeList.Errors.Len() >= 0 {
-			nodeList.Errors.Print()
+		if len(nodeList.Errors) > 0 {
+			fmt.Println(nodeList.Errors)
+			for _, hrr := range nodeList.Errors {
+				hrr.Println()
+			}
 			return
 		}
+
+		fmt.Println(nodeList)
 
 		t := table.NewWriter()
 		t.SetStyle(table.Style{
@@ -564,8 +587,10 @@ var nodeDetail = &cobra.Command{
 		}
 
 		nodeDetailData := data.(model.NodeDetail)
-		if nodeDetailData.Errors.Len() >= 0 {
-			nodeDetailData.Errors.Print()
+		if len(nodeDetailData.Errors) > 0 {
+			for _, hrr := range nodeDetailData.Errors {
+				hrr.Println()
+			}
 			return
 		}
 
