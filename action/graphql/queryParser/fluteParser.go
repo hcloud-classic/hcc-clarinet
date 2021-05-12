@@ -3,7 +3,7 @@ package queryParser
 import (
 	"encoding/json"
 
-	"hcc/clarinet/action/graphql"
+	argumentParser "hcc/clarinet/action/graphql"
 	"hcc/clarinet/driver/http"
 	"hcc/clarinet/model"
 
@@ -116,10 +116,9 @@ func NodeDetail(args map[string]string) (interface{}, *errors.HccError) {
 
 	cmd := "detail_node"
 	query := `query { ` + cmd + arguments + `{
+		node_detail_data
+		nic_detail_data
 		node_uuid
-		cpu_model
-		cpu_processors
-		cpu_threads
 		errors {
 			errcode
 			errtext
@@ -135,5 +134,17 @@ func NodeDetail(args map[string]string) (interface{}, *errors.HccError) {
 	if e := json.Unmarshal(result, &nodeDetail); e != nil {
 		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
 	}
-	return nodeDetail["data"][cmd], nil
+
+	var nodeDetailData model.NodeDetailData
+	if e := json.Unmarshal([]byte(nodeDetail["data"][cmd].NodeDetail), &nodeDetailData); e != nil {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+	}
+
+	if e := json.Unmarshal([]byte(nodeDetail["data"][cmd].NicDetail), &nodeDetailData); e != nil {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+	}
+	// check graphql err
+	nodeDetailData.Errors = nodeDetail["data"][cmd].Errors
+
+	return nodeDetailData, nil
 }
