@@ -31,6 +31,7 @@ type NodeDetail struct {
 }
 
 type NodeDetailData struct {
+	NodeUUID string
 	CPUs     []CPU    `json:"cpus"`
 	Memories []Memory `json:"memories"`
 	NICs     []NIC    `json:"nics"`

@@ -605,6 +605,7 @@ var nodeDetail = &cobra.Command{
 			},
 		})
 		t.SetOutputMirror(os.Stdout)
+		t.SetCaption("NODE UUID : " + nodeDetailData.NodeUUID)
 		t.AppendHeader(table.Row{"No", "CPU ID", "Cores", "Manufacture", "Speed(MHZ)", "Model",
 			"Socket", "Threads", "State", "Health"})
 

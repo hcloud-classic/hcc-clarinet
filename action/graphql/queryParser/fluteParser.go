@@ -145,6 +145,7 @@ func NodeDetail(args map[string]string) (interface{}, *errors.HccError) {
 	}
 	// check graphql err
 	nodeDetailData.Errors = nodeDetail["data"][cmd].Errors
+	nodeDetailData.NodeUUID = nodeDetail["data"][cmd].NodeUUID
 
 	return nodeDetailData, nil
 }
