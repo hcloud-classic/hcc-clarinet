@@ -19,7 +19,7 @@ func Init() {
 	ReadyAIPCmd()
 
 	Cmd = &cobra.Command{Use: "clarinet"}
-	Cmd.AddCommand(serverCmd, nodeCmd, subnetCmd, aipCmd)
+	Cmd.AddCommand(serverCmd, nodeCmd, subnetCmd, aipCmd, logoutCmd)
 }
 
 func checkToken(cmd *cobra.Command, args []string) error {
