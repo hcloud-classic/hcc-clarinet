@@ -16,6 +16,8 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"hcc/clarinet/lib/config"
@@ -29,6 +31,12 @@ var logoutCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(0),
 	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
-		config.RemoveTokenString()
+		token := config.User.Token
+		if token != "" {
+			config.RemoveTokenString()
+		} else {
+			fmt.Println("Please log in first")
+		}
+
 	},
 }

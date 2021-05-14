@@ -109,8 +109,8 @@ func SaveTokenString(tokenString string) {
 func RemoveTokenString() {
 
 	if err := os.Remove(userConfLocation); err != nil {
-		fmt.Println("failed : can not find user location")
+		fmt.Println("Failed : Can not find user location")
 	} else {
-		fmt.Println("succeed : user logged out")
+		fmt.Println("Succeed : User logged out")
 	}
 }
