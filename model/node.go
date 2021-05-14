@@ -23,6 +23,7 @@ type Node struct {
 	Errors      []errors.HccError `json:"errors"`
 }
 
+// NodeDetail - dan
 type NodeDetail struct {
 	NodeUUID   string            `json:"node_uuid"`
 	NodeDetail string            `json:"node_detail_data"`
@@ -30,6 +31,7 @@ type NodeDetail struct {
 	Errors     []errors.HccError `json:"errors"`
 }
 
+// NodeDetailData - dan
 type NodeDetailData struct {
 	NodeUUID string
 	CPUs     []CPU    `json:"cpus"`
@@ -38,6 +40,7 @@ type NodeDetailData struct {
 	Errors   []errors.HccError
 }
 
+// CPU - dan
 type CPU struct {
 	Cores       int    `json:"cores"`
 	ID          string `json:"id"`
@@ -49,6 +52,7 @@ type CPU struct {
 	Status      Status `json:"status"`
 }
 
+// Memory - dan
 type Memory struct {
 	CapacityMB    int    `json:"capacity_mb"`
 	DeviceLocator string `json:"device_locator"`
@@ -60,6 +64,7 @@ type Memory struct {
 	Status        Status `json:"status"`
 }
 
+// Nic - dan
 type NIC struct {
 	ID    string `json:"id"`
 	Mac   string `json:"mac"`
@@ -68,6 +73,7 @@ type NIC struct {
 	Type  string `json:"type"`
 }
 
+// Status - dan
 type Status struct {
 	Health       string `json:"health"`
 	HealthRollup string `json:"health_rollup"`
