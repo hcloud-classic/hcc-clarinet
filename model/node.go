@@ -1,8 +1,9 @@
 package model
 
 import (
-	errors "innogrid.com/hcloud-classic/hcc_errors"
 	"time"
+
+	errors "innogrid.com/hcloud-classic/hcc_errors"
 )
 
 // Node - cgs
@@ -22,12 +23,61 @@ type Node struct {
 	Errors      []errors.HccError `json:"errors"`
 }
 
+// NodeDetail - dan
 type NodeDetail struct {
-	NodeUUID      string            `json:"node_uuid"`
-	CPUModel      string            `json:"cpu_model"`
-	CPUProcessors int               `json:"cpu_processors"`
-	CPUThreads    int               `json:"cpu_threads"`
-	Errors        []errors.HccError `json:"errors"`
+	NodeUUID   string            `json:"node_uuid"`
+	NodeDetail string            `json:"node_detail_data"`
+	NicDetail  string            `json:"nic_detail_data"`
+	Errors     []errors.HccError `json:"errors"`
+}
+
+// NodeDetailData - dan
+type NodeDetailData struct {
+	NodeUUID string
+	CPUs     []CPU    `json:"cpus"`
+	Memories []Memory `json:"memories"`
+	NICs     []NIC    `json:"nics"`
+	Errors   []errors.HccError
+}
+
+// CPU - dan
+type CPU struct {
+	Cores       int    `json:"cores"`
+	ID          string `json:"id"`
+	Manufacture string `json:"manufacture"`
+	MaxSpeed    int    `json:"max_speed_mhz"`
+	Model       string `json:"model"`
+	Socket      string `json:"socket"`
+	Threads     int    `json:"threads"`
+	Status      Status `json:"status"`
+}
+
+// Memory - dan
+type Memory struct {
+	CapacityMB    int    `json:"capacity_mb"`
+	DeviceLocator string `json:"device_locator"`
+	ID            string `json:"id"`
+	Manufacture   string `json:"manufacture"`
+	PartNumber    string `json:"part_number"`
+	SerialNumber  string `json:"serial_number"`
+	Speed         int    `json:"speed_mhz"`
+	Status        Status `json:"status"`
+}
+
+// Nic - dan
+type NIC struct {
+	ID    string `json:"id"`
+	Mac   string `json:"mac"`
+	Model string `json:"model"`
+	Speed string `json:"speed"`
+	Type  string `json:"type"`
+}
+
+// Status - dan
+type Status struct {
+	Health       string `json:"health"`
+	HealthRollup string `json:"health_rollup"`
+	State        string `json:"state"`
 }
 
 // Nodes - cgs

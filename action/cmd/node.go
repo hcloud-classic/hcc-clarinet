@@ -20,8 +20,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/jedib0t/go-pretty/table"
-	"github.com/jedib0t/go-pretty/text"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/spf13/cobra"
 
 	"hcc/clarinet/action/graphql/mutationParser"
@@ -437,9 +437,8 @@ var nodeCreateDetail = &cobra.Command{
 		})
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"UUID", nodeData.NodeUUID})
-		t.AppendRow([]interface{}{"CPU MODEL", nodeData.CPUModel})
-		t.AppendRow([]interface{}{"NUM PROCESSOR", nodeData.CPUProcessors})
-		t.AppendRow([]interface{}{"NUM THREADS", nodeData.CPUThreads})
+		t.AppendRow([]interface{}{"NODE DETAIL", nodeData.NodeDetail})
+		t.AppendRow([]interface{}{"NIC DETAIL", nodeData.NicDetail})
 		t.Render()
 	},
 }
@@ -492,9 +491,8 @@ var nodeDeleteDetail = &cobra.Command{
 		})
 		t.SetOutputMirror(os.Stdout)
 		t.AppendHeader(table.Row{"UUID", nodeData.NodeUUID})
-		t.AppendRow([]interface{}{"CPU MODEL", nodeData.CPUModel})
-		t.AppendRow([]interface{}{"NUM PROCESSOR", nodeData.CPUProcessors})
-		t.AppendRow([]interface{}{"NUM THREADS", nodeData.CPUThreads})
+		t.AppendRow([]interface{}{"NODE DETAIL", nodeData.NodeDetail})
+		t.AppendRow([]interface{}{"NIC DETAIL", nodeData.NicDetail})
 		t.Render()
 	},
 }
@@ -584,14 +582,13 @@ var nodeDetail = &cobra.Command{
 			return
 		}
 
-		nodeDetailData := data.(model.NodeDetail)
+		nodeDetailData := data.(model.NodeDetailData)
 		if len(nodeDetailData.Errors) > 0 {
 			for _, hrr := range nodeDetailData.Errors {
 				hrr.Println()
 			}
 			return
 		}
-
 		t := table.NewWriter()
 		t.SetStyle(table.Style{
 			Name: "clarinetTableStyle",
@@ -608,11 +605,34 @@ var nodeDetail = &cobra.Command{
 			},
 		})
 		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"Node UUID", nodeDetailData.NodeUUID})
+		t.SetCaption("NODE UUID : " + nodeDetailData.NodeUUID)
+		t.AppendHeader(table.Row{"No", "CPU ID", "Cores", "Manufacture", "Speed(MHZ)", "Model",
+			"Socket", "Threads", "State", "Health"})
 
-		t.AppendRow([]interface{}{"CPU Model", nodeDetailData.CPUModel})
-		t.AppendRow([]interface{}{"CPU Processors", nodeDetailData.CPUProcessors})
-		t.AppendRow([]interface{}{"CPU Threads", nodeDetailData.CPUThreads})
+		for index, cpu := range nodeDetailData.CPUs {
+			t.AppendRow([]interface{}{
+				index + 1, cpu.ID, cpu.Cores, cpu.Manufacture, cpu.MaxSpeed,
+				cpu.Model, cpu.Socket, cpu.Threads, cpu.Status.State, cpu.Status.Health})
+		}
+		t.AppendSeparator()
+		t.AppendRow([]interface{}{"NO", "MEMORY ID", "CAPACITY", "MANUFACTURE", "SPEED(MHZ)", "DEVICE LOCATOR",
+			"PART NUMBER", "SERIAL NUMBER", "STATE", "HEALTH"})
+		t.AppendSeparator()
+
+		for index, memory := range nodeDetailData.Memories {
+			t.AppendRow([]interface{}{
+				index + 1, memory.ID, memory.CapacityMB, memory.Manufacture, memory.Speed, memory.DeviceLocator,
+				memory.PartNumber, memory.SerialNumber, memory.Status.State, memory.Status.Health})
+		}
+
+		t.AppendSeparator()
+		t.AppendRow([]interface{}{"NO", "NIC ID", "MAC", "", "SPEED(GB)", "MODEL", "TYPE", "", "", ""})
+		t.AppendSeparator()
+
+		for index, nic := range nodeDetailData.NICs {
+			t.AppendRow([]interface{}{
+				index + 1, nic.ID, nic.Mac, "", nic.Speed, nic.Model, nic.Type, "", "", ""})
+		}
 		t.Render()
 
 	},
