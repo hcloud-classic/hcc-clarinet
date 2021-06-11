@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-make
-go install
 mkdir -p ~/.hcc/clarinet/
 cp ./complete ~/.hcc/clarinet/
 
