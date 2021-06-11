@@ -8,6 +8,8 @@ before_script:
   - export GOROOT="/usr/local/go"
   - export GOPATH="/home/gitlab-runner/go"
   - export PATH="$PATH:$GOROOT/bin:$GOPATH/bin"
+  - export Serivce_Name="clarinet"
+  - export Build_Path="/home/gitlab-runner/tmp_build"
 
 copy_dir:
   stage: init
@@ -45,10 +47,16 @@ build:
   stage: build
   script:
     - make
-    
+    - if [[ ! -d "$Build_Path/$Serivce_Name/$Branch_Name" ]]; then mkdir -p $Build_Path/$Serivce_Name/$Branch_Name;fi
+    - cp -f $PWD/$Serivce_Name $Build_Path/$Serivce_Name/$Branch_Name/
+    - echo "Build Complete"
+
 deploy:
   stage: deploy
   script:
+    - sudo cp -f $Build_Path/$Serivce_Name/$Branch_Name/$Serivce_Name /usr/local/bin/$Serivce_Name
+    - sudo chmod 755 /usr/local/bin/$Serivce_Name
+    - sudo rm -rf $Build_Path/$Serivce_Name/$Branch_Name    
     - ./install.sh
     - echo "Finished"
   only:
