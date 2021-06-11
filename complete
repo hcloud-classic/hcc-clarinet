@@ -2,7 +2,7 @@
 
 _clarinet_completions()
 {
-	opts_command="node server aip subnet help"
+	opts_command="node server aip subnet help logout"
 	opts_server="create delete list update"
 	opts_node="create delete list update detail on off restart"
 	opts_subnet="create delete list update"
