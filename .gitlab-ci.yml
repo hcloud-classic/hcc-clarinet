@@ -8,6 +8,7 @@ before_script:
   - export GOROOT="/usr/local/go"
   - export GOPATH="/home/gitlab-runner/go"
   - export PATH="$PATH:$GOROOT/bin:$GOPATH/bin"
+  - export Branch_Name="$CI_COMMIT_REF_NAME"
   - export Serivce_Name="clarinet"
   - export Build_Path="/home/gitlab-runner/tmp_build"
 
