@@ -15,7 +15,7 @@ import (
 	"hcc/clarinet/model"
 )
 
-var startIP, endIP, aipUUID, publicIP, privateIP, netmask, extIfaceAddr string
+var startIP, endIP, publicIP, privateIP, netmask, extIfaceAddr string
 
 // aipCmd represents the aip command
 var aipCmd = &cobra.Command{
@@ -74,15 +74,8 @@ var aipCmd = &cobra.Command{
 }
 
 var aipCreate = &cobra.Command{
-	Use:   "create",
-	Short: "Creat Adaptive IP Setting OR Server",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(1),
-}
-
-var aipCreateServer = &cobra.Command{
-	Use:     "server",
-	Short:   "Create Adaptive IP Server",
+	Use:     "create",
+	Short:   "Create Adaptive IP",
 	Long:    ``,
 	Args:    cobra.MinimumNArgs(0),
 	PreRunE: checkToken,
@@ -107,46 +100,9 @@ var aipCreateServer = &cobra.Command{
 	},
 }
 
-var aipCreateSetting = &cobra.Command{
-	Use:     "setting",
-	Short:   "Create Adaptive IP Setting",
-	Long:    ``,
-	Args:    cobra.MinimumNArgs(0),
-	PreRunE: checkToken,
-	Run: func(cmd *cobra.Command, args []string) {
-		queryArgs := make(map[string]string)
-		queryArgs["ext_ifaceip_address"] = extIfaceAddr
-		queryArgs["netmask"] = netmask
-		queryArgs["gateway_address"] = gateway
-		queryArgs["start_ip_address"] = startIP
-		queryArgs["end_ip_address"] = endIP
-		queryArgs["token"] = config.User.Token
-		data, err := mutationParser.CreateAdaptiveIPSetting(queryArgs)
-		if err != nil {
-			err.Println()
-			return
-		}
-
-		aipData := data.(model.AdaptiveIP)
-		if len(aipData.Errors) > 0 {
-			for _, hrr := range aipData.Errors {
-				hrr.Println()
-			}
-			return
-		}
-	},
-}
-
 var aipDelete = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete Adaptive IP",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(1),
-}
-
-var aipDeleteServer = &cobra.Command{
-	Use:     "server",
-	Short:   "Delete Adaptive IP Server",
+	Use:     "delete",
+	Short:   "Delete Adaptive IP",
 	Long:    ``,
 	Args:    cobra.MinimumNArgs(0),
 	PreRunE: checkToken,
@@ -173,65 +129,8 @@ var aipDeleteServer = &cobra.Command{
 }
 
 var aipList = &cobra.Command{
-	Use:   "list",
-	Short: "Show available Adaptive IP List or Server",
-	Long:  ``,
-	Args:  cobra.MinimumNArgs(1),
-}
-
-var aipListAvailable = &cobra.Command{
-	Use:     "available",
-	Short:   "Show available Adaptive IP List",
-	Long:    ``,
-	Args:    cobra.MinimumNArgs(0),
-	PreRunE: checkToken,
-	Run: func(cmd *cobra.Command, args []string) {
-		queryArgs := make(map[string]string)
-		queryArgs["token"] = config.User.Token
-		data, err := queryParser.ListAdaptiveIP(queryArgs)
-		if err != nil {
-			err.Println()
-			return
-		}
-
-		availableIPList := data.(model.AvailableIPList)
-		if len(availableIPList.Errors) > 0 {
-			for _, hrr := range availableIPList.Errors {
-				hrr.Println()
-			}
-			return
-		}
-
-		t := table.NewWriter()
-		t.SetStyle(table.Style{
-			Name: "clarinetTableStyle",
-			Box:  table.StyleBoxLight,
-			Format: table.FormatOptions{
-				Header: text.FormatUpper,
-			},
-			Options: table.Options{
-				DrawBorder:      true,
-				SeparateColumns: false,
-				SeparateFooter:  true,
-				SeparateHeader:  true,
-				SeparateRows:    false,
-			},
-		})
-		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"Available IP"})
-
-		for _, aip := range availableIPList.AvailableIPs {
-			t.AppendRow([]interface{}{aip})
-		}
-
-		t.AppendFooter(table.Row{"Total\t" + strconv.Itoa(len(availableIPList.AvailableIPs))})
-		t.Render()
-	},
-}
-
-var aipListServer = &cobra.Command{
-	Use:     "server",
-	Short:   "Show Adaptive IP Server List",
+	Use:     "list",
+	Short:   "Show Adaptive IP List",
 	Long:    ``,
 	Args:    cobra.MinimumNArgs(0),
 	PreRunE: checkToken,
@@ -286,37 +185,110 @@ var aipListServer = &cobra.Command{
 	},
 }
 
+var aipListAvailable = &cobra.Command{
+	Use:     "available",
+	Short:   "Show available Adaptive IP List",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+		queryArgs["token"] = config.User.Token
+		data, err := queryParser.ListAdaptiveIP(queryArgs)
+		if err != nil {
+			err.Println()
+			return
+		}
+
+		availableIPList := data.(model.AvailableIPList)
+		if len(availableIPList.Errors) > 0 {
+			for _, hrr := range availableIPList.Errors {
+				hrr.Println()
+			}
+			return
+		}
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: false,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"Available IP"})
+
+		for _, aip := range availableIPList.AvailableIPs {
+			t.AppendRow([]interface{}{aip})
+		}
+
+		t.AppendFooter(table.Row{"Total\t" + strconv.Itoa(len(availableIPList.AvailableIPs))})
+		t.Render()
+	},
+}
+
+var aipSetting = &cobra.Command{
+	Use:     "setting",
+	Short:   "Change Adaptive IP setting",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+		queryArgs["ext_ifaceip_address"] = extIfaceAddr
+		queryArgs["netmask"] = netmask
+		queryArgs["gateway_address"] = gateway
+		queryArgs["start_ip_address"] = startIP
+		queryArgs["end_ip_address"] = endIP
+		queryArgs["token"] = config.User.Token
+		data, err := mutationParser.CreateAdaptiveIPSetting(queryArgs)
+		if err != nil {
+			err.Println()
+			return
+		}
+
+		aipData := data.(model.AdaptiveIP)
+		if len(aipData.Errors) > 0 {
+			for _, hrr := range aipData.Errors {
+				hrr.Println()
+			}
+			return
+		}
+	},
+}
+
 func ReadyAIPCmd() {
+	aipCreate.Flags().StringVar(&serverUUID, "server_uuid", "", "UUID of Server")
+	aipCreate.Flags().StringVar(&publicIP, "public_ip", "", "Public IP")
+	aipCreate.MarkFlagRequired("server_uuid")
+	aipCreate.MarkFlagRequired("public_ip")
 
-	aipCreateServer.Flags().StringVar(&serverUUID, "server_uuid", "", "UUID of Server")
-	aipCreateServer.Flags().StringVar(&publicIP, "public_ip", "", "Public IP")
-	aipCreateServer.MarkFlagRequired("server_uuid")
-	aipCreateServer.MarkFlagRequired("public_ip")
+	aipDelete.Flags().StringVar(&serverUUID, "server_uuid", "", "UUID of Server")
+	aipDelete.MarkFlagRequired("server_uuid")
 
-	aipCreateSetting.Flags().StringVar(&extIfaceAddr, "ext_iface_addr", "", "")
-	aipCreateSetting.Flags().StringVar(&netmask, "netmask", "", "")
-	aipCreateSetting.Flags().StringVar(&gateway, "gateway", "", "")
-	aipCreateSetting.Flags().StringVar(&startIP, "start", "", "")
-	aipCreateSetting.Flags().StringVar(&endIP, "end", "", "")
-	aipCreateSetting.MarkFlagRequired("ext_iface_addr")
-	aipCreateSetting.MarkFlagRequired("netmask")
-	aipCreateSetting.MarkFlagRequired("gateway")
-	aipCreateSetting.MarkFlagRequired("start")
-	aipCreateSetting.MarkFlagRequired("end")
+	aipList.Flags().StringVar(&serverUUID, "server_uuid", "", "UUID of Server")
+	aipList.Flags().StringVar(&publicIP, "public_ip", "", "Public IP of Server")
+	aipList.Flags().StringVar(&privateIP, "private_ip", "", "Private IP of Server")
+	aipList.Flags().StringVar(&gateway, "private_gateway", "", "Private Gateway IP")
 
-	aipCreate.AddCommand(aipCreateServer, aipCreateSetting)
-
-	aipDeleteServer.Flags().StringVar(&serverUUID, "server_uuid", "", "UUID of Server")
-	aipDeleteServer.MarkFlagRequired("server_uuid")
-
-	aipDelete.AddCommand(aipDeleteServer)
-
-	aipListServer.Flags().StringVar(&serverUUID, "server_uuid", "", "UUID of Server")
-	aipListServer.Flags().StringVar(&publicIP, "public_ip", "", "Public IP of Server")
-	aipListServer.Flags().StringVar(&privateIP, "private_ip", "", "Private IP of Server")
-	aipListServer.Flags().StringVar(&gateway, "private_gateway", "", "Private Gateway IP")
-
-	aipList.AddCommand(aipListServer, aipListAvailable)
-
-	aipCmd.AddCommand(aipCreate, aipDelete, aipList)
+	aipSetting.Flags().StringVar(&extIfaceAddr, "ext_iface_addr", "", "")
+	aipSetting.Flags().StringVar(&netmask, "netmask", "", "")
+	aipSetting.Flags().StringVar(&gateway, "gateway", "", "")
+	aipSetting.Flags().StringVar(&startIP, "start", "", "")
+	aipSetting.Flags().StringVar(&endIP, "end", "", "")
+	aipSetting.MarkFlagRequired("ext_iface_addr")
+	aipSetting.MarkFlagRequired("netmask")
+	aipSetting.MarkFlagRequired("gateway")
+	aipSetting.MarkFlagRequired("start")
+	aipSetting.MarkFlagRequired("end")
+	
+	aipCmd.AddCommand(aipCreate, aipDelete, aipList, aipListAvailable, aipSetting)
 }
