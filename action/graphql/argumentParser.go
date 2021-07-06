@@ -23,13 +23,22 @@ func CheckArgsMin(args map[string]string, min int, mustchk ...string) bool {
 }
 
 func CheckArgsAll(args map[string]string, max int, exception ...string) (bool, string) {
-	var emptyField string = ""
+	var emptyField = ""
+	var serverUUIDIsMaster = false
+
+	serverUUID, serverUUIDOk := args["server_uuid"]
+	if serverUUIDOk && serverUUID == "master" {
+		serverUUIDIsMaster = true
+	}
 
 	for key, value := range args {
 		for _, e := range exception {
 			if e == key {
 				goto CONTINUE
 			}
+		}
+		if key == "internal_port" && value == "0" && serverUUIDIsMaster {
+			continue
 		}
 		if value == "" || value == "0" {
 			emptyField += (key + " ")
@@ -58,10 +67,8 @@ func GenIntArg(arguments *string, args map[string]int, fn func(int) (bool, *erro
 
 	if fn == nil {
 		checkF = func(arg int) (bool, *errors.HccError) {
-			if arg > 0 {
+			if arg >= 0 {
 				return true, nil
-			} else if arg == 0 {
-				return false, nil
 			}
 			return false, errors.NewHccError(errors.ClarinetGraphQLParsingError, "Integer argument ")
 		}

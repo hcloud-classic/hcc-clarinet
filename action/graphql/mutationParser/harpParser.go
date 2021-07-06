@@ -2,7 +2,6 @@ package mutationParser
 
 import (
 	"encoding/json"
-
 	"hcc/clarinet/action/graphql"
 	"hcc/clarinet/driver/http"
 	"hcc/clarinet/model"
@@ -249,4 +248,71 @@ func DeleteAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccErr
 		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
 	}
 	return aipServerData["data"][cmd], nil
+}
+
+func CreatePortForwarding(args map[string]string) (interface{}, *errors.HccError) {
+	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLParsingError, "Check flag value of "+ef)
+	}
+
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "create_port_forwarding"
+	query := `mutation _ { ` + cmd + arguments + `{
+		server_uuid
+		protocol
+		external_port
+		internal_port
+		description
+		errors {
+			errcode
+			errtext
+		}
+	} }`
+
+	result, err := http.DoHTTPRequest("piccolo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var portForwardingData map[string]map[string]model.PortForwarding
+	if e := json.Unmarshal(result, &portForwardingData); e != nil {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+	}
+
+	return portForwardingData["data"][cmd], nil
+}
+
+func DeletePortForwarding(args map[string]string) (interface{}, *errors.HccError) {
+	if b, ef := argumentParser.CheckArgsAll(args, len(args)); b {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLParsingError, "Check flag value of "+ef)
+	}
+
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "delete_port_forwarding"
+	query := `mutation _ { ` + cmd + arguments + `{
+		server_uuid
+		errors {
+			errcode
+			errtext
+		}
+	} }`
+
+	result, err := http.DoHTTPRequest("piccolo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var portForwardingData map[string]map[string]model.PortForwarding
+	if e := json.Unmarshal(result, &portForwardingData); e != nil {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+	}
+	return portForwardingData["data"][cmd], nil
 }

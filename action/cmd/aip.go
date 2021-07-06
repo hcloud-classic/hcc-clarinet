@@ -16,6 +16,8 @@ import (
 )
 
 var startIP, endIP, publicIP, privateIP, netmask, extIfaceAddr string
+var protocol, description string
+var externalPort, internalPort int
 
 // aipCmd represents the aip command
 var aipCmd = &cobra.Command{
@@ -124,7 +126,7 @@ var aipDelete = &cobra.Command{
 			return
 		}
 
-		logger.Logger.Printf("Successfully Deleted aipServer - %s\n", serverUUID)
+		logger.Logger.Printf("Successfully Deleted AdaptiveIP - %s\n", serverUUID)
 	},
 }
 
@@ -265,6 +267,130 @@ var aipSetting = &cobra.Command{
 	},
 }
 
+var portForwarding = &cobra.Command{
+	Use:   "port",
+	Short: "Create or Delete Port Forwarding",
+	Long:  ``,
+	Args:  cobra.MinimumNArgs(1),
+}
+
+var portForwardingCreate = &cobra.Command{
+	Use:     "create",
+	Short:   "Create Port Forwarding",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+		queryArgs["server_uuid"] = serverUUID
+		queryArgs["protocol"] = protocol
+		queryArgs["external_port"] = strconv.Itoa(externalPort)
+		queryArgs["internal_port"] = strconv.Itoa(internalPort)
+		queryArgs["description"] = description
+		queryArgs["token"] = config.User.Token
+		data, err := mutationParser.CreatePortForwarding(queryArgs)
+		if err != nil {
+			err.Println()
+			return
+		}
+
+		portForwardingData := data.(model.PortForwarding)
+		if len(portForwardingData.Errors) > 0 {
+			for _, hrr := range portForwardingData.Errors {
+				hrr.Println()
+			}
+			return
+		}
+	},
+}
+
+var portForwardingDelete = &cobra.Command{
+	Use:     "delete",
+	Short:   "Delete Port Forwarding",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+		queryArgs["server_uuid"] = serverUUID
+		queryArgs["external_port"] = strconv.Itoa(externalPort)
+		queryArgs["token"] = config.User.Token
+		data, err := mutationParser.DeletePortForwarding(queryArgs)
+		if err != nil {
+			err.Println()
+			return
+		}
+
+		portForwardingData := data.(model.PortForwarding)
+		if len(portForwardingData.Errors) > 0 {
+			for _, hrr := range portForwardingData.Errors {
+				hrr.Println()
+			}
+			return
+		}
+
+		logger.Logger.Printf("Successfully Deleted port forwarding - %s\n", serverUUID)
+	},
+}
+
+var portForwardingList = &cobra.Command{
+	Use:     "list",
+	Short:   "Show Port Forwarding List",
+	Long:    ``,
+	Args:    cobra.MinimumNArgs(0),
+	PreRunE: checkToken,
+	Run: func(cmd *cobra.Command, args []string) {
+		queryArgs := make(map[string]string)
+		queryArgs["server_uuid"] = serverUUID
+		queryArgs["protocol"] = protocol
+		queryArgs["external_port"] = strconv.Itoa(externalPort)
+		queryArgs["internal_port"] = strconv.Itoa(internalPort)
+		queryArgs["description"] = description
+		queryArgs["token"] = config.User.Token
+
+		data, err := queryParser.ListPortForwarding(queryArgs)
+		if err != nil {
+			err.Println()
+			return
+		}
+
+		portForwardingList := data.(model.PortForwardingList)
+		if len(portForwardingList.Errors) > 0 {
+			for _, hrr := range portForwardingList.Errors {
+				hrr.Println()
+			}
+			return
+		}
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"No", "Server UUID", "Public IP", "Private IP", "Private Gateway", "Created At"})
+
+		for index, portForwarding := range portForwardingList.PortForwardings {
+			t.AppendRow([]interface{}{index + 1, portForwarding.ServerUUID,
+				portForwarding.Protocol, portForwarding.ExternalPort, portForwarding.InternalPort, portForwarding.Description})
+		}
+
+		t.AppendFooter(table.Row{"Total", len(portForwardingList.PortForwardings)})
+		t.Render()
+
+	},
+}
+
 func ReadyAIPCmd() {
 	aipCreate.Flags().StringVar(&serverUUID, "server_uuid", "", "UUID of Server")
 	aipCreate.Flags().StringVar(&publicIP, "public_ip", "", "Public IP")
@@ -289,6 +415,31 @@ func ReadyAIPCmd() {
 	aipSetting.MarkFlagRequired("gateway")
 	aipSetting.MarkFlagRequired("start")
 	aipSetting.MarkFlagRequired("end")
-	
-	aipCmd.AddCommand(aipCreate, aipDelete, aipList, aipListAvailable, aipSetting)
+
+	portForwardingCreate.Flags().StringVar(&serverUUID, "server_uuid", "", "")
+	portForwardingCreate.Flags().StringVar(&protocol, "protocol", "", "")
+	portForwardingCreate.Flags().IntVar(&externalPort, "external_port", 0, "")
+	portForwardingCreate.Flags().IntVar(&internalPort, "internal_port", 0, "")
+	portForwardingCreate.Flags().StringVar(&description, "description", "", "")
+	portForwardingCreate.MarkFlagRequired("server_uuid")
+	portForwardingCreate.MarkFlagRequired("protocol")
+	portForwardingCreate.MarkFlagRequired("external_port")
+	portForwardingCreate.MarkFlagRequired("internal_port")
+	portForwardingCreate.MarkFlagRequired("description")
+
+	portForwardingDelete.Flags().StringVar(&serverUUID, "server_uuid", "", "")
+	portForwardingDelete.Flags().IntVar(&externalPort, "external_port", 0, "")
+	portForwardingDelete.MarkFlagRequired("server_uuid")
+	portForwardingDelete.MarkFlagRequired("external_port")
+
+	portForwardingList.Flags().StringVar(&serverUUID, "server_uuid", "", "")
+	portForwardingList.Flags().StringVar(&protocol, "protocol", "", "")
+	portForwardingList.Flags().IntVar(&externalPort, "external_port", 0, "")
+	portForwardingList.Flags().IntVar(&internalPort, "internal_port", 0, "")
+	portForwardingList.Flags().StringVar(&description, "description", "", "")
+	portForwardingList.MarkFlagRequired("server_uuid")
+
+	portForwarding.AddCommand(portForwardingCreate, portForwardingDelete, portForwardingList)
+
+	aipCmd.AddCommand(aipCreate, aipDelete, aipList, aipListAvailable, aipSetting, portForwarding)
 }
