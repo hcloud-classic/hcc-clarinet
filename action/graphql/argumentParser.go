@@ -1,8 +1,9 @@
 package argumentParser
 
 import (
-	"errors"
 	"strconv"
+
+	errors "innogrid.com/hcloud-classic/hcc_errors"
 )
 
 func CheckArgsMin(args map[string]string, min int, mustchk ...string) bool {
@@ -22,13 +23,22 @@ func CheckArgsMin(args map[string]string, min int, mustchk ...string) bool {
 }
 
 func CheckArgsAll(args map[string]string, max int, exception ...string) (bool, string) {
-	var emptyField string = ""
+	var emptyField = ""
+	var serverUUIDIsMaster = false
+
+	serverUUID, serverUUIDOk := args["server_uuid"]
+	if serverUUIDOk && serverUUID == "master" {
+		serverUUIDIsMaster = true
+	}
 
 	for key, value := range args {
 		for _, e := range exception {
 			if e == key {
 				goto CONTINUE
 			}
+		}
+		if key == "internal_port" && value == "0" && serverUUIDIsMaster {
+			continue
 		}
 		if value == "" || value == "0" {
 			emptyField += (key + " ")
@@ -51,18 +61,16 @@ func SplitIntArgs(strArgs map[string]string) map[string]int {
 	return intArgs
 }
 
-func GenIntArg(arguments *string, args map[string]int, fn func(int) (bool, error)) error {
-	var err error = nil
-	var checkF func(int) (bool, error)
+func GenIntArg(arguments *string, args map[string]int, fn func(int) (bool, *errors.HccError)) *errors.HccError {
+	var err *errors.HccError = nil
+	var checkF func(int) (bool, *errors.HccError)
 
 	if fn == nil {
-		checkF = func(arg int) (bool, error) {
-			if arg > 0 {
+		checkF = func(arg int) (bool, *errors.HccError) {
+			if arg >= 0 {
 				return true, nil
-			} else if arg == 0 {
-				return false, nil
 			}
-			return false, errors.New("")
+			return false, errors.NewHccError(errors.ClarinetGraphQLParsingError, "Integer argument ")
 		}
 	} else {
 		checkF = fn
@@ -72,7 +80,7 @@ func GenIntArg(arguments *string, args map[string]int, fn func(int) (bool, error
 		if b, e := checkF(arg); b && e == nil {
 			*arguments += key + ": " + strconv.Itoa(arg) + ", "
 		} else if e != nil {
-			err = errors.New("Check flag value of " + key)
+			err = errors.NewHccError(e.Code(), e.Text()+key)
 			break
 		}
 	}
@@ -80,12 +88,12 @@ func GenIntArg(arguments *string, args map[string]int, fn func(int) (bool, error
 	return err
 }
 
-func GenStrArg(arguments *string, args map[string]string, fn func(string) (bool, error)) error {
-	var err error = nil
-	var checkF func(string) (bool, error)
+func GenStrArg(arguments *string, args map[string]string, fn func(string) (bool, *errors.HccError)) *errors.HccError {
+	var err *errors.HccError = nil
+	var checkF func(string) (bool, *errors.HccError)
 
 	if fn == nil {
-		checkF = func(arg string) (bool, error) {
+		checkF = func(arg string) (bool, *errors.HccError) {
 			if arg == "" {
 				return false, nil
 			}
@@ -103,18 +111,18 @@ func GenStrArg(arguments *string, args map[string]string, fn func(string) (bool,
 	return err
 }
 
-func GetArgumentStr(strArgs map[string]string, fn ...interface{}) (string, error) {
+func GetArgumentStr(strArgs map[string]string, fn ...interface{}) (string, *errors.HccError) {
 
 	intArgs := SplitIntArgs(strArgs)
 	var arguments = ""
-	var fnStr func(string) (bool, error)
-	var fnInt func(int) (bool, error)
+	var fnStr func(string) (bool, *errors.HccError)
+	var fnInt func(int) (bool, *errors.HccError)
 
 	if len(fn) == 2 {
-		fnStr = fn[0].(func(string) (bool, error))
-		fnInt = fn[1].(func(int) (bool, error))
+		fnStr = fn[0].(func(string) (bool, *errors.HccError))
+		fnInt = fn[1].(func(int) (bool, *errors.HccError))
 	} else if len(fn) == 1 {
-		fnStr = fn[0].(func(string) (bool, error))
+		fnStr = fn[0].(func(string) (bool, *errors.HccError))
 		fnInt = nil
 	} else {
 		fnStr = nil

@@ -8,7 +8,10 @@ before_script:
   - export GOROOT="/usr/local/go"
   - export GOPATH="/home/gitlab-runner/go"
   - export PATH="$PATH:$GOROOT/bin:$GOPATH/bin"
+<<<<<<< HEAD
   - export Branch_Name="$CI_COMMIT_REF_NAME"
+=======
+>>>>>>> feature/dev
   - export Serivce_Name="clarinet"
   - export Build_Path="/home/gitlab-runner/tmp_build"
 
@@ -57,8 +60,13 @@ deploy:
   script:
     - sudo cp -f $Build_Path/$Serivce_Name/$Branch_Name/$Serivce_Name /usr/local/bin/$Serivce_Name
     - sudo chmod 755 /usr/local/bin/$Serivce_Name
+<<<<<<< HEAD
     - sudo rm -rf $Build_Path/$Serivce_Name/$Branch_Name
     - sudo cp -f ./complete /etc/bash_completion.d/clarinet_completion
+=======
+    - sudo rm -rf $Build_Path/$Serivce_Name/$Branch_Name    
+    - ./install.sh
+>>>>>>> feature/dev
     - echo "Finished"
   only:
   - master

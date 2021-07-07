@@ -1,19 +1,27 @@
 package main
 
 import (
-	Clarinet "hcc/clarinet/cmd"
+	errors "innogrid.com/hcloud-classic/hcc_errors"
+
+	"hcc/clarinet/action/cmd"
 	"hcc/clarinet/lib/config"
+	"hcc/clarinet/lib/logger"
 )
 
 func init() {
+	err := logger.Init()
+	if err != nil {
+		errors.NewHccError(errors.ClarinetInternalInitFail, "logger").Fatal()
+	}
+
 	config.Parser()
-	Clarinet.Init()
+	cmd.Init()
 }
 
 func main() {
-	if Clarinet.Cmd == nil {
-		panic("Init Error!!")
+	if cmd.Cmd == nil {
+		errors.NewHccError(errors.ClarinetInternalInitFail, "cobra").Fatal()
 	}
 
-	Clarinet.Cmd.Execute()
+	cmd.Cmd.Execute()
 }

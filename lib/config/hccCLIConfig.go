@@ -2,67 +2,46 @@ package config
 
 import (
 	"bufio"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
-	"github.com/Terry-Mao/goconf"
-	"golang.org/x/crypto/ssh/terminal"
 	"log"
 	"os"
 	"os/signal"
 	goUser "os/user"
 	"path/filepath"
 	"syscall"
+
+	"github.com/Terry-Mao/goconf"
+	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/ssh/terminal"
 )
+
+type ClarinetConfig struct {
+	PiccoloConfig *goconf.Section
+	UserConfig    *goconf.Section
+}
 
 var configLocation = "/etc/hcc/clarinet/clarinet.conf"
 var userConfLocation string
 
-type ClarinetConfig struct {
-	FluteConfig  *goconf.Section
-	HarpConfig   *goconf.Section
-	ViolinConfig *goconf.Section
-	UserConfig   *goconf.Section
-}
-
 func setUserConfFilePath() {
 	curUser, _ := goUser.Current()
 	userConfLocation = curUser.HomeDir + "/.hcc/clarinet/user.conf"
-
 }
 
-/*TODO: Check alphanumeric user id*/
-
-func GetUserInfo() error {
-
+func createConfFile() error {
 	if err := os.MkdirAll(filepath.Dir(userConfLocation), 0770); err != nil {
 		return err
 	}
 	if _, err = os.Create(userConfLocation); err != nil {
 		return err
 	}
-
-	c := usrConf.Add("user")
-	c.Remove("user_id")
-	c.Remove("user_passwd")
-
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Set user information.")
-
-	fmt.Print("User ID : ")
-	userID, _ := reader.ReadString('\n')
-
-	fmt.Print("User PW : ")
-	userPasswd := getPassword()
-
-	fmt.Println(userPasswd)
-
-	c.Add("user_id", userID)
-	c.Add("user_passwd", userPasswd)
-
+	conf := usrConf.Add("user")
+	conf.Add("token", "")
 	if err = usrConf.Save(userConfLocation); err != nil {
 		return err
 	}
-
-	usrConf.Parse(userConfLocation)
 
 	return nil
 }
@@ -96,4 +75,42 @@ func getPassword() string {
 
 	// Return the password as a string.
 	return string(p)
+}
+
+func GetUserInfo() {
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("Set user information.")
+
+	fmt.Print("User ID : ")
+	scanner.Scan()
+	User.UserId = scanner.Text()
+	/*TODO: Check alphanumeric user id*/
+
+	fmt.Print("User PW : ")
+	// User.UserPasswd = getPassword()
+	md := sha256.Sum256([]byte(getPassword()))
+	mdStr := hex.EncodeToString(md[:])
+	hashPW, err := bcrypt.GenerateFromPassword([]byte(mdStr), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatalf("Password hash error: %v", err)
+	}
+	User.UserPasswd = string(hashPW)
+}
+
+func SaveTokenString(tokenString string) {
+	User.Token = tokenString
+	conf := usrConf.Get("user")
+	conf.Add("token", tokenString)
+	if err := usrConf.Save(userConfLocation); err != nil {
+		fmt.Println("Token save failed")
+	}
+}
+
+func RemoveTokenString() {
+
+	if err := os.Remove(userConfLocation); err != nil {
+		fmt.Println("Failed : Can not find user location")
+	} else {
+		fmt.Println("Succeed : User logged out")
+	}
 }
