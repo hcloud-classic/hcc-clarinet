@@ -141,3 +141,37 @@ func AdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
 
 	return aipData["data"][cmd], nil
 }
+
+func ListPortForwarding(args map[string]string) (interface{}, *errors.HccError) {
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "list_port_forwarding"
+	query := `query { ` + cmd + arguments + `{
+		port_forwarding_list {
+			server_uuid
+			protocol
+			external_port
+			internal_port
+			description
+		}
+		errors {
+			errtext
+			errcode
+		}
+	} }`
+
+	result, err := http.DoHTTPRequest("piccolo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var portForwardingListData map[string]map[string]model.PortForwardingList
+	if e := json.Unmarshal(result, &portForwardingListData); e != nil {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+	}
+
+	return portForwardingListData["data"][cmd], nil
+}

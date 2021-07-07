@@ -56,8 +56,8 @@ deploy:
   script:
     - sudo cp -f $Build_Path/$Serivce_Name/$Branch_Name/$Serivce_Name /usr/local/bin/$Serivce_Name
     - sudo chmod 755 /usr/local/bin/$Serivce_Name
-    - sudo rm -rf $Build_Path/$Serivce_Name/$Branch_Name
-    - sudo cp -f ./complete /etc/bash_completion.d/clarinet_completion
+    - sudo rm -rf $Build_Path/$Serivce_Name/$Branch_Name    
+    - ./install.sh
     - echo "Finished"
   only:
   - master
