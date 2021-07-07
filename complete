@@ -2,11 +2,11 @@
 
 _clarinet_completions()
 {
-	opts_command="node server aip subnet help logout"
+	opts_command="node server aip subnet help logout version"
 	opts_server="create delete list update"
 	opts_node="create delete list update detail on off restart"
 	opts_subnet="create delete list update"
-	opts_aip="create delete list"
+	opts_aip="create delete list available setting port"
 
 	if [[ "${COMP_CWORD}" == "1" ]];then
 		COMPREPLY=($(compgen -W "${opts_command}" "${COMP_WORDS[1]}"))
@@ -22,12 +22,8 @@ _clarinet_completions()
 		fi
 	elif [[ "${COMP_CWORD}" == "3" ]];then
  		if [[ "${COMP_WORDS[COMP_CWORD-2]}" == "aip" ]];then
-			if [[ "${COMP_WORDS[COMP_CWORD-1]}" == "create" ]];then
-				COMPREPLY=($(compgen -W "server setting" "${COMP_WORDS[3]}"))
-			elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "delete" ]];then
-				COMPREPLY=($(compgen -W "server" "${COMP_WORDS[3]}"))
-			elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "list" ]];then
-				COMPREPLY=($(compgen -W "server available" "${COMP_WORDS[3]}"))
+			if [[ "${COMP_WORDS[COMP_CWORD-1]}" == "port" ]];then
+				COMPREPLY=($(compgen -W "create delete list" "${COMP_WORDS[3]}"))
 			fi
 		elif [[ "${COMP_WORDS[COMP_CWORD-2]}" == "subnet" ]];then
 			if [[ "${COMP_WORDS[COMP_CWORD-1]}" == "create" ]];then
