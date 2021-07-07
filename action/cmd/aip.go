@@ -378,7 +378,7 @@ var portForwardingList = &cobra.Command{
 			},
 		})
 		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"No", "Server UUID", "Public IP", "Private IP", "Private Gateway", "Created At"})
+		t.AppendHeader(table.Row{"No", "Server UUID", "Protocol", "External Port", "Internal Port", "Description"})
 
 		for index, portForwarding := range portForwardingList.PortForwardings {
 			t.AppendRow([]interface{}{index + 1, portForwarding.ServerUUID,
