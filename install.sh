@@ -4,12 +4,12 @@ set -e
 mkdir -p ~/.hcc/clarinet/
 cp ./complete ~/.hcc/clarinet/
 
-if grep -Fxq  "source ~/.hcc/clarinet/complete" ~/.bashrc
+if grep -Fxq  ". ~/.hcc/clarinet/complete" ~/.bashrc
 then
-	source ~/.hcc/clarinet/complete
+	. ~/.hcc/clarinet/complete
 else
-	echo "source ~/.hcc/clarinet/complete" >> ~/.bashrc
-	source ~/.hcc/clarinet/complete
+	echo ". ~/.hcc/clarinet/complete" >> ~/.bashrc
+	. ~/.hcc/clarinet/complete
 fi
 
 echo "Install Finished"
