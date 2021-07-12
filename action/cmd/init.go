@@ -17,23 +17,25 @@ func Init() {
 	ReadyNodeCmd()
 	ReadySubnetCmd()
 	ReadyAIPCmd()
+	ReadyUserCmd()
 
 	Cmd = &cobra.Command{Use: "clarinet"}
-	Cmd.AddCommand(serverCmd, nodeCmd, subnetCmd, aipCmd, logoutCmd, versionCmd)
+	Cmd.AddCommand(serverCmd, nodeCmd, subnetCmd, aipCmd, userCmd, logoutCmd, versionCmd)
 }
 
 func checkToken(cmd *cobra.Command, args []string) error {
 	if config.User.Token == "" {
-		config.GetUserInfo()
+		var userID string
+		var userPassword string
+
+		config.GetUserInfo(&userID, &userPassword)
 		userInfo := make(map[string]string)
-		userInfo["id"] = config.User.UserId
-		userInfo["password"] = config.User.UserPasswd
+		userInfo["id"] = userID
+		userInfo["password"] = userPassword
 		if loginData, err := queryParser.Login(userInfo); err != nil {
 			log.Fatalf("Login Failed")
 		} else {
 			config.SaveTokenString(loginData.(model.Login).Token)
-			config.User.UserId = ""
-			config.User.UserPasswd = ""
 		}
 	} else {
 		token := make(map[string]string)
@@ -44,16 +46,9 @@ func checkToken(cmd *cobra.Command, args []string) error {
 			if !isValid.(model.Valid).IsValid {
 				log.Println("Invalid token, Enter user info to login")
 				config.User.Token = ""
-				checkToken(cmd, args)
+				_ = checkToken(cmd, args)
 			}
 		}
 	}
 	return nil
-}
-
-func reRunIfExpired(cmd *cobra.Command) {
-	log.Println("Token expired.")
-	config.User.Token = ""
-	config.GetUserInfo()
-	cmd.Execute()
 }

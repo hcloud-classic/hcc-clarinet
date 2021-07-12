@@ -334,7 +334,7 @@ var subnetList = &cobra.Command{
 }
 
 func ReadySubnetCmd() {
-	subnetCreate.Flags().StringVar(&netIP, "network_ip", "", "Network IP [x.x.x.0]")
+	subnetCreate.Flags().StringVar(&netIP, "network_ip", "", "Network IP [x.x.x.x]")
 	subnetCreate.Flags().StringVar(&netMask, "netmask", "", "Network Mask")
 	subnetCreate.Flags().StringVar(&gateway, "gateway", "", "Gateway")
 	subnetCreate.Flags().StringVar(&nextServer, "next_server", "", "Next Server")
