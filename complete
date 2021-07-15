@@ -2,12 +2,13 @@
 
 _clarinet_completions()
 {
-	opts_command="node server aip subnet user help logout version"
+	opts_command="node server aip subnet user group help logout version"
 	opts_node="create delete list update detail on off restart"
 	opts_server="create delete list update"
 	opts_aip="create delete list available setting port"
 	opts_subnet="create delete list update"
 	opts_user="signup unregister list update"
+	opts_group="create delete list update"
 
 	if [[ "${COMP_CWORD}" == "1" ]];then
 		COMPREPLY=($(compgen -W "${opts_command}" "${COMP_WORDS[1]}"))
@@ -22,6 +23,8 @@ _clarinet_completions()
 			COMPREPLY=($(compgen -W "${opts_subnet}" "${COMP_WORDS[2]}"))
 		elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "user" ]];then
 			COMPREPLY=($(compgen -W "${opts_user}" "${COMP_WORDS[2]}"))
+		elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "group" ]];then
+			COMPREPLY=($(compgen -W "${opts_group}" "${COMP_WORDS[2]}"))
 		fi
 	elif [[ "${COMP_CWORD}" == "3" ]];then
  		if [[ "${COMP_WORDS[COMP_CWORD-2]}" == "aip" ]];then
