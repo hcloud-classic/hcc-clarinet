@@ -99,3 +99,85 @@ func Unregister(args map[string]string) (interface{}, *errors.HccError) {
 	}
 	return userData["data"][cmd], nil
 }
+
+func CreateGroup(args map[string]string) (interface{}, *errors.HccError) {
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "create_group"
+	query := `mutation _ { ` + cmd + arguments + `{
+		group_id
+        group_name
+		errors{
+			errcode
+			errtext
+		}
+	} }`
+	result, err := http.DoHTTPRequest("piccolo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var groupData map[string]map[string]model.Group
+	if e := json.Unmarshal(result, &groupData); e != nil {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+	}
+	return groupData["data"][cmd], nil
+}
+
+func UpdateGroup(args map[string]string) (interface{}, *errors.HccError) {
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "update_group"
+	query := `mutation _ { ` + cmd + arguments + `{
+		group_id
+        group_name
+		errors{
+			errcode
+			errtext
+		}
+	} }`
+	result, err := http.DoHTTPRequest("piccolo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var groupData map[string]map[string]model.Group
+	if e := json.Unmarshal(result, &groupData); e != nil {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+	}
+	return groupData["data"][cmd], nil
+}
+
+func DeleteGroup(args map[string]string) (interface{}, *errors.HccError) {
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "delete_group"
+	query := `mutation _ { ` + cmd + arguments + `{
+		group_id
+		errors{
+			errcode
+			errtext
+		}
+	} }`
+	result, err := http.DoHTTPRequest("piccolo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var groupData map[string]map[string]model.Group
+	e := json.Unmarshal(result, &groupData)
+	if e != nil {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, e.Error())
+	}
+
+	return groupData["data"][cmd], nil
+}

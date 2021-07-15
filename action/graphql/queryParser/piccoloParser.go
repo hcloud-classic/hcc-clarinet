@@ -48,3 +48,33 @@ func ListUser(args map[string]string) (interface{}, *errors.HccError) {
 	}
 	return userListData["data"][cmd], nil
 }
+
+func AllGroup(args map[string]string) (interface{}, *errors.HccError) {
+	arguments, err := argumentParser.GetArgumentStr(args)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := "all_group"
+	query := `query { ` + cmd + arguments + `{ 
+		group_list {
+			group_id
+			group_name
+		}
+		errors{
+			errcode
+			errtext
+		}
+	} }`
+
+	result, err := http.DoHTTPRequest("piccolo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	var groupListData map[string]map[string]model.GroupList
+	if e := json.Unmarshal(result, &groupListData); e != nil {
+		return nil, errors.NewHccError(errors.ClarinetGraphQLJsonUnmarshalError, err.Error())
+	}
+	return groupListData["data"][cmd], nil
+}
