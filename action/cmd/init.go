@@ -18,9 +18,10 @@ func Init() {
 	ReadySubnetCmd()
 	ReadyAIPCmd()
 	ReadyUserCmd()
+	ReadyGroupCmd()
 
 	Cmd = &cobra.Command{Use: "clarinet"}
-	Cmd.AddCommand(serverCmd, nodeCmd, subnetCmd, aipCmd, userCmd, logoutCmd, versionCmd)
+	Cmd.AddCommand(serverCmd, nodeCmd, subnetCmd, aipCmd, userCmd, groupCmd, logoutCmd, versionCmd)
 }
 
 func checkToken(cmd *cobra.Command, args []string) error {
