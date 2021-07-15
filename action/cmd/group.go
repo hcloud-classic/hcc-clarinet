@@ -233,7 +233,6 @@ var groupList = &cobra.Command{
 func ReadyGroupCmd() {
 	groupCreate.Flags().Int64Var(&groupID, "group_id", 0, "Group ID")
 	groupCreate.Flags().StringVar(&name, "group_name", "", "Group Name")
-	groupCreate.MarkFlagRequired("group_id")
 	groupCreate.MarkFlagRequired("group_name")
 
 	groupUpdate.Flags().Int64Var(&groupID, "group_id", 0, "Group ID")
