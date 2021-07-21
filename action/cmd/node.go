@@ -15,8 +15,10 @@ import (
 	"hcc/clarinet/model"
 )
 
-var serverUUID, nodeUUID, bmcMacAddr, bmcIP, pxeMacAddr, desc, cpuModel string
-var active, cpuCores, cpuProcessors, cpuThreads int
+var serverUUID, nodeUUID, bmcMacAddr, nodeName, bmcIP, pxeMacAddr, desc, cpuModel string
+var active, cpuCores, cpuProcessors, cpuThreads, nicSpeedMbps int
+var ipmiUserID, ipmiUserPassword string
+var nicDetail string
 
 // nodeCmd represents the node command
 var nodeCmd = &cobra.Command{
@@ -186,8 +188,13 @@ var nodeCreate = &cobra.Command{
 	PreRunE: checkToken,
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
+		queryArgs["node_name"] = nodeName
 		queryArgs["bmc_ip"] = bmcIP
+		queryArgs["nic_speed_mbps"] = strconv.Itoa(nicSpeedMbps)
 		queryArgs["description"] = desc
+		queryArgs["nic_detail_data"] = nicDetail
+		queryArgs["ipmi_user_id"] = ipmiUserID
+		queryArgs["ipmi_user_password"] = ipmiUserPassword
 		queryArgs["token"] = config.User.Token
 
 		fmt.Print("Create Node .... ")
@@ -249,15 +256,13 @@ var nodeUpdate = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		queryArgs := make(map[string]string)
 		queryArgs["uuid"] = nodeUUID
-		queryArgs["server_uuid"] = serverUUID
-		queryArgs["bmc_mac_addr"] = bmcMacAddr
+		queryArgs["node_name"] = nodeName
 		queryArgs["bmc_ip"] = bmcIP
-		queryArgs["pxe_mac_addr"] = pxeMacAddr
-		queryArgs["args"] = status
-		queryArgs["desctiption"] = desc
-		queryArgs["active"] = strconv.Itoa(active)
-		queryArgs["cpu_cores"] = strconv.Itoa(cpuCores)
-		queryArgs["memory"] = strconv.Itoa(memory)
+		queryArgs["nic_speed_mbps"] = strconv.Itoa(nicSpeedMbps)
+		queryArgs["description"] = desc
+		queryArgs["nic_detail_data"] = nicDetail
+		queryArgs["ipmi_user_id"] = ipmiUserID
+		queryArgs["ipmi_user_password"] = ipmiUserPassword
 		queryArgs["token"] = config.User.Token
 
 		fmt.Print("Update Node .... ")
