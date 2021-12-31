@@ -32,7 +32,7 @@ created_at ` +
 		errQuery +
 		`} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ query { ` + cmd + arguments + `{
 		errQuery +
 		`} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ query { ` + cmd + arguments + `{
 		errQuery +
 		`} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func ListServerNode(args map[string]string) (interface{}, *errors.HccError) {
 		errQuery +
 		`} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func NumNodesServer(args map[string]string) (interface{}, *errors.HccError) {
 		errQuery +
 		`} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}

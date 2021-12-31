@@ -28,7 +28,7 @@ func SignUp(args map[string]string) (interface{}, *errors.HccError) {
 			errtext
 		}
 	} }`
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func UpdateUser(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func Unregister(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func CreateGroup(args map[string]string) (interface{}, *errors.HccError) {
 			errtext
 		}
 	} }`
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func UpdateGroup(args map[string]string) (interface{}, *errors.HccError) {
 			errtext
 		}
 	} }`
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +168,7 @@ func DeleteGroup(args map[string]string) (interface{}, *errors.HccError) {
 			errtext
 		}
 	} }`
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}

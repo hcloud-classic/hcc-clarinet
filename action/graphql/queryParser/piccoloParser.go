@@ -37,7 +37,7 @@ func ListUser(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func AllGroup(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}

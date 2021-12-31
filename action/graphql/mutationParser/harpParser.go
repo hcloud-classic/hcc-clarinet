@@ -34,7 +34,7 @@ func CreateSubnet(args map[string]string) (interface{}, *errors.HccError) {
 			errtext
 		}
 	} }`
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func UpdateSubnet(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func DeleteSubnet(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func CreateDHCPDConf(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func CreateAdaptiveIPSetting(args map[string]string) (interface{}, *errors.HccEr
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func CreateAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccErr
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +238,7 @@ func DeleteAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccErr
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -273,7 +273,7 @@ func CreatePortForwarding(args map[string]string) (interface{}, *errors.HccError
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -305,7 +305,7 @@ func DeletePortForwarding(args map[string]string) (interface{}, *errors.HccError
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}

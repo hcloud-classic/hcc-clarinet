@@ -29,7 +29,7 @@ func CreateServer(args map[string]string) (interface{}, *errors.HccError) {
 		errQuery +
 		`} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func UpdateServer(args map[string]string) (interface{}, *errors.HccError) {
 		errQuery +
 		`} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func DeleteServer(args map[string]string) (interface{}, *errors.HccError) {
 	cmd := "delete_server"
 	query := `mutation _ { ` + cmd + arguments + `{ uuid ` + errQuery + ` } }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func CreateServerNode(args map[string]string) (interface{}, *errors.HccError) {
 		errQuery +
 		`} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func DeleteServerNode(args map[string]string) (interface{}, *errors.HccError) {
 	cmd := "delete_server_node"
 	query := `mutation _ { ` + cmd + arguments + `{ uuid ` + errQuery + `} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
