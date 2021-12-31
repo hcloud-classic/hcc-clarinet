@@ -23,7 +23,7 @@ func Login(args map[string]string) (interface{}, *errors.HccError) {
 		token ` +
 		errQuery +
 		`} }`
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func CheckToken(args map[string]string) (interface{}, *errors.HccError) {
 		errQuery +
 		`} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}

@@ -43,7 +43,7 @@ func ListSubnet(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func ListAdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
 	cmd := "adaptiveip_available_ip_list"
 	query := "query { " + cmd + arguments + " { available_ip_list errors { errtext errcode } } }"
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func ListAdaptiveIPServer(args map[string]string) (interface{}, *errors.HccError
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func AdaptiveIP(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	}}`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func ListPortForwarding(args map[string]string) (interface{}, *errors.HccError) 
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}

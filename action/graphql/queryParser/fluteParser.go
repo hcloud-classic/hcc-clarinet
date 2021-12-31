@@ -35,7 +35,7 @@ func Node(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func ListNode(args map[string]string) (interface{}, *errors.HccError) {
 			errtext
 		}
 	} }`
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func NumNode() (interface{}, *errors.HccError) {
 	cmd := "num_node"
 	query := "query { " + cmd + " { number errors } }"
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func NodeDetail(args map[string]string) (interface{}, *errors.HccError) {
 		}
 	} }`
 
-	result, err := http.DoHTTPRequest("piccolo", query)
+	result, err := http.DoHTTPRequest(query)
 	if err != nil {
 		return nil, err
 	}

@@ -13,7 +13,7 @@ import (
 )
 
 // DoHTTPRequest : Send http request to other modules with GraphQL query string.
-func DoHTTPRequest(moduleName string, query string) ([]byte, *errors.HccError) {
+func DoHTTPRequest(query string) ([]byte, *errors.HccError) {
 	var timeout time.Duration
 	var url = "http://"
 
