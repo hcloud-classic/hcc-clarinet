@@ -8,7 +8,7 @@ import (
 	"hcc/clarinet/lib/config"
 )
 
-// aipCmd represents the aip command
+// logoutCmd represents the logout command
 var logoutCmd = &cobra.Command{
 	Use:     "logout",
 	Short:   "User logout",
