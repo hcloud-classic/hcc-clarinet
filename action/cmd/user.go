@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"hcc/clarinet/lib/mysql"
 	"hcc/clarinet/lib/passwordUtil"
 	"os"
 	"strconv"
@@ -25,9 +26,90 @@ var userCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 }
 
+var mysqlAddress, mysqlUser string
+var mysqlPort int64
 var id, authentication, name, email string
 var groupID int64
 var changePassword bool
+
+var addMaster = &cobra.Command{
+	Use:   "add_master",
+	Short: "Add a master account",
+	Long:  ``,
+	Args:  cobra.MinimumNArgs(0),
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Print("Enter MySQL Password : ")
+		mysqlPassword := passwordUtil.GetPassword()
+		fmt.Println("Connecting to MySQL...")
+		err := mysql.Init(mysqlUser, mysqlPassword, mysqlAddress, mysqlPort)
+		if err != nil {
+			fmt.Println("[FAIL] :" + err.Error())
+			return
+		}
+
+		fmt.Println("Setting password of master account...")
+		fmt.Print("Enter Password : ")
+		password1 := passwordUtil.GetPassword()
+		fmt.Print("Confirm Password : ")
+		password2 := passwordUtil.GetPassword()
+
+		if password1 != password2 {
+			fmt.Println("Passwords are mismatch.")
+			return
+		}
+
+		sha256pass := sha256.Sum256([]byte(password1))
+		password := hex.EncodeToString(sha256pass[:])
+
+		fmt.Println("Creating master account .... ")
+
+		user := model.User{
+			ID:             "master",
+			GroupID:        1, // master uses Group ID 1
+			Authentication: "master",
+			Name:           name,
+			Email:          email,
+		}
+
+		sql := "insert into user(id, group_id, authentication, password, name, email, login_at, created_at) values (?, ?, ?, ?, ?, ?, now(), now())"
+		stmt, err := mysql.Prepare(sql)
+		if err != nil {
+			panic(err)
+		}
+		defer func() {
+			_ = stmt.Close()
+		}()
+		_, err = stmt.Exec(user.ID, user.GroupID, user.Authentication, password, user.Name, user.Email)
+		if err != nil {
+			fmt.Println("[ERROR]: " + err.Error())
+			return
+		}
+
+		fmt.Println("[SUCCESS]")
+
+		t := table.NewWriter()
+		t.SetStyle(table.Style{
+			Name: "clarinetTableStyle",
+			Box:  table.StyleBoxLight,
+			Format: table.FormatOptions{
+				Header: text.FormatUpper,
+			},
+			Options: table.Options{
+				DrawBorder:      true,
+				SeparateColumns: true,
+				SeparateFooter:  true,
+				SeparateHeader:  true,
+				SeparateRows:    false,
+			},
+		})
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"ID", user.ID})
+		t.AppendRow([]interface{}{"Group ID", user.GroupID})
+		t.AppendRow([]interface{}{"Name", user.Name})
+		t.AppendRow([]interface{}{"E-Mail", user.Email})
+		t.Render()
+	},
+}
 
 var userSignUp = &cobra.Command{
 	Use:     "signup",
@@ -57,7 +139,7 @@ var userSignUp = &cobra.Command{
 		sha256pass := sha256.Sum256([]byte(password1))
 		queryArgs["password"] = hex.EncodeToString(sha256pass[:])
 
-		fmt.Print("Creating User .... ")
+		fmt.Println("Creating User .... ")
 
 		data, err := mutationParser.SignUp(queryArgs)
 		if err != nil {
@@ -129,7 +211,7 @@ var userUpdate = &cobra.Command{
 			queryArgs["password"] = hex.EncodeToString(sha256pass[:])
 		}
 
-		fmt.Print("Updating User .... ")
+		fmt.Println("Updating User .... ")
 
 		data, err := mutationParser.UpdateUser(queryArgs)
 		if err != nil {
@@ -186,7 +268,7 @@ var userUnregister = &cobra.Command{
 		queryArgs["id"] = id
 		queryArgs["token"] = config.User.Token
 
-		fmt.Print("Deleting User .... ")
+		fmt.Println("Deleting User .... ")
 
 		data, err := mutationParser.Unregister(queryArgs)
 		if err != nil {
@@ -287,6 +369,14 @@ var userList = &cobra.Command{
 }
 
 func ReadyUserCmd() {
+	addMaster.Flags().StringVar(&mysqlAddress, "mysql_address", "", "MySQL Address")
+	addMaster.Flags().Int64Var(&mysqlPort, "mysql_port", 3306, "MySQL Port Number")
+	addMaster.Flags().StringVar(&mysqlUser, "mysql_user", "", "MySQL Username")
+	addMaster.Flags().StringVar(&name, "master_name", "", "Name")
+	addMaster.Flags().StringVar(&email, "master_email", "", "E-Mail")
+	addMaster.MarkFlagRequired("mysql_address")
+	addMaster.MarkFlagRequired("mysql_user")
+
 	userSignUp.Flags().StringVar(&id, "id", "", "ID")
 	userSignUp.Flags().Int64Var(&groupID, "group_id", 0, "Group ID")
 	userSignUp.Flags().StringVar(&authentication, "authentication", "", "Authentication (admin/user)")
@@ -315,5 +405,5 @@ func ReadyUserCmd() {
 	userList.Flags().StringVar(&name, "name", "", "Name")
 	userList.Flags().StringVar(&email, "email", "", "E-Mail")
 
-	userCmd.AddCommand(userSignUp, userUpdate, userUnregister, userList)
+	userCmd.AddCommand(addMaster, userSignUp, userUpdate, userUnregister, userList)
 }
