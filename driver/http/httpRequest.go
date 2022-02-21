@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -20,6 +21,8 @@ func DoHTTPRequest(query string) ([]byte, *errors.HccError) {
 	timeout = time.Duration(config.Piccolo.RequestTimeoutMs)
 	url += config.Piccolo.ServerAddress + ":" + strconv.Itoa(int(config.Piccolo.ServerPort))
 	url += "/graphql?query=" + queryURLEncoder(query)
+
+	fmt.Println(query)
 
 	client := &http.Client{Timeout: timeout * time.Millisecond}
 	req, err := http.NewRequest("GET", url, nil)
