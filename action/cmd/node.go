@@ -632,18 +632,19 @@ func ReadyNodeCmd() {
 	nodeCmd.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
 	nodeCmd.MarkFlagRequired("uuid")
 
-	nodeOn.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
-	nodeOn.MarkFlagRequired("uuid")
-
-	nodeOff.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
-	nodeOff.MarkFlagRequired("uuid")
-
-	nodeRestart.Flags().StringVar(&nodeUUID, "uuid", "", "UUID of node")
-	nodeRestart.MarkFlagRequired("uuid")
-
+	nodeCreate.Flags().StringVar(&nodeName, "node_name", "", "Name of the node")
 	nodeCreate.Flags().StringVar(&bmcIP, "bmc_ip", "", "IP address of BMC [x.x.x.x/x]")
+	nodeCreate.Flags().IntVar(&nicSpeedMbps, "nic_speed_mbps", 0, "Speed of the NIC (Mbps)")
+	nodeCreate.Flags().StringVar(&nicDetail, "nic_detail_data", "", "Detail data of the NIC")
+	nodeCreate.Flags().StringVar(&ipmiUserID, "ipmi_user_id", "", "ID of the IPMI user")
+	nodeCreate.Flags().StringVar(&ipmiUserPassword, "ipmi_user_password", "", "Password of the IPMI user")
 	nodeCreate.Flags().StringVar(&desc, "description", "", "Description")
+	nodeCreate.MarkFlagRequired("node_name")
 	nodeCreate.MarkFlagRequired("bmc_ip")
+	nodeCreate.MarkFlagRequired("nic_speed_mbps")
+	nodeCreate.MarkFlagRequired("nic_detail_data")
+	nodeCreate.MarkFlagRequired("ipmi_user_id")
+	nodeCreate.MarkFlagRequired("ipmi_user_password")
 	nodeCreate.MarkFlagRequired("description")
 
 	nodeUpdate.Flags().StringVar(&nodeUUID, "uuid", "", "Node UUID")
